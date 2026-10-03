@@ -89,7 +89,7 @@ download the `.apk` and install it on your device. you may need to toggle **"Ins
 
 ## Requirements
 
-- Android 8.0+ (API 26)
+- Android 9.0+ (API 28)
 - a Spotify account (free or premium)
 - Google Chrome / WebView (comes with your phone)
 
@@ -107,7 +107,7 @@ want the full fingerprint treatment? flip the mode in **Settings → Connection 
 
 ### The Certificate Thing
 
-Spotilol generates a local CA cert so Spotify doesn't know you're in a WebView. it lives on your device, stays on your device.
+Spotilol generates a local CA cert to rewrite request headers; this does not guarantee that Spotify cannot detect the WebView. it lives on your device, stays on your device.
 
 1. open Spotilol in proxy mode — you'll see the **"Certificate Required"** screen
 2. tap **"Export .pem"** to save it to your Downloads
@@ -151,3 +151,6 @@ contributions are welcome. open issues, throw PRs, suggest stuff — free for al
 **deviato** reverse-engineered the original Spotifuck. **lyssadev** ported the core logic from smali to Kotlin and maintains this project.
 
 all rights reserved — lyssadev & deviato.
+## Security hardening
+
+The player uses an origin-scoped main-frame bridge, parsed HTTPS allowlists, bounded native requests, restricted DRM permissions, trusted media-controller checks, and fail-closed encrypted profile/proxy storage. The local proxy validates HTTP framing and CONNECT destinations; user-installed CA trust is scoped to supported domains. Media queries are JSON-quoted, download IDs validated, and local diagnostics redact recognized credentials. API 28/WebView capability checks and a linear JavaScript scanner improve compatibility and startup behavior. Firebase Analytics, Crashlytics, Performance and existing event collection remain unchanged. See [security review](docs/security-review.md) for details, validation and limitations.
