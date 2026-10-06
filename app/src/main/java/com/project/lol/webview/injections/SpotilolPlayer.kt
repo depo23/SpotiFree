@@ -158,6 +158,13 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full.spl-episode #spl-shuffle,#spotilolPlayerControls.spl-full.spl-episode #spl-repeat{display:none!important}',
                         '#spotilolPlayerControls.spl-full .spl-transport .spl-ep-only svg{width:28px;height:28px}',
                         '#spotilolPlayerControls.spl-full .spl-speed span{font-size:13px;font-weight:700;color:#fff;min-width:28px;text-align:center}',
+                        '#spotilolPlayerControls #spl-speed-sheet{display:none}',
+                        '#spotilolPlayerControls.spl-full #spl-speed-sheet.spl-open{display:flex;position:absolute;inset:0;z-index:5;align-items:flex-end;background:rgba(0,0,0,.55)}',
+                        '#spotilolPlayerControls .spl-sheet-card{width:100%;box-sizing:border-box;background:#282828;border-radius:16px 16px 0 0;padding:18px 18px 28px}',
+                        '#spotilolPlayerControls .spl-sheet-title{font-size:15px;font-weight:700;margin-bottom:14px}',
+                        '#spotilolPlayerControls .spl-sheet-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}',
+                        '#spotilolPlayerControls .spl-speed-opt{background:rgba(255,255,255,.08);border:0;border-radius:20px;color:#fff;font:600 14px/1 inherit;padding:12px 0;cursor:pointer}',
+                        '#spotilolPlayerControls .spl-speed-opt.spl-on{background:var(--spl-accent,#1db954);color:#000}',
                         '@media(orientation:landscape){',
                         '#spotilolPlayerControls.spl-full{display:grid!important;grid-template-columns:auto 1fr;grid-template-rows:56px 1fr auto auto auto;grid-template-areas:"head head" "cover info" "cover seek" "cover transport" "cover actions";column-gap:36px;padding-bottom:16px!important}',
                         '#spotilolPlayerControls.spl-full .spl-np-head{grid-area:head;height:56px}',
@@ -353,35 +360,81 @@ object SpotilolPlayer {
                 document.getElementById('spl-liked').onclick=function(){actAddToFav()};
                 document.getElementById('spl-seekb').onclick=function(){var b=document.querySelector('button[data-testid="control-button-seek-back-15"]');if(b)b.click()};
                 document.getElementById('spl-seekf').onclick=function(){var b=document.querySelector('button[data-testid="control-button-seek-forward-15"]');if(b)b.click()};
-                // Speed: open Spotify's speed menu and pick the next speed. The menu's
-                // markup is unverified, so items are matched by their "1.5x"-style text;
-                // if none are found the menu is closed again and its DOM is logged.
-                document.getElementById('spl-speed').onclick=function(){
-                    var sb=document.querySelector('button[data-testid="control-button-playback-speed"]');
-                    if(!sb) return;
-                    var cur=parseFloat(((sb.getAttribute('aria-label')||'').match(/([\d.]+)\s*\u00d7/)||[])[1])||1;
+                // Speed picker. Spotify's speed menu closes on any outside tap, so it is
+                // opened once to read the available speeds, closed, and our own sheet is
+                // shown; picking a speed reopens Spotify's menu and clicks that item.
+                // Items are matched by their "1.5x"-style text.
+                function splSpeedBtn(){ return document.querySelector('button[data-testid="control-button-playback-speed"]'); }
+                function splSpeedItems(){
+                    return [].slice.call(document.querySelectorAll('#context-menu [role^="menuitem"], [role="menu"] [role^="menuitem"], [data-tippy-root] button'))
+                        .map(function(b){var m=(b.textContent||'').trim().match(/^([\d.]+)\s*[\u00d7x]$/);return m?{b:b,v:parseFloat(m[1])}:null;})
+                        .filter(Boolean).sort(function(a,b){return a.v-b.v;});
+                }
+                function splCloseSpeedMenu(){
+                    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+                    setTimeout(function(){ if(splSpeedItems().length){ var sb=splSpeedBtn(); if(sb) sb.click(); } },120);
+                }
+                function splWithSpeedMenu(cb){
+                    var sb=splSpeedBtn();
+                    if(!sb){ cb(null); return; }
+                    var items=splSpeedItems();
+                    if(items.length){ cb(items); return; }
                     sb.click();
                     var tries=0;
                     var iv=setInterval(function(){
                         tries++;
-                        var items=[].slice.call(document.querySelectorAll('#context-menu [role^="menuitem"], [role="menu"] [role^="menuitem"], [data-tippy-root] button'))
-                            .map(function(b){var m=(b.textContent||'').trim().match(/^([\d.]+)\s*[\u00d7x]$/);return m?{b:b,v:parseFloat(m[1])}:null;})
-                            .filter(Boolean).sort(function(a,b){return a.v-b.v;});
-                        if(items.length){
-                            clearInterval(iv);
-                            var next=items.filter(function(it){return it.v>cur+0.001;})[0]||items[0];
-                            next.b.click();
-                            return;
-                        }
+                        items=splSpeedItems();
+                        if(items.length){ clearInterval(iv); cb(items); return; }
                         if(tries>=15){
                             clearInterval(iv);
                             try{
                                 var menu=document.querySelector('#context-menu,[role="menu"],[data-tippy-root]');
                                 AndBridge.dbg('w','[probe] speed-menu not matched: '+(menu?menu.outerHTML.slice(0,1400):'no menu element'));
                             }catch(e){}
-                            document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+                            splCloseSpeedMenu();
+                            cb(null);
                         }
                     },100);
+                }
+                function splCurSpeed(){
+                    var sb=splSpeedBtn();
+                    return parseFloat(((sb&&sb.getAttribute('aria-label')||'').match(/([\d.]+)\s*\u00d7/)||[])[1])||1;
+                }
+                var speedSheet=document.createElement('div');
+                speedSheet.id='spl-speed-sheet';
+                speedSheet.innerHTML='<div class="spl-sheet-card"><div class="spl-sheet-title">Playback speed</div><div class="spl-sheet-opts" id="spl-speed-opts"></div></div>';
+                pl.appendChild(speedSheet);
+                function splHideSpeedSheet(){ speedSheet.classList.remove('spl-open'); }
+                window.splHideSpeedSheet=splHideSpeedSheet;
+                speedSheet.addEventListener('click',function(e){ if(e.target===speedSheet) splHideSpeedSheet(); });
+                function splShowSpeedSheet(vals){
+                    var cur=splCurSpeed();
+                    var box=document.getElementById('spl-speed-opts');
+                    box.innerHTML='';
+                    vals.forEach(function(v){
+                        var b=document.createElement('button');
+                        b.className='spl-speed-opt'+(Math.abs(v-cur)<0.001?' spl-on':'');
+                        b.textContent=v+'\u00d7';
+                        b.onclick=function(){
+                            splHideSpeedSheet();
+                            if(Math.abs(v-splCurSpeed())<0.001) return;
+                            splWithSpeedMenu(function(items){
+                                if(!items) return;
+                                var it=items.filter(function(x){return Math.abs(x.v-v)<0.001;})[0];
+                                if(it) it.b.click(); else splCloseSpeedMenu();
+                            });
+                        };
+                        box.appendChild(b);
+                    });
+                    speedSheet.classList.add('spl-open');
+                }
+                document.getElementById('spl-speed').onclick=function(){
+                    splWithSpeedMenu(function(items){
+                        if(!items) return;
+                        var vals=items.map(function(x){return x.v;});
+                        splCloseSpeedMenu();
+                        splShowSpeedSheet(vals);
+                    });
                 };
                 document.getElementById('spl-download').onclick=function(){splDoDownload()};
                 document.getElementById('spl-dl-cancel').onclick=function(){ try{ AndBridge.cancelDownload(); }catch(e){} };
@@ -422,6 +475,7 @@ object SpotilolPlayer {
                 // window.__splFullPlayer: true = mini bar / full screen ("fullscreen" mode),
                 // false = mini bar / floating card ("spotilol" mode).
                 function splApplyMode(m){
+                    if(m&&window.splHideSpeedSheet) window.splHideSpeedSheet();
                     var fs=!!window.__splFullPlayer;
                     var wasFull=pl.classList.contains('spl-full');
                     splMini=m;
