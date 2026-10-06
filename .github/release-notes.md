@@ -1,11 +1,15 @@
-# Spotilol - v1.1.8.3 (test build, media probe)
+# Spotilol - v1.1.8.4 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.4 (Full Screen Player)
+- **Sharp cover art**: uses the 640px cover instead of the blurry 64px thumbnail (also sent upstream in lyssadev/Spotilol#110).
+- **Podcast controls**: when an episode plays, shuffle/repeat become **skip back / forward 15s**, a **speed** button appears (tap for the next speed), and the heart becomes **Add to Your Episodes** (+ / ✓).
 
 ## Media probe
 Settings now has a visible **Debug** section:
 1. Settings → Player Mode → **Full Screen Player**, then turn on **Collect Debug**. The probe starts right away.
-2. Play a music video, a video podcast and an audio podcast for about 10s each. For each one, also expand the full-screen player for a few seconds, then collapse it. For the video ones, also open and close Spotify's now-playing panel.
+2. Play a **video podcast** for about 20s (one confirmed to have video in the Spotify app), plus a music video if your account has them. Also tap the speed button once on an episode. For each one, also expand the full-screen player for a few seconds, then collapse it. For the video ones, also open and close Spotify's now-playing panel.
 3. Tap **Copy Probe Log** and paste the result.
 
 Used to design video and podcast support in the full-screen player.
