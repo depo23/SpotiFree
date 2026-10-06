@@ -159,6 +159,7 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full .spl-transport .spl-ep-only svg{width:28px;height:28px}',
                         '#spotilolPlayerControls.spl-full .spl-speed span{font-size:13px;font-weight:700;color:#fff;min-width:28px;text-align:center}',
                         '#spotilolPlayerControls #spl-speed-sheet{display:none}',
+                        'html.spl-hide-ctx #context-menu,html.spl-hide-ctx [data-tippy-root],html.spl-hide-ctx [role="menu"]{opacity:0!important}',
                         '#spotilolPlayerControls.spl-full #spl-speed-sheet.spl-open{display:flex;position:absolute;inset:0;z-index:5;align-items:flex-end;background:rgba(0,0,0,.55)}',
                         '#spotilolPlayerControls .spl-sheet-card{width:100%;box-sizing:border-box;background:#282828;border-radius:16px 16px 0 0;padding:18px 18px 28px}',
                         '#spotilolPlayerControls .spl-sheet-title{font-size:15px;font-weight:700;margin-bottom:14px}',
@@ -365,20 +366,36 @@ object SpotilolPlayer {
                 // shown; picking a speed reopens Spotify's menu and clicks that item.
                 // Items are matched by their "1.5x"-style text.
                 function splSpeedBtn(){ return document.querySelector('button[data-testid="control-button-playback-speed"]'); }
+                // Only items that are actually laid out: Spotify also keeps hidden
+                // fine-grained (0.1 step) items in the DOM, which the native list doesn't show.
                 function splSpeedItems(){
+                    var seen={};
                     return [].slice.call(document.querySelectorAll('#context-menu [role^="menuitem"], [role="menu"] [role^="menuitem"], [data-tippy-root] button'))
-                        .map(function(b){var m=(b.textContent||'').trim().match(/^([\d.]+)\s*[\u00d7x]$/);return m?{b:b,v:parseFloat(m[1])}:null;})
+                        .map(function(b){
+                            var m=(b.textContent||'').trim().match(/^([\d.]+)\s*[\u00d7x]$/);
+                            if(!m) return null;
+                            var r=b.getBoundingClientRect();
+                            if(r.width===0||r.height===0) return null;
+                            var v=parseFloat(m[1]);
+                            if(seen[v]) return null;
+                            seen[v]=1;
+                            return {b:b,v:v};
+                        })
                         .filter(Boolean).sort(function(a,b){return a.v-b.v;});
                 }
+                // Spotify's menu is opened programmatically; keep it invisible meanwhile.
+                function splHideNativeMenu(on){ document.documentElement.classList.toggle('spl-hide-ctx',!!on); }
                 function splCloseSpeedMenu(){
                     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
                     setTimeout(function(){ if(splSpeedItems().length){ var sb=splSpeedBtn(); if(sb) sb.click(); } },120);
+                    setTimeout(function(){ splHideNativeMenu(false); },300);
                 }
                 function splWithSpeedMenu(cb){
                     var sb=splSpeedBtn();
                     if(!sb){ cb(null); return; }
                     var items=splSpeedItems();
                     if(items.length){ cb(items); return; }
+                    splHideNativeMenu(true);
                     sb.click();
                     var tries=0;
                     var iv=setInterval(function(){
@@ -421,19 +438,24 @@ object SpotilolPlayer {
                             splWithSpeedMenu(function(items){
                                 if(!items) return;
                                 var it=items.filter(function(x){return Math.abs(x.v-v)<0.001;})[0];
-                                if(it) it.b.click(); else splCloseSpeedMenu();
+                                if(it){ it.b.click(); setTimeout(function(){ splHideNativeMenu(false); },300); }
+                                else splCloseSpeedMenu();
                             });
                         };
                         box.appendChild(b);
                     });
                     speedSheet.classList.add('spl-open');
                 }
+                // The list of speeds doesn't change, so it is read from Spotify's menu once.
+                var splSpeedVals=null;
                 document.getElementById('spl-speed').onclick=function(){
+                    if(splSpeedVals){ splShowSpeedSheet(splSpeedVals); return; }
                     splWithSpeedMenu(function(items){
                         if(!items) return;
-                        var vals=items.map(function(x){return x.v;});
+                        splSpeedVals=items.map(function(x){return x.v;});
+                        try{ AndBridge.dbg('i','[probe] speed-menu values '+splSpeedVals.join(',')); }catch(e){}
                         splCloseSpeedMenu();
-                        splShowSpeedSheet(vals);
+                        splShowSpeedSheet(splSpeedVals);
                     });
                 };
                 document.getElementById('spl-download').onclick=function(){splDoDownload()};
