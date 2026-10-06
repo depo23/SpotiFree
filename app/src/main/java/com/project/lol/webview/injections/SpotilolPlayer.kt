@@ -473,7 +473,13 @@ object SpotilolPlayer {
 
                         var npb=document.querySelector('[data-testid="now-playing-widget"]');
                         var imgEl=npb?npb.querySelector('img[data-testid="cover-art-image"]'):null;
-                        if(ci&&imgEl&&imgEl.src&&ci.src!==imgEl.src){ ci.src=imgEl.src; splTint(imgEl.src); }
+                        if(ci&&imgEl&&imgEl.src&&ci.getAttribute('data-src')!==imgEl.src){
+                            var lo=imgEl.src;
+                            ci.setAttribute('data-src',lo);
+                            ci.onerror=function(){ ci.onerror=null; if(ci.getAttribute('data-src')===lo) ci.src=lo; };
+                            ci.src=splHiRes(imgEl);
+                            splTint(lo);
+                        }
 
                         var trackEl=document.querySelector('a[data-testid=context-item-link]');
                         if(tk&&trackEl&&trackEl.textContent&&tk.textContent!==trackEl.textContent) tk.textContent=trackEl.textContent;
@@ -596,6 +602,19 @@ object SpotilolPlayer {
                             }catch(e){}
                         };
                         im.src=src;
+                    }
+                    // The now-playing widget only shows a 64px cover. Use the largest srcset
+                    // entry, else swap Spotify's 64/300px image-size prefix for 640px.
+                    // onerror above falls back to the original src.
+                    function splHiRes(im){
+                        var best=im.src,bw=0;
+                        (im.getAttribute('srcset')||'').split(',').forEach(function(p){
+                            var m=p.trim().split(/\s+/);var w=parseInt(m[1],10)||0;
+                            if(m[0]&&w>bw){bw=w;best=m[0];}
+                        });
+                        if(bw>=600) return best;
+                        return best.replace(/ab67616d0000(4851|1e02)/,'ab67616d0000b273')
+                                   .replace(/ab6765630000f68d|ab67656300005f1f/,'ab6765630000ba8a');
                     }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);
