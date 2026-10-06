@@ -379,7 +379,8 @@ class SpotifyWebViewClient(
             append(QueueAutoClose.CONTENT)
             append(LibraryAutoClose.CONTENT)
             append(PlaylistSort.CONTENT)
-            if (playerMode == "spotilol") {
+            if (playerMode == "spotilol" || playerMode == "fullscreen") {
+                append("window.__splFullPlayer=${playerMode == "fullscreen"};\n")
                 append(SpotilolPlayer.CONTENT)
             }
         }
@@ -460,6 +461,7 @@ class SpotifyWebViewClient(
         if (mode == "original") {
             val js = """
                 (function(){
+                    if(window.splSetMini) splSetMini(true);
                     var pl=document.getElementById('spotilolPlayerControls');
                     if(pl) pl.style.display='none';
                     var s=document.createElement('style');
@@ -470,6 +472,7 @@ class SpotifyWebViewClient(
             """.trimIndent()
             view.evaluateJavascript(js, null)
         } else {
+            view.evaluateJavascript("window.__splFullPlayer=${mode == "fullscreen"};", null)
             view.evaluateJavascript("if(typeof initSpotilolPlayer!=='function'){" + SpotilolPlayer.CONTENT + "}", null)
             val js = """
                 (function(){
@@ -478,7 +481,7 @@ class SpotifyWebViewClient(
                     var npb=document.querySelector('aside[data-testid="now-playing-bar"]');
                     if(npb) npb.style.display='none';
                     var pl=document.getElementById('spotilolPlayerControls');
-                    if(pl){pl.style.display='flex';}
+                    if(pl){pl.style.display='flex';if(window.splRefreshMode)splRefreshMode();}
                     else if(typeof initSpotilolPlayer==='function'){initSpotilolPlayer();}
                 })();
             """.trimIndent()

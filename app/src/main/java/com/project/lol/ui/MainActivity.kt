@@ -267,6 +267,7 @@ class MainActivity : ComponentActivity() {
             val pipFilling = pipVideoActive.value
 
             var settingsDialogOpen by remember { mutableStateOf(false) }
+            var playerExpanded by remember { mutableStateOf(false) }
             var showMiniMenu by remember { mutableStateOf(false) }
             var showChangelog by rememberSaveable { mutableStateOf(changelogOnUpdate) }
             val versionName = remember {
@@ -280,9 +281,12 @@ class MainActivity : ComponentActivity() {
                 AccentTheme.resolveColor(this@MainActivity)
             }
 
-            BackHandler(enabled = settingsDialogOpen || webView?.canGoBack() == true) {
+            BackHandler(enabled = settingsDialogOpen || playerExpanded || webView?.canGoBack() == true) {
                 if (settingsDialogOpen) {
                     settingsDialogOpen = false
+                } else if (playerExpanded) {
+                    playerExpanded = false
+                    webView?.evaluateJavascript("window.splSetMini&&window.splSetMini(true)", null)
                 } else {
                     webView?.goBack()
                 }
@@ -426,6 +430,8 @@ class MainActivity : ComponentActivity() {
                                     sleepTimerInputText.value = ""
                                 }
                             }
+
+                            bridge.onPlayerExpanded = { playerExpanded = it }
 
                             bridge.onEnterPipRequest = {
                                 enterPipMode()

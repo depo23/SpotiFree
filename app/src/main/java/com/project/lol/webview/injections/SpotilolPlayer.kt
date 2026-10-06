@@ -41,6 +41,11 @@ object SpotilolPlayer {
                 var pl=document.createElement('div');
                 pl.id='spotilolPlayerControls';
                 pl.innerHTML=''
+                    +'<div class="spl-np-head">'
+                    +'<button class="spl-btn" id="spl-collapse" aria-label="Collapse player"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M2.793 8.043a1 1 0 0 1 1.414 0L12 15.836l7.793-7.793a1 1 0 1 1 1.414 1.414L12 18.664 2.793 9.457a1 1 0 0 1 0-1.414z"/></svg></button>'
+                    +'<div class="spl-np-title">Now playing</div>'
+                    +'<span class="spl-np-spacer"></span>'
+                    +'</div>'
                     +'<div class="spl-top">'
                     +'<div class="spl-cover"><img id="spl-cover-img" src="" alt=""></div>'
                     +'<div class="spl-info"><div class="spl-track" id="spl-track">No track</div>'
@@ -104,6 +109,64 @@ object SpotilolPlayer {
                     var t=document.head||document.documentElement;if(t)t.appendChild(sst);
                 }
 
+                if(!document.getElementById('spl-full-css')){
+                    var fst=document.createElement('style');fst.id='spl-full-css';
+                    fst.textContent=[
+                        '#spotilolPlayerControls .spl-np-head{display:none}',
+                        '#spotilolPlayerControls.spl-fsmode.spl-mini{background:var(--spl-np-mini,rgba(24,24,24,.95))!important;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s,padding .3s,background-color .4s}',
+                        '#spotilolPlayerControls.spl-fsmode.spl-mini .spl-cover img{width:44px!important;height:44px!important;border-radius:6px!important;-webkit-mask-image:none!important;mask-image:none!important}',
+                        '#spotilolPlayerControls.spl-fsmode.spl-mini .spl-edgebar{left:10px;right:10px;bottom:4px;height:2px;border-radius:1px;background:rgba(255,255,255,.2)}',
+                        '#spotilolPlayerControls.spl-fsmode.spl-mini .spl-edgebar .spl-fill{background:#fff}',
+                        '#spotilolPlayerControls.spl-full{position:fixed!important;top:0!important;bottom:0!important;left:0!important;right:0!important;max-width:none!important;margin:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;padding:0 24px 28px!important;overflow:hidden!important;background:linear-gradient(180deg,var(--spl-np-color,#404040) 0%,#121212 78%)!important;font-family:var(--encore-body-font-stack,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif);animation:splNpIn .32s cubic-bezier(.2,.8,.2,1)}',
+                        '@keyframes splNpIn{from{transform:translateY(100%)}to{transform:none}}',
+                        '#spotilolPlayerControls.spl-full .spl-np-head{display:flex;align-items:center;justify-content:space-between;order:0;height:64px;flex-shrink:0;margin:0 -12px}',
+                        '#spotilolPlayerControls.spl-full .spl-np-head .spl-btn{color:#fff}',
+                        '#spotilolPlayerControls.spl-full .spl-np-head svg{width:24px;height:24px}',
+                        '#spotilolPlayerControls.spl-full .spl-np-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff}',
+                        '#spotilolPlayerControls.spl-full .spl-np-spacer{width:44px}',
+                        '#spotilolPlayerControls.spl-full .spl-top{order:1;flex:1 1 auto;flex-wrap:wrap;align-content:center;row-gap:28px;column-gap:8px;margin:0!important;min-height:0}',
+                        '#spotilolPlayerControls.spl-full .spl-cover{flex:0 0 100%;display:flex;justify-content:center}',
+                        '#spotilolPlayerControls.spl-full .spl-cover img{width:max(140px,min(calc(100vw - 48px),calc(100vh - 400px)))!important;height:auto!important;aspect-ratio:1/1;border-radius:8px!important;box-shadow:0 12px 40px rgba(0,0,0,.55);-webkit-mask-image:none!important;mask-image:none!important}',
+                        '#spotilolPlayerControls.spl-full .spl-track{font-size:22px!important;font-weight:700;line-height:1.25}',
+                        '#spotilolPlayerControls.spl-full .spl-artist{font-size:15px!important;color:rgba(255,255,255,.7);margin-top:2px}',
+                        '#spotilolPlayerControls.spl-full .spl-top .spl-liked-btn{margin:0 -10px 0 0}',
+                        '#spotilolPlayerControls.spl-full .spl-top .spl-liked-btn svg{width:24px;height:24px}',
+                        '#spotilolPlayerControls.spl-full .spl-bottom{order:2;flex-wrap:wrap;justify-content:space-between;gap:0;margin:20px 0 6px!important;max-height:none!important}',
+                        '#spotilolPlayerControls.spl-full .spl-bar-wrap{flex:0 0 100%;height:20px;order:0}',
+                        '#spotilolPlayerControls.spl-full .spl-bar{background:rgba(255,255,255,.25)}',
+                        '#spotilolPlayerControls.spl-full .spl-fill{background:#fff}',
+                        '#spotilolPlayerControls.spl-full .spl-handle{opacity:1}',
+                        '#spotilolPlayerControls.spl-full .spl-time{order:1;font-size:11px;color:rgba(255,255,255,.7);min-width:0;margin-top:2px}',
+                        '#spotilolPlayerControls.spl-full .spl-transport{order:3;justify-content:space-between;margin:4px -8px 0;max-height:none!important}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-btn{color:#fff}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-btn.spl-active{color:var(--spl-accent,#1db954)}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-btn-sm svg{width:24px;height:24px}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-btn:not(.spl-btn-sm):not(.spl-play) svg{width:32px;height:32px}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-play{background:#fff!important;color:#000!important;min-width:68px;min-height:68px;padding:0!important}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-play svg{width:26px;height:26px}',
+                        '#spotilolPlayerControls.spl-full .spl-row2{order:4;margin:20px -6px 0!important;max-height:none!important}',
+                        '#spotilolPlayerControls.spl-full .spl-actions-left{flex:1;justify-content:space-between}',
+                        '#spotilolPlayerControls.spl-full .spl-row2 .spl-btn svg{width:20px;height:20px}',
+                        '#spotilolPlayerControls.spl-full .spl-vol-bar{width:96px}',
+                        '#spotilolPlayerControls.spl-full .spl-vol-fill{background:#fff}',
+                        '#spotilolPlayerControls.spl-full .spl-edgebar,#spotilolPlayerControls.spl-full .spl-mini-transport{display:none}',
+                        '@media(orientation:landscape){',
+                        '#spotilolPlayerControls.spl-full{display:grid!important;grid-template-columns:auto 1fr;grid-template-rows:56px 1fr auto auto auto;grid-template-areas:"head head" "cover info" "cover seek" "cover transport" "cover actions";column-gap:36px;padding-bottom:16px!important}',
+                        '#spotilolPlayerControls.spl-full .spl-np-head{grid-area:head;height:56px}',
+                        '#spotilolPlayerControls.spl-full .spl-top{display:contents}',
+                        '#spotilolPlayerControls.spl-full .spl-cover{grid-area:cover;align-self:center}',
+                        '#spotilolPlayerControls.spl-full .spl-cover img{width:min(calc(100vh - 96px),40vw)!important}',
+                        '#spotilolPlayerControls.spl-full .spl-info{grid-area:info;align-self:end;padding-right:48px}',
+                        '#spotilolPlayerControls.spl-full .spl-top .spl-liked-btn{grid-area:info;justify-self:end;align-self:end}',
+                        '#spotilolPlayerControls.spl-full .spl-bottom{grid-area:seek;margin:12px 0 0!important}',
+                        '#spotilolPlayerControls.spl-full .spl-transport{grid-area:transport}',
+                        '#spotilolPlayerControls.spl-full .spl-transport .spl-play{min-width:56px;min-height:56px}',
+                        '#spotilolPlayerControls.spl-full .spl-row2{grid-area:actions;margin-top:8px!important}',
+                        '}'
+                    ].join('');
+                    var ft=document.head||document.documentElement;if(ft)ft.appendChild(fst);
+                }
+
                 document.getElementById('spl-prev').onclick=function(){actSkipBack()};
                 document.getElementById('spl-next').onclick=function(){actSkipForward()};
                 document.getElementById('spl-play').onclick=function(){var st=window.splIsPlaying();actPlayPause(st===null?null:!st)};
@@ -112,8 +175,8 @@ object SpotilolPlayer {
                 document.getElementById('spl-play-mini').onclick=function(){var st=window.splIsPlaying();actPlayPause(st===null?null:!st)};
                 document.getElementById('spl-shuffle').onclick=function(){var sb=splFindShuffle();if(sb&&sb.getAttribute('aria-disabled')!=='true')sb.click()};
                 document.getElementById('spl-repeat').onclick=function(){actRepeat()};
-                document.getElementById('spl-lyrics').onclick=function(){if(this.classList.contains('spl-disabled'))return;if(typeof closeNowPlay==='function') closeNowPlay();var lb=document.querySelector('button[data-testid=lyrics-button]');if(lb&&!lb.disabled)lb.click()};
-                document.getElementById('spl-queue').onclick=function(){var qb=document.querySelector('button[data-testid=control-button-queue]');if(qb)qb.click()};
+                document.getElementById('spl-lyrics').onclick=function(){if(this.classList.contains('spl-disabled'))return;splCollapseFull();if(typeof closeNowPlay==='function') closeNowPlay();var lb=document.querySelector('button[data-testid=lyrics-button]');if(lb&&!lb.disabled)lb.click()};
+                document.getElementById('spl-queue').onclick=function(){splCollapseFull();var qb=document.querySelector('button[data-testid=control-button-queue]');if(qb)qb.click()};
                 document.getElementById('spl-vol-btn').onclick=function(){var vb=document.querySelector('button[data-testid=volume-bar-toggle-mute-button]');if(vb)vb.click()};
                 (function(){
                     var vBar=document.getElementById('spl-vol-bar');
@@ -139,7 +202,8 @@ object SpotilolPlayer {
                     document.addEventListener('touchend',function(){vDrag=false;});
                     document.addEventListener('touchcancel',function(){vDrag=false;});
                 })();
-                document.getElementById('spl-nptoggle').onclick=function(){clickNP()};
+                document.getElementById('spl-nptoggle').onclick=function(){splCollapseFull();clickNP()};
+                document.getElementById('spl-collapse').onclick=function(){splSetMini(true)};
                 document.getElementById('spl-timer').onclick=function(){AndBridge.openTimerDialog()};
                 document.getElementById('spl-pip').onclick=function(){
                     var pv=document.querySelector('.VideoPlayer__container video');
@@ -288,12 +352,14 @@ object SpotilolPlayer {
                 splArtist.style.cursor='pointer';
                 splTrack.onclick=function(){
                     if(pl.classList.contains('spl-mini'))return;
+                    splCollapseFull();
                     if(typeof closeNowPlay==='function') closeNowPlay();
                     var rl=document.querySelector('a[data-testid=context-item-link]');
                     if(rl){rl.click();}
                 };
                 splArtist.onclick=function(){
                     if(pl.classList.contains('spl-mini'))return;
+                    splCollapseFull();
                     if(typeof closeNowPlay==='function') closeNowPlay();
                     var al=document.querySelector('a[data-testid=context-item-info-artist]');
                     if(!al) al=document.querySelector('a[data-testid=context-item-info-show]');
@@ -311,13 +377,44 @@ object SpotilolPlayer {
                 document.addEventListener('mouseup',function(){dragging=false});
                 document.addEventListener('touchend',function(){dragging=false});
 
-                var splMini=false;
+                var splMini=false,splClosing=false;
                 var splDrag=null,splSuppressClick=false,splLastDragEnd=0;
-                function splSetMini(m){
-                    splMini=!!m;
+                // window.__splFullPlayer: true = mini bar / full screen ("fullscreen" mode),
+                // false = mini bar / floating card ("spotilol" mode).
+                function splApplyMode(m){
+                    var fs=!!window.__splFullPlayer;
+                    var wasFull=pl.classList.contains('spl-full');
+                    splMini=m;
                     window.splMiniPref=splMini;
+                    pl.classList.toggle('spl-fsmode',fs);
                     pl.classList.toggle('spl-mini',splMini);
+                    pl.classList.toggle('spl-full',fs&&!splMini);
+                    var isFull=fs&&!splMini;
+                    if(isFull!==wasFull){ try{ AndBridge.playerExpanded(isFull); }catch(e){} }
                 }
+                function splCollapseFull(){ if(pl.classList.contains('spl-full')) splSetMini(true); }
+                window.splRefreshMode=function(){ splApplyMode(window.__splFullPlayer?true:splMini); };
+                // Collapsing slides the full-screen player down before switching to the mini bar.
+                function splSetMini(m){
+                    m=!!m;
+                    if(splClosing) return;
+                    if(m&&pl.classList.contains('spl-full')){
+                        splClosing=true;
+                        pl.style.transition='transform .26s cubic-bezier(.4,0,1,1)';
+                        pl.style.transform='translateY(100%)';
+                        setTimeout(function(){
+                            pl.style.transition='none';
+                            pl.style.transform='';
+                            splApplyMode(true);
+                            void pl.offsetHeight;
+                            pl.style.transition='';
+                            splClosing=false;
+                        },260);
+                        return;
+                    }
+                    splApplyMode(m);
+                }
+                window.splSetMini=splSetMini;
                 function splDragStart(x,y){
                     splDrag={sx:x,sy:y,moving:false,dy:0,mini:splMini};
                     pl.style.transition='none';
@@ -337,15 +434,16 @@ object SpotilolPlayer {
                     if(!splDrag)return;
                     var d=splDrag;
                     splDrag=null;
+                    var collapse=d.moving&&!d.mini&&d.dy>70&&pl.classList.contains('spl-full');
                     pl.style.transition='';
-                    pl.style.transform='';
+                    if(!collapse) pl.style.transform='';
                     pl.style.opacity='';
                     if(d.moving){
                         splSuppressClick=true;
                         splLastDragEnd=Date.now();
                         setTimeout(function(){splSuppressClick=false;},100);
                         if(d.mini){if(d.dy<-70)splSetMini(false);}
-                        else{if(d.dy>70)splSetMini(true);}
+                        else if(collapse||d.dy>70) splSetMini(true);
                     }
                 }
                 pl.addEventListener('touchstart',function(e){if(e.target.closest('#spl-bar')||e.target.closest('#spl-edgebar')||e.target.closest('.spl-vol-bar'))return;var t=e.touches[0];splDragStart(t.clientX,t.clientY);},{passive:true});
@@ -375,7 +473,7 @@ object SpotilolPlayer {
 
                         var npb=document.querySelector('[data-testid="now-playing-widget"]');
                         var imgEl=npb?npb.querySelector('img[data-testid="cover-art-image"]'):null;
-                        if(ci&&imgEl&&imgEl.src&&ci.src!==imgEl.src) ci.src=imgEl.src;
+                        if(ci&&imgEl&&imgEl.src&&ci.src!==imgEl.src){ ci.src=imgEl.src; splTint(imgEl.src); }
 
                         var trackEl=document.querySelector('a[data-testid=context-item-link]');
                         if(tk&&trackEl&&trackEl.textContent&&tk.textContent!==trackEl.textContent) tk.textContent=trackEl.textContent;
@@ -473,6 +571,32 @@ object SpotilolPlayer {
                         if(ds&&durEl) ds.textContent=durEl.textContent;
                         splApplyEmpty();
                     };
+                    // Background tint from the cover art, like the Spotify app. Needs CORS on the
+                    // image; on failure the player keeps its default colors.
+                    function splTint(src){
+                        var im=new Image();
+                        im.crossOrigin='anonymous';
+                        im.onload=function(){
+                            try{
+                                var c=document.createElement('canvas');c.width=c.height=24;
+                                var x=c.getContext('2d');x.drawImage(im,0,0,24,24);
+                                var d=x.getImageData(0,0,24,24).data;
+                                var r=0,g=0,b=0,w=0;
+                                for(var i=0;i<d.length;i+=4){
+                                    var mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);
+                                    var k=(mx-mn)+8;
+                                    if(mx<24||mn>235) k=1;
+                                    r+=d[i]*k;g+=d[i+1]*k;b+=d[i+2]*k;w+=k;
+                                }
+                                r/=w;g/=w;b/=w;
+                                var top=Math.max(r,g,b,1),s=Math.min(1,150/top);
+                                var col=[r*s,g*s,b*s].map(Math.round);
+                                pl.style.setProperty('--spl-np-color','rgb('+col.join(',')+')');
+                                pl.style.setProperty('--spl-np-mini','rgb('+col.map(function(v){return Math.round(v*.55)}).join(',')+')');
+                            }catch(e){}
+                        };
+                        im.src=src;
+                    }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);
                         return Math.floor(t/60)+':'+(t%60<10?'0':'')+t%60;
@@ -483,7 +607,7 @@ object SpotilolPlayer {
                         if(timestamp-rafLastTime>100){ splUpdate(); rafLastTime=timestamp; }
                         requestAnimationFrame(rafUpdate);
                     }
-                    if(window.splMiniPref) splSetMini(true);
+                    splSetMini(window.__splFullPlayer?true:!!window.splMiniPref);
                     requestAnimationFrame(rafUpdate);
             };
             if(document.readyState==='complete') initSpotilolPlayer();

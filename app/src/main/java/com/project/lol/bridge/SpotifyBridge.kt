@@ -46,6 +46,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
     var onEnterPipVideoRequest: ((Int, Int) -> Unit)? = null
     var onDownloadTrack: ((String) -> Unit)? = null
     var onDownloadCollection: ((String) -> Unit)? = null
+    var onPlayerExpanded: ((Boolean) -> Unit)? = null
 
     @JavascriptInterface
     fun loginDetected() {
@@ -191,6 +192,15 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
         Logger.d(CALL, "openTimerDialog")
         activity.runOnUiThread {
             onTimerDialogRequest?.invoke()
+        }
+    }
+
+    @JavascriptInterface
+    fun playerExpanded(expanded: Boolean) {
+        val activity = activityRef.get() ?: return
+        Logger.v(CALL, "playerExpanded=$expanded")
+        activity.runOnUiThread {
+            onPlayerExpanded?.invoke(expanded)
         }
     }
 
