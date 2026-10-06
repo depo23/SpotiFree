@@ -821,7 +821,7 @@ object SpotilolPlayer {
                                 var txt=await r.text();
                                 var u=splCanvasUrlFrom(txt);
                                 clog(tid+' gql status='+r.status+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)));
-                                if(u||r.status===200) return u;
+                                if(u) return u;
                             }catch(e){ clog(tid+' gql error '+e); }
                         } else clog(tid+' no canvas gql hash seen; ops='+Object.keys(window.splOpHashes||{}).length);
                         try{
