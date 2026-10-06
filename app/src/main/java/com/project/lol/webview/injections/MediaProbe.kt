@@ -17,6 +17,8 @@ object MediaProbe {
             function snap(){
                 var s={};
                 s.url=location.pathname;
+                var spl=document.getElementById('spotilolPlayerControls');
+                s.player=(window.__splFullPlayer?'fullscreen':'other')+':'+(spl?(spl.className||'-')+(spl.style.display==='none'?' hidden':''):'none');
                 var rc=document.querySelector('#Desktop_PanelContainer_Id');
                 s.npv=rc&&rc.parentNode&&rc.parentNode.parentNode?String(rc.parentNode.parentNode.ariaHidden):'none';
                 s.videos=[].slice.call(document.querySelectorAll('video')).map(function(v){

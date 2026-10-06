@@ -4,8 +4,8 @@ Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/
 
 ## Media probe
 Settings now has a visible **Debug** section:
-1. Turn on **Collect Debug**. The probe starts right away.
-2. Play a music video, a video podcast and an audio podcast for about 10s each. For the video ones, also open and close Spotify's now-playing panel.
+1. Settings → Player Mode → **Full Screen Player**, then turn on **Collect Debug**. The probe starts right away.
+2. Play a music video, a video podcast and an audio podcast for about 10s each. For each one, also expand the full-screen player for a few seconds, then collapse it. For the video ones, also open and close Spotify's now-playing panel.
 3. Tap **Copy Probe Log** and paste the result.
 
 Used to design video and podcast support in the full-screen player.
