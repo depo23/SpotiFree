@@ -163,6 +163,14 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full .spl-transport .spl-ep-only svg{width:28px;height:28px}',
                         '#spotilolPlayerControls.spl-full .spl-speed span{font-size:13px;font-weight:700;color:#fff;min-width:28px;text-align:center}',
                         '#spotilolPlayerControls #spl-speed-sheet{display:none}',
+                        '#spotilolPlayerControls #spl-canvas,#spotilolPlayerControls #spl-canvas-shade{display:none}',
+                        '#spotilolPlayerControls.spl-full.spl-canvas #spl-canvas{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;pointer-events:none}',
+                        '#spotilolPlayerControls.spl-full.spl-canvas #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
+                        '#spotilolPlayerControls.spl-full.spl-canvas .spl-cover{visibility:hidden}',
+                        '#spotilolPlayerControls .spl-canvas-toggle{visibility:hidden}',
+                        '#spotilolPlayerControls.spl-full.spl-has-canvas .spl-canvas-toggle{visibility:visible}',
+                        '#spotilolPlayerControls.spl-full .spl-canvas-toggle svg{width:22px;height:22px}',
+                        '#spotilolPlayerControls.spl-full .spl-np-head .spl-canvas-toggle.spl-active{color:var(--spl-accent,#1db954)}',
                         'html.spl-hide-ctx #context-menu,html.spl-hide-ctx [data-tippy-root],html.spl-hide-ctx [role="menu"]{opacity:0!important}',
                         '#spotilolPlayerControls.spl-full #spl-speed-sheet.spl-open{display:flex;position:absolute;inset:0;z-index:5;align-items:flex-end;background:rgba(0,0,0,.55)}',
                         '#spotilolPlayerControls .spl-sheet-card{width:100%;box-sizing:border-box;background:#282828;border-radius:16px 16px 0 0;padding:18px 18px 28px}',
@@ -716,6 +724,7 @@ object SpotilolPlayer {
                         if(ps&&posEl) ps.textContent=posEl.textContent;
                         if(ds&&durEl) ds.textContent=durEl.textContent;
                         splApplyEmpty();
+                        splCanvasTick();
                     };
                     // Background tint from the cover art, like the Spotify app. Needs CORS on the
                     // image; on failure the player keeps its default colors.
@@ -755,6 +764,96 @@ object SpotilolPlayer {
                         if(bw>=600) return best;
                         return best.replace(/ab67616d0000(4851|1e02)/,'ab67616d0000b273')
                                    .replace(/ab6765630000f68d|ab67656300005f1f/,'ab6765630000ba8a');
+                    }
+                    // Canvas: Spotify's short looping, silent, DRM-free MP4 behind a song.
+                    // Full Screen Player + songs only. Looked up per track, via the web
+                    // player's own "canvas" GraphQL query when its hash has been seen,
+                    // else Spotify's canvaz-cache protobuf endpoint. Logged as "[probe] canvas".
+                    var splCanvasFor=null,splCanvasUrl=null,splCanvasCache={};
+                    var splCanvasOff=false;
+                    try{ splCanvasOff=localStorage.getItem('splCanvasOff')==='1'; }catch(e){}
+                    var cvEl=document.createElement('video');
+                    cvEl.id='spl-canvas';cvEl.muted=true;cvEl.loop=true;cvEl.playsInline=true;
+                    cvEl.setAttribute('muted','');cvEl.setAttribute('playsinline','');cvEl.setAttribute('preload','auto');
+                    var cvShade=document.createElement('div');cvShade.id='spl-canvas-shade';
+                    pl.insertBefore(cvShade,pl.firstChild);pl.insertBefore(cvEl,pl.firstChild);
+                    var cvToggle=document.createElement('button');
+                    cvToggle.className='spl-btn spl-canvas-toggle';cvToggle.id='spl-canvas-toggle';cvToggle.setAttribute('aria-label','Canvas');
+                    cvToggle.innerHTML='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v12h16V6H4zm5 2.5 6 3.5-6 3.5v-7z"/></svg>';
+                    var cvSpacer=pl.querySelector('.spl-np-spacer');
+                    if(cvSpacer) cvSpacer.parentNode.replaceChild(cvToggle,cvSpacer);
+                    cvToggle.onclick=function(){
+                        splCanvasOff=!splCanvasOff;
+                        try{ localStorage.setItem('splCanvasOff',splCanvasOff?'1':'0'); }catch(e){}
+                        splApplyCanvas();
+                    };
+                    function clog(m){ try{ AndBridge.dbg('i','[probe] canvas '+m); }catch(e){} }
+                    function splApplyCanvas(){
+                        var has=!!splCanvasUrl;
+                        pl.classList.toggle('spl-has-canvas',has);
+                        pl.classList.toggle('spl-canvas',has&&!splCanvasOff);
+                        cvToggle.classList.toggle('spl-active',has&&!splCanvasOff);
+                        if(!has){ if(cvEl.getAttribute('src')){ cvEl.pause(); cvEl.removeAttribute('src'); cvEl.load(); } return; }
+                        if(cvEl.getAttribute('src')!==splCanvasUrl){ cvEl.setAttribute('src',splCanvasUrl); }
+                    }
+                    function splCurTrackId(){
+                        var t=document.querySelector('a[data-testid=context-item-link]');
+                        var title=t?(t.textContent||'').trim():'';
+                        var meta=window.__splTrackMeta||{};
+                        for(var k in meta){ if(meta[k]&&meta[k].name===title) return k; }
+                        return window.__curTrackId||null;
+                    }
+                    function splCanvasUrlFrom(text){
+                        var m=(text||'').match(/https:\/\/canvaz\.scdn\.co\/[^"\s\u0000-\u001f]+?\.mp4/);
+                        return m?m[0].replace(/\\\//g,'/'):null;
+                    }
+                    async function splFetchCanvas(tid){
+                        var uri='spotify:track:'+tid;
+                        var f=window.mngFetch||window.oriFetch||window.fetch;
+                        try{ if(window.ensureAuthToken) await window.ensureAuthToken(); }catch(e){}
+                        var auth=window.spotAuthToken;
+                        if(!auth){ clog(tid+' no auth token'); return null; }
+                        var hash=window.splOpHashes&&window.splOpHashes.canvas;
+                        if(hash){
+                            try{
+                                var r=await f('https://api-partner.spotify.com/pathfinder/v2/query',{method:'POST',headers:{'Authorization':auth,'Content-Type':'application/json;charset=UTF-8','app-platform':'WebPlayer'},
+                                    body:JSON.stringify({variables:{uri:uri},operationName:'canvas',extensions:{persistedQuery:{version:1,sha256Hash:hash}}})});
+                                var txt=await r.text();
+                                var u=splCanvasUrlFrom(txt);
+                                clog(tid+' gql status='+r.status+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)));
+                                if(u||r.status===200) return u;
+                            }catch(e){ clog(tid+' gql error '+e); }
+                        } else clog(tid+' no canvas gql hash seen; ops='+Object.keys(window.splOpHashes||{}).length);
+                        try{
+                            var inner='\u000a'+String.fromCharCode(uri.length)+uri;
+                            var body='\u000a'+String.fromCharCode(inner.length)+inner;
+                            var r2=await f('https://spclient.wg.spotify.com/canvaz-cache/v0/canvases',{method:'POST',headers:{'Authorization':auth,'Content-Type':'application/x-protobuf','Accept':'application/protobuf'},body:body});
+                            var t2=await r2.text();
+                            var u2=splCanvasUrlFrom(t2);
+                            clog(tid+' canvaz status='+r2.status+' url='+(u2||'none')+' len='+t2.length);
+                            return u2;
+                        }catch(e){ clog(tid+' canvaz error '+e); }
+                        return null;
+                    }
+                    function splCanvasTick(){
+                        if(!window.__splFullPlayer||pl.style.display==='none'){ if(!cvEl.paused) cvEl.pause(); return; }
+                        var tid=pl.classList.contains('spl-episode')?null:splCurTrackId();
+                        if(tid!==splCanvasFor){
+                            splCanvasFor=tid;
+                            splCanvasUrl=null;
+                            if(tid&&(tid in splCanvasCache)) splCanvasUrl=splCanvasCache[tid];
+                            else if(tid){
+                                splCanvasCache[tid]=null;
+                                splFetchCanvas(tid).then(function(u){
+                                    splCanvasCache[tid]=u||null;
+                                    if(splCanvasFor===tid){ splCanvasUrl=u||null; splApplyCanvas(); }
+                                });
+                            }
+                            splApplyCanvas();
+                        }
+                        var want=pl.classList.contains('spl-canvas')&&pl.classList.contains('spl-full')&&!!window.splIsPlayingSticky();
+                        if(want&&cvEl.paused&&cvEl.getAttribute('src')){ var pp=cvEl.play(); if(pp&&pp.catch) pp.catch(function(){}); }
+                        else if(!want&&!cvEl.paused) cvEl.pause();
                     }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);
