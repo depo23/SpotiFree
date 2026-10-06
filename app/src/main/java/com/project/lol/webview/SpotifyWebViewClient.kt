@@ -339,6 +339,8 @@ class SpotifyWebViewClient(
             if (debugOverlay) {
                 append(DevLogPrelude.js())
                 append("\n")
+                append(MediaProbe.CONTENT)
+                append("\n")
             }
             append(PlayerCore.CONTENT)
             append(TrackObserver.CONTENT)

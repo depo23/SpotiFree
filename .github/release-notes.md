@@ -1,6 +1,9 @@
-# Spotilol - v1.1.8.1 (test build)
+# Spotilol - v1.1.8.2 (test build, media probe)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## Media probe
+With **Settings → Collect Debug** on, this build logs what the web player shows for videos and podcasts (filter the Logger by `[probe]`). Used to design video and podcast support in the full-screen player. Otherwise identical to 1.1.8.1.
 
 ## What's new
 **Settings → Player Mode** now has three options:
