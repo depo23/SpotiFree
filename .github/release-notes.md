@@ -1,6 +1,9 @@
-# Spotilol - v1.1.8.6 (test build)
+# Spotilol - v1.1.8.7 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.7
+- Speed picker: no more flash of Spotify's native speed menu, and only the main speeds from the native list are shown (no 0.1 steps).
 
 ## New in 1.1.8.6
 - **Speed picker for episodes**: the speed button now opens a list of speeds with the current one highlighted, and waits for you to pick one. Tap outside to cancel.
