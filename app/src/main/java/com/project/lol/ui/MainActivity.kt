@@ -120,6 +120,7 @@ import com.project.lol.util.UpdateChecker
 import com.project.lol.webview.SpotifyWebChromeClient
 import com.project.lol.webview.SpotifyWebViewClient
 import com.project.lol.webview.helpers.DevLogPrelude
+import com.project.lol.webview.injections.MediaProbe
 import com.project.lol.webview.helpers.LyricsTheme
 import com.project.lol.webview.helpers.buildAmoledJs
 import com.project.lol.webview.helpers.buildCustomCssJs
@@ -348,7 +349,7 @@ class MainActivity : ComponentActivity() {
                     onClearData = { clearAllData() },
                     onDebugToggle = { enabled ->
                         webView?.evaluateJavascript(
-                            if (enabled) DevLogPrelude.js()
+                            if (enabled) DevLogPrelude.js() + "\n" + MediaProbe.CONTENT
                             else "window.dbg=null;window.dbgv=null;window.dbgi=null;window.dbgw=null;window.dbge=null;window.DevLog=null;",
                             null
                         )

@@ -32,6 +32,11 @@
     <string name="settings_section_security_network">SECURITY AND NETWORK</string>
     <string name="settings_section_about">ABOUT</string>
     <string name="settings_section_experimental">EXPERIMENTAL</string>
+    <string name="settings_section_debug">DEBUG</string>
+    <string name="settings_copy_probe_log">Copy Probe Log</string>
+    <string name="settings_copy_probe_log_subtitle">Copy the [probe] media log lines to the clipboard</string>
+    <string name="settings_copy_probe_log_done">Copied %1$d probe lines</string>
+    <string name="settings_copy_probe_log_empty">No probe lines yet. Turn on Collect Debug, then play a video or podcast.</string>
 
     <string name="settings_gui_hack_mode">GUI Hack Mode</string>
     <string name="settings_gui_mode_css_js">Mobile CSS + JS</string>
