@@ -1,8 +1,8 @@
-# Spotilol - v1.1.8.9 (test build)
+# Spotilol - v1.1.8.10 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
 
-## New in 1.1.8.9: Canvas (test, lookup fixed)
+## New in 1.1.8.10: Canvas (test, second lookup)
 - **Canvas** in the Full Screen Player: songs with a Spotify Canvas loop it behind the controls, like the Spotify app. Use the film icon in the header to turn it off and on.
 - To test: turn on **Settings → Debug → Collect Debug**, play a few popular songs (most big releases have a Canvas), expand the full-screen player, then **Copy Probe Log** (look for `[probe] canvas`).
 
