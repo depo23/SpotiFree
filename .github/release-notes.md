@@ -1,6 +1,9 @@
-# Spotilol - v1.1.8.5 (test build)
+# Spotilol - v1.1.8.6 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.6
+- **Speed picker for episodes**: the speed button now opens a list of speeds with the current one highlighted, and waits for you to pick one. Tap outside to cancel.
 
 ## New in 1.1.8.5: video embed test
 **Settings → Debug → Test Video Embed** opens the playing episode's Spotify video embed over the app and logs whether real video plays.
