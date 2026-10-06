@@ -21,7 +21,11 @@ package com.project.lol.webview.injections
 
 
 object SpotilolPlayer {
-    const val CONTENT = """
+    // Split in two: a single string constant is limited to 65535 bytes in the
+    // class file. joinToString keeps the compiler from folding them back into one.
+    val CONTENT: String = listOf(PART_1, PART_2).joinToString("")
+
+    private const val PART_1 = """
             window.initSpotilolPlayer=function(){
                 if(document.getElementById('spotilolPlayerControls')) return;
                 var npb=document.querySelector('aside[data-testid="now-playing-bar"]');
@@ -358,7 +362,9 @@ object SpotilolPlayer {
                     }catch(e){}
                     return false;
                 };
-                document.getElementById('spl-liked').onclick=function(){actAddToFav()};
+"""
+
+    private const val PART_2 = """                document.getElementById('spl-liked').onclick=function(){actAddToFav()};
                 document.getElementById('spl-seekb').onclick=function(){var b=document.querySelector('button[data-testid="control-button-seek-back-15"]');if(b)b.click()};
                 document.getElementById('spl-seekf').onclick=function(){var b=document.querySelector('button[data-testid="control-button-seek-forward-15"]');if(b)b.click()};
                 // Speed picker. Spotify's speed menu closes on any outside tap, so it is
