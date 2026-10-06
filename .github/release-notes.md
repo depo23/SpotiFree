@@ -10,6 +10,7 @@ Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/
 
 ## Install notes
 - ⚠️ Test build, not device-tested yet.
-- Signed with this fork's own key, the same as the earlier 1.1.6.1 fork build. It can update a 1.1.6.1 fork install, but **not** the upstream app. Uninstall upstream Spotilol first.
+- Installs **next to** the original Spotilol as a separate app, **Spotilol Test** (package `com.project.lol.test`). No need to uninstall anything. It has its own login, settings and downloads.
+- Signed with this fork's own key.
 - Signing certificate SHA-256: `38:69:B6:B9:B2:48:70:E5:3B:04:E5:7A:CA:CD:1B:3D:B5:6F:4D:18:96:D3:99:CB:F2:A2:46:00:20:F7:FB:1E`
 - Built without Firebase config, so analytics and crash reporting are off.

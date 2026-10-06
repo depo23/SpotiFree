@@ -22,13 +22,21 @@ jobs:
           mkdir -p keystore
           echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotilol-release.p12
           echo "$KEYSTORE_PROPERTIES" > keystore/keystore.properties
+      # Test builds install next to the original app: own package id and name.
+      # Source keeps com.project.lol; this only changes the CI build.
+      - name: Test package id and app name
+        run: |
+          sed -i 's/applicationId = "com.project.lol"/applicationId = "com.project.lol.test"/' app/build.gradle.kts
+          sed -i 's#<string name="app_name">Spotilol</string>#<string name="app_name">Spotilol Test</string>#' app/src/main/res/values/strings.xml
+          grep -q 'applicationId = "com.project.lol.test"' app/build.gradle.kts
+          grep -q '>Spotilol Test<' app/src/main/res/values/strings.xml
       - name: Placeholder google-services.json
         run: |
           cat > app/google-services.json <<'JSON'
           {
             "project_info": {"project_number": "000000000000", "project_id": "ci-placeholder", "storage_bucket": "ci-placeholder.appspot.com"},
             "client": [{
-              "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.project.lol"}},
+              "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.project.lol.test"}},
               "api_key": [{"current_key": "AIzaSyA-ci-placeholder-000000000000000"}]
             }],
             "configuration_version": "1"
