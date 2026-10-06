@@ -37,11 +37,17 @@ jobs:
             "project_info": {"project_number": "000000000000", "project_id": "ci-placeholder", "storage_bucket": "ci-placeholder.appspot.com"},
             "client": [{
               "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.project.lol.test"}},
-              "api_key": [{"current_key": "AIzaSyA-ci-placeholder-000000000000000"}]
+              "api_key": [{"current_key": "AIzaSyA-ci-placeholder-0000000000000000"}]
             }],
             "configuration_version": "1"
           }
           JSON
+      # No real Firebase project for test builds: turn collection off so the
+      # SDKs never try to reach Firebase with the placeholder config.
+      - name: Disable Firebase collection
+        run: |
+          sed -i 's#</application>#    <meta-data android:name="firebase_performance_collection_deactivated" android:value="true" />\n        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />\n        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />\n    </application>#' app/src/main/AndroidManifest.xml
+          grep -c 'firebase_.*collection' app/src/main/AndroidManifest.xml | grep -qx 3
       - run: chmod +x gradlew && ./gradlew assembleRelease --stacktrace
       - name: Publish release
         env:
