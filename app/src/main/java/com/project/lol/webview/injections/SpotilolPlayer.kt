@@ -168,7 +168,8 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full.spl-canvas #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
                         '#spotilolPlayerControls.spl-full.spl-canvas .spl-cover{visibility:hidden}',
                         '#spotilolPlayerControls .spl-canvas-toggle{visibility:hidden}',
-                        '#spotilolPlayerControls.spl-full.spl-has-canvas .spl-canvas-toggle{visibility:visible}',
+                        '#spotilolPlayerControls.spl-full:not(.spl-episode) .spl-canvas-toggle{visibility:visible}',
+                        '#spotilolPlayerControls.spl-full:not(.spl-has-canvas) .spl-canvas-toggle{opacity:.4}',
                         '#spotilolPlayerControls.spl-full .spl-canvas-toggle svg{width:22px;height:22px}',
                         '#spotilolPlayerControls.spl-full .spl-np-head .spl-canvas-toggle.spl-active{color:var(--spl-accent,#1db954)}',
                         'html.spl-hide-ctx #context-menu,html.spl-hide-ctx [data-tippy-root],html.spl-hide-ctx [role="menu"]{opacity:0!important}',
@@ -786,13 +787,15 @@ object SpotilolPlayer {
                         splCanvasOff=!splCanvasOff;
                         try{ localStorage.setItem('splCanvasOff',splCanvasOff?'1':'0'); }catch(e){}
                         splApplyCanvas();
+                        var msg=splCanvasOff?'Canvas off':(splCanvasUrl?'Canvas on':'Canvas on \u2014 this song has no Canvas');
+                        try{ AndBridge.deferMessage(msg); }catch(e){}
                     };
                     function clog(m){ try{ AndBridge.dbg('i','[probe] canvas '+m); }catch(e){} }
                     function splApplyCanvas(){
                         var has=!!splCanvasUrl;
                         pl.classList.toggle('spl-has-canvas',has);
                         pl.classList.toggle('spl-canvas',has&&!splCanvasOff);
-                        cvToggle.classList.toggle('spl-active',has&&!splCanvasOff);
+                        cvToggle.classList.toggle('spl-active',!splCanvasOff);
                         if(!has){ if(cvEl.getAttribute('src')){ cvEl.pause(); cvEl.removeAttribute('src'); cvEl.load(); } return; }
                         if(cvEl.getAttribute('src')!==splCanvasUrl){ cvEl.setAttribute('src',splCanvasUrl); }
                     }
