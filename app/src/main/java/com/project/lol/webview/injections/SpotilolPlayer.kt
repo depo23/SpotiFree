@@ -817,7 +817,7 @@ object SpotilolPlayer {
                         if(hash){
                             try{
                                 var r=await f('https://api-partner.spotify.com/pathfinder/v2/query',{method:'POST',headers:{'Authorization':auth,'Content-Type':'application/json;charset=UTF-8','app-platform':'WebPlayer'},
-                                    body:JSON.stringify({variables:{uri:uri},operationName:'canvas',extensions:{persistedQuery:{version:1,sha256Hash:hash}}})});
+                                    body:JSON.stringify({variables:{trackUri:uri},operationName:'canvas',extensions:{persistedQuery:{version:1,sha256Hash:hash}}})});
                                 var txt=await r.text();
                                 var u=splCanvasUrlFrom(txt);
                                 clog(tid+' gql status='+r.status+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)));
