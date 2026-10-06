@@ -81,6 +81,7 @@ fun SettingsDialog(
     onClearCache: () -> Unit,
     onClearData: () -> Unit,
     onDebugToggle: (Boolean) -> Unit = {},
+    onTestVideoEmbed: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit,
     content: @Composable () -> Unit
@@ -166,6 +167,7 @@ fun SettingsDialog(
                                         onClearCache = onClearCache,
                                         onClearData = onClearData,
                                         onDebugToggle = onDebugToggle,
+                                        onTestVideoEmbed = onTestVideoEmbed,
                                         blockServiceWorker = blockServiceWorker,
                                         onBlockServiceWorkerChange = onBlockServiceWorkerChange
                                     )

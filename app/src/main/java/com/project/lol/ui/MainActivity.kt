@@ -347,6 +347,10 @@ class MainActivity : ComponentActivity() {
                     onDeleteProfile = { name -> deleteProfile(name) },
                     onClearCache = { clearWebViewCache() },
                     onClearData = { clearAllData() },
+                    onTestVideoEmbed = {
+                        settingsDialogOpen = false
+                        webView?.evaluateJavascript(MediaProbe.CONTENT + "\nwindow.splTestVideoEmbed&&window.splTestVideoEmbed();", null)
+                    },
                     onDebugToggle = { enabled ->
                         webView?.evaluateJavascript(
                             if (enabled) DevLogPrelude.js() + "\n" + MediaProbe.CONTENT

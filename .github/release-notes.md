@@ -1,6 +1,13 @@
-# Spotilol - v1.1.8.4 (test build)
+# Spotilol - v1.1.8.5 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.5: video embed test
+**Settings → Debug → Test Video Embed** opens the playing episode's Spotify video embed over the app and logs whether real video plays.
+1. Turn on **Collect Debug**.
+2. Play a video podcast episode (e.g. K-Pop ON! Video Podcast).
+3. Settings → Debug → **Test Video Embed**, tap play in the embed, wait about 20s, then tap **Close**.
+4. Settings → Debug → **Copy Probe Log** and paste the result.
 
 ## New in 1.1.8.4 (Full Screen Player)
 - **Sharp cover art**: uses the 640px cover instead of the blurry 64px thumbnail (also sent upstream in lyssadev/Spotilol#110).

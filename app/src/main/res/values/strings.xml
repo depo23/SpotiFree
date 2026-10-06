@@ -34,6 +34,9 @@
     <string name="settings_section_experimental">EXPERIMENTAL</string>
     <string name="settings_section_debug">DEBUG</string>
     <string name="settings_copy_probe_log">Copy Probe Log</string>
+    <string name="settings_test_video_embed">Test Video Embed</string>
+    <string name="settings_test_video_embed_needs_debug">Turn on Collect Debug first, so the test can be logged</string>
+    <string name="settings_test_video_embed_subtitle">Open the playing episode\'s video embed and log whether video plays</string>
     <string name="settings_copy_probe_log_subtitle">Copy the [probe] media log lines to the clipboard</string>
     <string name="settings_copy_probe_log_done">Copied %1$d probe lines</string>
     <string name="settings_copy_probe_log_empty">No probe lines yet. Turn on Collect Debug, then play a video or podcast.</string>

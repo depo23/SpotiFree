@@ -47,6 +47,51 @@ object MediaProbe {
             }
             setInterval(tick,2000);
             tick();
+
+            // Debug > Test Video Embed: overlay the playing episode's video embed and
+            // log, once a second for 60s, what the embed renders and whether video plays.
+            window.splTestVideoEmbed=function(){
+                function log(m){ try{ AndBridge.dbg('i','[probe] embed '+m); }catch(e){} }
+                var a=document.querySelector('[data-testid="now-playing-widget"] a[data-testid="context-item-link"]');
+                var m=a&&(a.getAttribute('href')||'').match(/\/episode\/([A-Za-z0-9]+)/);
+                if(!m){ log('no episode playing'); try{AndBridge.deferMessage('Play a video podcast episode first');}catch(e){} return; }
+                var old=document.getElementById('spl-embed-test'); if(old) old.remove();
+                var wrap=document.createElement('div');
+                wrap.id='spl-embed-test';
+                wrap.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#000;display:flex;flex-direction:column';
+                var bar=document.createElement('div');
+                bar.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 14px;color:#fff;font:600 14px sans-serif';
+                bar.innerHTML='<span>Video embed test: tap play, wait ~20s</span>';
+                var x=document.createElement('button');
+                x.textContent='Close';
+                x.style.cssText='background:#fff;color:#000;border:0;border-radius:16px;padding:6px 14px;font:600 13px sans-serif';
+                bar.appendChild(x);
+                var f=document.createElement('iframe');
+                f.src='/embed/episode/'+m[1]+'/video';
+                f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';
+                f.style.cssText='flex:1;width:100%;border:0';
+                wrap.appendChild(bar); wrap.appendChild(f);
+                document.body.appendChild(wrap);
+                log('open id='+m[1]);
+                var n=0,lastJ='';
+                var iv=setInterval(function(){
+                    n++;
+                    var s={n:n};
+                    try{
+                        var d=f.contentDocument;
+                        if(!d){ s.doc='inaccessible'; }
+                        else{
+                            s.testids=[].slice.call(d.querySelectorAll('[data-testid]')).map(function(e){return e.getAttribute('data-testid')}).filter(function(v,i,a){return a.indexOf(v)===i}).join(',');
+                            s.media=[].slice.call(d.querySelectorAll('video,audio')).map(function(v){return v.tagName+' '+v.videoWidth+'x'+v.videoHeight+' t='+Math.round(v.currentTime||0)+' paused='+v.paused+' rs='+v.readyState+' src='+(v.currentSrc||'').slice(0,30)});
+                            s.text=(d.body&&d.body.innerText||'').replace(/\s+/g,' ').slice(0,120);
+                        }
+                    }catch(e){ s.err=String(e).slice(0,80); }
+                    var j=JSON.stringify(s).replace(/"n":\d+,?/,'');
+                    if(j!==lastJ){ lastJ=j; log(JSON.stringify(s)); }
+                    if(n>=60){ clearInterval(iv); log('done'); }
+                },1000);
+                x.onclick=function(){ clearInterval(iv); log('closed by user at '+n+'s'); wrap.remove(); };
+            };
         })();
     """
 }

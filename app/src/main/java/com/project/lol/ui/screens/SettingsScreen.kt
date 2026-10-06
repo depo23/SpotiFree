@@ -225,6 +225,7 @@ fun SettingsContent(
     onClearCache: () -> Unit,
     onClearData: () -> Unit,
     onDebugToggle: (Boolean) -> Unit = {},
+    onTestVideoEmbed: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit
 ) {
@@ -934,6 +935,21 @@ fun SettingsContent(
                             else stringResource(R.string.settings_open_logger_off),
                             icon = TablerIcons.Code,
                             onClick = { showDevlogDialog = true }
+                        )
+
+                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                        SettingTile(
+                            title = stringResource(R.string.settings_test_video_embed),
+                            subtitle = stringResource(R.string.settings_test_video_embed_subtitle),
+                            icon = TablerIcons.PlayerPlay,
+                            onClick = {
+                                if (!loggingOn) {
+                                    Toast.makeText(context, context.getString(R.string.settings_test_video_embed_needs_debug), Toast.LENGTH_LONG).show()
+                                } else {
+                                    onTestVideoEmbed()
+                                }
+                            }
                         )
 
                         HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
