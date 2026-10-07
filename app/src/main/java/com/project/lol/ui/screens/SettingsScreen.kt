@@ -122,6 +122,7 @@ import com.project.lol.util.MarkdownText
 import com.project.lol.webview.helpers.LyricsTheme
 import compose.icons.TablerIcons
 import compose.icons.tablericons.AlertTriangle
+import compose.icons.tablericons.ArrowsMaximize
 import compose.icons.tablericons.Copy
 import compose.icons.tablericons.ArrowsMinimize
 import compose.icons.tablericons.ArrowsSort
@@ -145,6 +146,7 @@ import compose.icons.tablericons.InfoCircle
 import compose.icons.tablericons.Language
 import compose.icons.tablericons.Link
 import compose.icons.tablericons.Moon
+import compose.icons.tablericons.Movie
 import compose.icons.tablericons.Palette
 import compose.icons.tablericons.PlayerPlay
 import compose.icons.tablericons.Playlist
@@ -155,6 +157,7 @@ import compose.icons.tablericons.Trash
 import compose.icons.tablericons.TrashOff
 import compose.icons.tablericons.User
 import compose.icons.tablericons.UserPlus
+import compose.icons.tablericons.Video
 import compose.icons.tablericons.WaveSine
 import compose.icons.tablericons.X
 import java.text.SimpleDateFormat
@@ -245,6 +248,9 @@ fun SettingsContent(
     var offlineMode by remember { mutableStateOf(prefs.getBoolean("OfflineMode", false)) }
     var blockSW by remember { mutableStateOf(blockServiceWorker) }
     var hideEmptyPlayer by remember { mutableStateOf(prefs.getBoolean("HideEmptyPlayer", false)) }
+    var autoOpenFullPlayer by remember { mutableStateOf(prefs.getBoolean("AutoOpenFullPlayer", true)) }
+    var webCanvas by remember { mutableStateOf(prefs.getBoolean("WebCanvas", true)) }
+    var webVideos by remember { mutableStateOf(prefs.getBoolean("WebVideos", true)) }
     var playlistSortEnabled by remember { mutableStateOf(prefs.getBoolean("PlaylistSortEnabled", true)) }
     var showScrollbar by remember { mutableStateOf(prefs.getBoolean("ShowScrollbar", true)) }
     var lyricsStyle by remember { mutableStateOf(prefs.getString("LyricsStyle", LyricsTheme.DEFAULT_STYLE) ?: LyricsTheme.DEFAULT_STYLE) }
@@ -534,6 +540,47 @@ fun SettingsContent(
                         subtitle = playerModeLabel,
                         icon = TablerIcons.PlayerPlay,
                         onClick = { showPlayerModeDialog = true }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    if (playerMode == "fullscreen") {
+                        SettingSwitchTile(
+                            title = stringResource(R.string.settings_auto_open_full),
+                            subtitle = stringResource(R.string.settings_auto_open_full_subtitle),
+                            icon = TablerIcons.ArrowsMaximize,
+                            checked = autoOpenFullPlayer,
+                            onCheckedChange = {
+                                autoOpenFullPlayer = it
+                                prefs.edit().putBoolean("AutoOpenFullPlayer", it).apply()
+                            }
+                        )
+
+                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+                    }
+
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_web_canvas),
+                        subtitle = stringResource(R.string.settings_web_canvas_subtitle),
+                        icon = TablerIcons.Movie,
+                        checked = webCanvas,
+                        onCheckedChange = {
+                            webCanvas = it
+                            prefs.edit().putBoolean("WebCanvas", it).apply()
+                        }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_web_videos),
+                        subtitle = stringResource(R.string.settings_web_videos_subtitle),
+                        icon = TablerIcons.Video,
+                        checked = webVideos,
+                        onCheckedChange = {
+                            webVideos = it
+                            prefs.edit().putBoolean("WebVideos", it).apply()
+                        }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))

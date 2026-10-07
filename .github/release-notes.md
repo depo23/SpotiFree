@@ -2,8 +2,10 @@
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
 
-## New in 1.1.8.12: Canvas fix + video podcast probe
-- **Canvas needs Spotify's own Canvas setting on:** web player Settings → *Videos and Canvas* → **Canvas**. With it off, Spotify answers "no Canvas" for every song.
+## New in 1.1.8.12: Canvas fix, Canvas/Video settings, auto-open, video podcast probe
+- **Settings → Playback → Canvas / Video Podcasts** (both on by default) set the web player's own *Videos and Canvas* settings. On first launch, and whenever you flip one, Spotilol briefly opens Spotify's settings page, applies them, and goes back.
+- **Open Player on Play** (Full Screen Player mode, on by default): starting playback from a Play button or a track row expands the Full Screen Player.
+- Why Canvas was missing: Spotify's own Canvas setting was off. With it off, Spotify answers "no Canvas" for every song.
 - With Canvas on, the web player also played its own copy of the Canvas in the hidden sidebar. In the Full Screen Player that copy is now suppressed, so only one video downloads and plays.
 - Probe log: DRM support check (`[probe] drm …`) and the web player's queries while an episode plays (`[probe] gql …`), to find out why video podcasts don't show video.
 
