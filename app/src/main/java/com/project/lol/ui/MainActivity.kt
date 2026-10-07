@@ -90,6 +90,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -99,6 +100,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewCompat
@@ -170,7 +173,7 @@ class MainActivity : ComponentActivity() {
     private val amoledState = mutableStateOf(false)
     private val hideTopBarState = mutableStateOf(false)
     private val landscapeModeState = mutableStateOf(false)
-    private var wideVideoShowing = false
+    private val wideVideoState = mutableStateOf(false)
     private val keepScreenOnState = mutableStateOf(false)
     private val paletteSeedState = mutableStateOf<String?>(null)
 
@@ -269,6 +272,19 @@ class MainActivity : ComponentActivity() {
             val loadProgress = loadingProgress.intValue
             val blockServiceWorker = blockServiceWorkerState.value
             val pipFilling = pipVideoActive.value
+            // Widescreen episode video turned sideways: hide the top bar and the system bars.
+            val videoFullscreen = wideVideoState.value &&
+                LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+            LaunchedEffect(videoFullscreen) {
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    if (videoFullscreen) {
+                        systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                        hide(WindowInsetsCompat.Type.systemBars())
+                    } else {
+                        show(WindowInsetsCompat.Type.systemBars())
+                    }
+                }
+            }
 
             var settingsDialogOpen by remember { mutableStateOf(false) }
             var playerExpanded by remember { mutableStateOf(false) }
@@ -374,7 +390,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         topBar = {
-                            if (!hideTopBar && !pipFilling) {
+                            if (!hideTopBar && !pipFilling && !videoFullscreen) {
                                 CenterAlignedTopAppBar(
                                 title = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -451,7 +467,7 @@ class MainActivity : ComponentActivity() {
                             bridge.onPlayerExpanded = { playerExpanded = it }
 
                             bridge.onWideVideo = {
-                                wideVideoShowing = it
+                                wideVideoState.value = it
                                 applyOrientation()
                             }
 
@@ -1377,7 +1393,7 @@ class MainActivity : ComponentActivity() {
     private fun applyOrientation() {
         requestedOrientation = if (landscapeModeState.value) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else if (wideVideoShowing) {
+        } else if (wideVideoState.value) {
             // Widescreen episode video in the expanded player: rotate like the Spotify app
             // (still honours the system rotation lock), back to portrait once it's gone.
             ActivityInfo.SCREEN_ORIENTATION_FULL_USER

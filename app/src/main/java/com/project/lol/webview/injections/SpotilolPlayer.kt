@@ -199,6 +199,16 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full .spl-transport{grid-area:transport}',
                         '#spotilolPlayerControls.spl-full .spl-transport .spl-play{min-width:56px;min-height:56px}',
                         '#spotilolPlayerControls.spl-full .spl-row2{grid-area:actions;margin-top:8px!important}',
+                        // Sideways video: controls span the screen width over the video.
+                        '#spotilolPlayerControls.spl-full.spl-video-on{grid-template-columns:1fr;grid-template-rows:48px 1fr auto auto;grid-template-areas:"head" "info" "seek" "ctl";column-gap:0;padding:8px 28px 10px!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-cover{display:none}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-np-head{height:48px}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-bottom{margin:6px 0 0!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-transport{grid-area:ctl;justify-self:center;z-index:1}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-row2{grid-area:ctl;align-self:center;margin:0!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-actions-left{display:flex!important;width:100%;justify-content:flex-start}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-nptoggle,#spotilolPlayerControls.spl-full.spl-video-on #spl-lyrics,#spotilolPlayerControls.spl-full.spl-video-on #spl-download{display:none!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-queue{margin-left:auto}',
                         '}'
                     ].join('');
                     var ft=document.head||document.documentElement;if(ft)ft.appendChild(fst);
