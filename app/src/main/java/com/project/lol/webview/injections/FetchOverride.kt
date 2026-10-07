@@ -57,11 +57,13 @@ object FetchOverride {
                         }
                     }
                     var method = (init && init.method) ? String(init.method).toUpperCase() : 'GET';
+                    var gqlOp = null;
                     if(!window.__splOwnCall && url && url.indexOf && url.indexOf('api-partner.spotify.com/pathfinder/v2/query') !== -1 && init && init.body) {
                         try {
                             var qb = typeof init.body==='string' ? JSON.parse(init.body) : init.body;
                             if(qb && qb.operationName && qb.extensions && qb.extensions.persistedQuery && qb.extensions.persistedQuery.sha256Hash) {
                                 window.splOpHashes[qb.operationName] = qb.extensions.persistedQuery.sha256Hash;
+                                gqlOp = qb;
                             }
                         } catch(e){}
                     }
@@ -79,6 +81,17 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
+                    if(gqlOp && gqlOp.operationName === 'canvas') {
+                        // The web player's own Canvas lookup: keep its answer for the full-screen player.
+                        p.then(function(resp){
+                            resp.clone().text().then(function(t){
+                                var cu = (t.match(/https:\/\/canvaz\.scdn\.co\/[^"\s]+?\.mp4/) || [])[0] || null;
+                                var turi = (gqlOp.variables && (gqlOp.variables.trackUri || gqlOp.variables.uri)) || '?';
+                                if(cu) { window.splCanvasSeen = window.splCanvasSeen || {}; window.splCanvasSeen[turi] = cu; }
+                                try { AndBridge.dbg('i', '[probe] canvas web-player '+turi+' status='+resp.status+' url='+(cu || 'none')+(cu ? '' : ' body='+t.slice(0,160))); } catch(e){}
+                            }).catch(function(){});
+                        }).catch(function(){});
+                    }
                     if(url && url.indexOf && url.indexOf('/metadata/4/track/') !== -1) {
                         p.then(function(resp){
                             try {

@@ -1,6 +1,10 @@
-# Spotilol - v1.1.8.11 (test build)
+# Spotilol - v1.1.8.12 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.12: Canvas lookup sends the client token
+- Canvas lookups now send Spotify's client token, like the web player's own requests. Without it Spotify answered "no Canvas" even for songs that have one.
+- When the web player looks up a Canvas itself, the full-screen player reuses that answer. The probe log shows it as `[probe] canvas web-player`.
 
 ## New in 1.1.8.11: Canvas (test)
 - **Canvas** in the Full Screen Player: songs with a Spotify Canvas loop it behind the controls, like the Spotify app. The film icon (top right of the expanded player) is always visible: lit = Canvas on, dimmed = this song has no Canvas.
