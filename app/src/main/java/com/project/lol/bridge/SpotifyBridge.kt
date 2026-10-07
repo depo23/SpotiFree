@@ -47,6 +47,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
     var onDownloadTrack: ((String) -> Unit)? = null
     var onDownloadCollection: ((String) -> Unit)? = null
     var onPlayerExpanded: ((Boolean) -> Unit)? = null
+    var onWideVideo: ((Boolean) -> Unit)? = null
 
     @JavascriptInterface
     fun loginDetected() {
@@ -201,6 +202,16 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
         Logger.v(CALL, "playerExpanded=$expanded")
         activity.runOnUiThread {
             onPlayerExpanded?.invoke(expanded)
+        }
+    }
+
+    /** A widescreen episode video is (or stops being) shown in the expanded player. */
+    @JavascriptInterface
+    fun wideVideo(showing: Boolean) {
+        val activity = activityRef.get() ?: return
+        Logger.v(CALL, "wideVideo=$showing")
+        activity.runOnUiThread {
+            onWideVideo?.invoke(showing)
         }
     }
 
