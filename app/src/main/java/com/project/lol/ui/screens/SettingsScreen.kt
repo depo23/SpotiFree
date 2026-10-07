@@ -122,7 +122,6 @@ import com.project.lol.util.MarkdownText
 import com.project.lol.webview.helpers.LyricsTheme
 import compose.icons.TablerIcons
 import compose.icons.tablericons.AlertTriangle
-import compose.icons.tablericons.ArrowsMaximize
 import compose.icons.tablericons.Copy
 import compose.icons.tablericons.ArrowsMinimize
 import compose.icons.tablericons.ArrowsSort
@@ -248,7 +247,6 @@ fun SettingsContent(
     var offlineMode by remember { mutableStateOf(prefs.getBoolean("OfflineMode", false)) }
     var blockSW by remember { mutableStateOf(blockServiceWorker) }
     var hideEmptyPlayer by remember { mutableStateOf(prefs.getBoolean("HideEmptyPlayer", false)) }
-    var autoOpenFullPlayer by remember { mutableStateOf(prefs.getBoolean("AutoOpenFullPlayer", true)) }
     var webCanvas by remember { mutableStateOf(prefs.getBoolean("WebCanvas", true)) }
     var webVideos by remember { mutableStateOf(prefs.getBoolean("WebVideos", true)) }
     var playlistSortEnabled by remember { mutableStateOf(prefs.getBoolean("PlaylistSortEnabled", true)) }
@@ -543,21 +541,6 @@ fun SettingsContent(
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    if (playerMode == "fullscreen") {
-                        SettingSwitchTile(
-                            title = stringResource(R.string.settings_auto_open_full),
-                            subtitle = stringResource(R.string.settings_auto_open_full_subtitle),
-                            icon = TablerIcons.ArrowsMaximize,
-                            checked = autoOpenFullPlayer,
-                            onCheckedChange = {
-                                autoOpenFullPlayer = it
-                                prefs.edit().putBoolean("AutoOpenFullPlayer", it).apply()
-                            }
-                        )
-
-                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-                    }
 
                     SettingSwitchTile(
                         title = stringResource(R.string.settings_web_canvas),

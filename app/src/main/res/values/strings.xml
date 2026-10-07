@@ -79,8 +79,6 @@
     <string name="settings_player_spotilol">Spotilol Player</string>
     <string name="settings_player_original">Spotify Original</string>
     <string name="settings_player_fullscreen">Full Screen Player</string>
-    <string name="settings_auto_open_full">Open Player on Play</string>
-    <string name="settings_auto_open_full_subtitle">Expand the Full Screen Player when you start playing something</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Looping videos behind songs (Spotify\'s Canvas setting)</string>
     <string name="settings_web_videos">Video Podcasts</string>

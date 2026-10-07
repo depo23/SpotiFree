@@ -322,7 +322,6 @@ class SpotifyWebViewClient(
         val lyricsStyle = prefs.getString("LyricsStyle", LyricsTheme.DEFAULT_STYLE) ?: LyricsTheme.DEFAULT_STYLE
         val webCanvas = prefs.getBoolean("WebCanvas", true)
         val webVideos = prefs.getBoolean("WebVideos", true)
-        val autoOpenFull = prefs.getBoolean("AutoOpenFullPlayer", true)
 
         Logger.s(
             TAG,
@@ -340,7 +339,6 @@ class SpotifyWebViewClient(
             append("window.__splPlaylistSortEnabled=$playlistSortEnabled;\n")
             append("window.__splShowScrollbar=$showScrollbar;\n")
             append("window.__splWebPrefs=[$webCanvas,$webVideos];\n")
-            append("window.__splAutoOpen=$autoOpenFull;\n")
             if (debugOverlay) {
                 append(DevLogPrelude.js())
                 append("\n")
@@ -459,10 +457,6 @@ class SpotifyWebViewClient(
                     val c = prefs.getBoolean("WebCanvas", true)
                     val v = prefs.getBoolean("WebVideos", true)
                     wv.evaluateJavascript("window.__splWebPrefs=[$c,$v]; if(window.splSyncWebPrefs) window.splSyncWebPrefs($c,$v,true);", null)
-                }
-                "AutoOpenFullPlayer" -> {
-                    val on = prefs.getBoolean("AutoOpenFullPlayer", true)
-                    wv.evaluateJavascript("window.__splAutoOpen=$on;", null)
                 }
                 "PlaylistSortEnabled" -> {
                     val sortOn = prefs.getBoolean("PlaylistSortEnabled", true)

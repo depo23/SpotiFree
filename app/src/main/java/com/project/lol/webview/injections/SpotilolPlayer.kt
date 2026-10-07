@@ -522,6 +522,8 @@ object SpotilolPlayer {
                     pl.classList.toggle('spl-full',fs&&!splMini);
                     var isFull=fs&&!splMini;
                     if(isFull!==wasFull){ try{ AndBridge.playerExpanded(isFull); }catch(e){} }
+                    // Remember expanded/minimized so new songs and app restarts keep it.
+                    if(fs){ try{ localStorage.setItem('splFullOpen',isFull?'1':'0'); }catch(e){} }
                 }
                 function splCollapseFull(){ if(pl.classList.contains('spl-full')) splSetMini(true); }
                 window.splRefreshMode=function(){ splApplyMode(window.__splFullPlayer?true:splMini); };
@@ -866,38 +868,14 @@ object SpotilolPlayer {
                         return Math.floor(t/60)+':'+(t%60<10?'0':'')+t%60;
                     }
 
-                    // Full Screen Player opens by itself when the user starts playback from the
-                    // page (a Play button or track row), once the playing item or state changes.
-                    function splNowKey(){
-                        var a=document.querySelector('a[data-testid=context-item-link]');
-                        return (a?a.getAttribute('href'):'')+'|'+(window.splIsPlayingSticky()?1:0);
-                    }
-                    if(!window.__splAutoOpenHooked){
-                        window.__splAutoOpenHooked=true;
-                        document.addEventListener('click',function(e){
-                            var t=e.target;
-                            if(!window.__splFullPlayer||!window.__splAutoOpen||!t||!t.closest) return;
-                            if(t.closest('#spotilolPlayerControls,aside[data-testid="now-playing-bar"]')) return;
-                            if(t.closest('[data-testid="tracklist-row"],[data-testid="play-button"],button[aria-label^="Play"]')){
-                                window.__splOpenAt=Date.now(); window.__splOpenFrom=splNowKey();
-                            }
-                        },true);
-                    }
-                    function splAutoOpenTick(){
-                        var at=window.__splOpenAt||0;
-                        if(!at) return;
-                        if(Date.now()-at>5000){ window.__splOpenAt=0; return; }
-                        if(window.splIsPlayingSticky()&&splNowKey()!==window.__splOpenFrom){
-                            window.__splOpenAt=0;
-                            if(pl.classList.contains('spl-mini')) splSetMini(false);
-                        }
-                    }
                     var rafLastTime=0;
                     function rafUpdate(timestamp){
-                        if(timestamp-rafLastTime>100){ splUpdate(); splAutoOpenTick(); rafLastTime=timestamp; }
+                        if(timestamp-rafLastTime>100){ splUpdate(); rafLastTime=timestamp; }
                         requestAnimationFrame(rafUpdate);
                     }
-                    splSetMini(window.__splFullPlayer?true:!!window.splMiniPref);
+                    var splWasOpen=false;
+                    try{ splWasOpen=localStorage.getItem('splFullOpen')==='1'; }catch(e){}
+                    splSetMini(window.__splFullPlayer?!splWasOpen:!!window.splMiniPref);
                     requestAnimationFrame(rafUpdate);
             };
             if(document.readyState==='complete') initSpotilolPlayer();
