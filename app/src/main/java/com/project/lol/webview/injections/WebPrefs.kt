@@ -10,7 +10,7 @@ object WebPrefs {
     const val CONTENT = """
         (function(){
             if(window.splSyncWebPrefs) return;
-            function log(m){ try{ AndBridge.dbg('i','[webprefs] '+m); }catch(e){} }
+            function log(m){ try{ AndBridge.dbg('i','[probe] webprefs '+m); }catch(e){} }
             var busy=false;
             window.splSyncWebPrefs=function(canvas,videos,force){
                 var want=(canvas?'c1':'c0')+(videos?'v1':'v0');

@@ -1,6 +1,10 @@
-# Spotilol - v1.1.8.13 (test build)
+# Spotilol - v1.1.8.14 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.14: video podcasts in the Full Screen Player
+- Video episodes now show their video in place of the cover art when the Full Screen Player is expanded (Spotify's own video, moved into the player; it goes back when you minimize).
+- Video episodes now get the podcast controls (speed, skip 15s) like audio episodes.
 
 ## New in 1.1.8.13: Canvas fix, Canvas/Video settings, remembered player state, video podcast probe
 - **Settings → Playback → Canvas / Video Podcasts** (both on by default) set the web player's own *Videos and Canvas* settings. On first launch, and whenever you flip one, Spotilol briefly opens Spotify's settings page, applies them, and goes back.

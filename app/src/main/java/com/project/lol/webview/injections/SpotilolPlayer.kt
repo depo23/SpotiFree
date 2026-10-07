@@ -51,7 +51,7 @@ object SpotilolPlayer {
                     +'<span class="spl-np-spacer"></span>'
                     +'</div>'
                     +'<div class="spl-top">'
-                    +'<div class="spl-cover"><img id="spl-cover-img" src="" alt=""></div>'
+                    +'<div class="spl-cover"><img id="spl-cover-img" src="" alt=""><div id="spl-video"></div></div>'
                     +'<div class="spl-info"><div class="spl-track" id="spl-track">No track</div>'
                     +'<div class="spl-artist" id="spl-artist">\u2014</div></div>'
                     +'<button class="spl-btn spl-btn-sm spl-liked-btn" id="spl-liked" aria-label="Like"><svg viewBox="0 0 16 16"><path fill="currentColor" d="M15.724 4.22A4.313 4.313 0 0 0 12.192.814a4.269 4.269 0 0 0-3.622 1.13.837.837 0 0 1-1.14 0 4.272 4.272 0 0 0-6.38 5.69l5.4 6.06a1.09 1.09 0 0 0 1.504.06l5.397-5.892a4.32 4.32 0 0 0 1.253-3.436z"/></svg></button>'
@@ -167,6 +167,10 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full.spl-canvas #spl-canvas{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;pointer-events:none}',
                         '#spotilolPlayerControls.spl-full.spl-canvas #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
                         '#spotilolPlayerControls.spl-full.spl-canvas .spl-cover{visibility:hidden}',
+                        '#spotilolPlayerControls #spl-video{display:none}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-cover-img{display:none!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-video{display:block;width:calc(100vw - 32px);aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;box-shadow:0 12px 40px rgba(0,0,0,.55)}',
+                        '#spotilolPlayerControls #spl-video video{position:static!important;display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;transform:none!important;opacity:1!important;visibility:visible!important}',
                         '#spotilolPlayerControls .spl-canvas-toggle{visibility:hidden}',
                         '#spotilolPlayerControls.spl-full:not(.spl-episode) .spl-canvas-toggle{visibility:visible}',
                         '#spotilolPlayerControls.spl-full:not(.spl-has-canvas) .spl-canvas-toggle{opacity:.4}',
@@ -185,6 +189,7 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full .spl-top{display:contents}',
                         '#spotilolPlayerControls.spl-full .spl-cover{grid-area:cover;align-self:center}',
                         '#spotilolPlayerControls.spl-full .spl-cover img{width:min(calc(100vh - 96px),40vw)!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-video{width:min(calc((100vh - 96px) * 16 / 9),55vw)}',
                         '#spotilolPlayerControls.spl-full .spl-info{grid-area:info;align-self:end;padding-right:48px}',
                         '#spotilolPlayerControls.spl-full .spl-top .spl-liked-btn{grid-area:info;justify-self:end;align-self:end}',
                         '#spotilolPlayerControls.spl-full .spl-bottom{grid-area:seek;margin:12px 0 0!important}',
@@ -657,7 +662,8 @@ object SpotilolPlayer {
                                 rp.innerHTML='<svg viewBox="0 0 16 16"><path fill="currentColor" d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75z"/></svg>';
                             }
                         }
-                        var isEp=!!document.querySelector('[data-testid="now-playing-widget"] [data-testid="episode"]');
+                        // Video episodes swap the "episode" cover for "video-player-npb"; the show link is always there.
+                        var isEp=!!document.querySelector('[data-testid="now-playing-widget"] [data-testid="episode"],[data-testid="now-playing-widget"] [data-testid="context-item-info-show"]');
                         pl.classList.toggle('spl-episode',isEp);
                         var spb=document.querySelector('button[data-testid="control-button-playback-speed"]');
                         var spt=document.getElementById('spl-speed-l');
@@ -728,6 +734,7 @@ object SpotilolPlayer {
                         if(ds&&durEl) ds.textContent=durEl.textContent;
                         splApplyEmpty();
                         splCanvasTick();
+                        splVideoTick();
                     };
                     // Background tint from the cover art, like the Spotify app. Needs CORS on the
                     // image; on failure the player keeps its default colors.
@@ -862,6 +869,27 @@ object SpotilolPlayer {
                         var want=pl.classList.contains('spl-canvas')&&pl.classList.contains('spl-full')&&!!window.splIsPlayingSticky();
                         if(want&&cvEl.paused&&cvEl.getAttribute('src')){ var pp=cvEl.play(); if(pp&&pp.catch) pp.catch(function(){}); }
                         else if(!want&&!cvEl.paused) cvEl.pause();
+                    }
+                    // Video episodes: borrow the web player's own <video> (DRM blob, it moves the
+                    // element between its bar and sidebar itself) into the cover slot while the
+                    // Full Screen Player is expanded, and hand it back when collapsed.
+                    var splVidHome=null;
+                    function splVideoTick(){
+                        var slot=document.getElementById('spl-video');
+                        if(!slot) return;
+                        var v=slot.querySelector('video');
+                        if(pl.classList.contains('spl-full')&&pl.classList.contains('spl-episode')){
+                            if(!v){
+                                var sv=document.querySelector('.VideoPlayer__container video');
+                                if(sv&&sv.videoWidth){
+                                    splVidHome=sv.parentNode; slot.appendChild(sv); v=sv;
+                                    try{ AndBridge.dbg('i','[probe] video adopted '+sv.videoWidth+'x'+sv.videoHeight); }catch(e){}
+                                }
+                            }
+                        } else if(v&&splVidHome&&splVidHome.isConnected){
+                            splVidHome.appendChild(v); v=null;
+                        }
+                        pl.classList.toggle('spl-video-on',!!(v&&v.videoWidth));
                     }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);
