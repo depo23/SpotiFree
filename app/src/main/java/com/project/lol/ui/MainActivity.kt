@@ -84,11 +84,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -98,6 +100,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewCompat
@@ -111,6 +115,8 @@ import com.project.lol.profile.ProfileManager
 import com.project.lol.proxy.LocalProxyManager
 import com.project.lol.service.MediaNotificationService
 import com.project.lol.ui.components.ChangelogDialog
+import com.project.lol.ui.components.WhatsNew
+import com.project.lol.ui.components.WhatsNewDialog
 import com.project.lol.ui.components.SettingsDialog
 import com.project.lol.ui.theme.SpotifyTheme
 import com.project.lol.util.BuildInfo
@@ -167,6 +173,7 @@ class MainActivity : ComponentActivity() {
     private val amoledState = mutableStateOf(false)
     private val hideTopBarState = mutableStateOf(false)
     private val landscapeModeState = mutableStateOf(false)
+    private val wideVideoState = mutableStateOf(false)
     private val keepScreenOnState = mutableStateOf(false)
     private val paletteSeedState = mutableStateOf<String?>(null)
 
@@ -265,10 +272,24 @@ class MainActivity : ComponentActivity() {
             val loadProgress = loadingProgress.intValue
             val blockServiceWorker = blockServiceWorkerState.value
             val pipFilling = pipVideoActive.value
+            // Widescreen episode video turned sideways: hide the top bar and the system bars.
+            val videoFullscreen = wideVideoState.value &&
+                LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+            LaunchedEffect(videoFullscreen) {
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    if (videoFullscreen) {
+                        systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                        hide(WindowInsetsCompat.Type.systemBars())
+                    } else {
+                        show(WindowInsetsCompat.Type.systemBars())
+                    }
+                }
+            }
 
             var settingsDialogOpen by remember { mutableStateOf(false) }
             var playerExpanded by remember { mutableStateOf(false) }
             var showMiniMenu by remember { mutableStateOf(false) }
+            var showWhatsNew by rememberSaveable { mutableStateOf(WhatsNew.pending(this@MainActivity)) }
             var showChangelog by rememberSaveable { mutableStateOf(changelogOnUpdate) }
             val versionName = remember {
                 runCatching { packageManager.getPackageInfo(packageName, 0).versionName }
@@ -293,7 +314,15 @@ class MainActivity : ComponentActivity() {
             }
 
             SpotifyTheme(useDynamicColor = materialYou, amoled = amoled, seedColor = seedColor) {
-                if (showChangelog) {
+                if (showWhatsNew) {
+                    // Replaces the release-notes popup for this launch, so only one card shows.
+                    WhatsNewDialog(onDismiss = {
+                        showWhatsNew = false
+                        showChangelog = false
+                        WhatsNew.markSeen(this@MainActivity)
+                        ChangelogPrefs.markShown(this@MainActivity)
+                    })
+                } else if (showChangelog) {
                     ChangelogDialog(onDismiss = {
                         showChangelog = false
                         ChangelogPrefs.markShown(this@MainActivity)
@@ -361,12 +390,13 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         topBar = {
-                            if (!hideTopBar && !pipFilling) {
+                            if (!hideTopBar && !pipFilling && !videoFullscreen) {
                                 CenterAlignedTopAppBar(
                                 title = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             text = stringResource(R.string.app_name),
+                                            style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Spacer(Modifier.width(6.dp))
@@ -395,6 +425,7 @@ class MainActivity : ComponentActivity() {
                                 Switch(
                                     checked = serviceEnabled,
                                     onCheckedChange = { newValue -> setServiceEnabled(newValue) },
+                                    modifier = Modifier.scale(0.75f),
                                     colors = SwitchDefaults.colors(
                                         checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                                         checkedTrackColor = MaterialTheme.colorScheme.primary,
@@ -404,6 +435,8 @@ class MainActivity : ComponentActivity() {
                                 )
                                 Spacer(Modifier.width(8.dp))
                             },
+                                // Slimmer than the 64dp default, to leave more room for the player.
+                                expandedHeight = 48.dp,
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.surface,
                                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -432,6 +465,11 @@ class MainActivity : ComponentActivity() {
                             }
 
                             bridge.onPlayerExpanded = { playerExpanded = it }
+
+                            bridge.onWideVideo = {
+                                wideVideoState.value = it
+                                applyOrientation()
+                            }
 
                             bridge.onEnterPipRequest = {
                                 enterPipMode()
@@ -1355,6 +1393,10 @@ class MainActivity : ComponentActivity() {
     private fun applyOrientation() {
         requestedOrientation = if (landscapeModeState.value) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else if (wideVideoState.value) {
+            // Widescreen episode video in the expanded player: rotate like the Spotify app
+            // (still honours the system rotation lock), back to portrait once it's gone.
+            ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }

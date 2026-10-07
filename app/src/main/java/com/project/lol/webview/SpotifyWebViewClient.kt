@@ -320,6 +320,8 @@ class SpotifyWebViewClient(
         val playlistSortEnabled = prefs.getBoolean("PlaylistSortEnabled", true)
         val showScrollbar = prefs.getBoolean("ShowScrollbar", true)
         val lyricsStyle = prefs.getString("LyricsStyle", LyricsTheme.DEFAULT_STYLE) ?: LyricsTheme.DEFAULT_STYLE
+        val webCanvas = prefs.getBoolean("WebCanvas", true)
+        val webVideos = prefs.getBoolean("WebVideos", true)
 
         Logger.s(
             TAG,
@@ -336,6 +338,7 @@ class SpotifyWebViewClient(
             append("window.__splHideEmpty=$hideEmptyPlayer;\n")
             append("window.__splPlaylistSortEnabled=$playlistSortEnabled;\n")
             append("window.__splShowScrollbar=$showScrollbar;\n")
+            append("window.__splWebPrefs=[$webCanvas,$webVideos];\n")
             if (debugOverlay) {
                 append(DevLogPrelude.js())
                 append("\n")
@@ -379,6 +382,7 @@ class SpotifyWebViewClient(
             append(QueueAutoClose.CONTENT)
             append(LibraryAutoClose.CONTENT)
             append(PlaylistSort.CONTENT)
+            append(WebPrefs.CONTENT)
             if (playerMode == "spotilol" || playerMode == "fullscreen") {
                 append("window.__splFullPlayer=${playerMode == "fullscreen"};\n")
                 append(SpotilolPlayer.CONTENT)
@@ -446,6 +450,11 @@ class SpotifyWebViewClient(
                 "HideEmptyPlayer" -> {
                     val hideEmpty = prefs.getBoolean("HideEmptyPlayer", false)
                     wv.evaluateJavascript("window.__splHideEmpty=$hideEmpty; if(window.splApplyEmpty) window.splApplyEmpty();", null)
+                }
+                "WebCanvas", "WebVideos" -> {
+                    val c = prefs.getBoolean("WebCanvas", true)
+                    val v = prefs.getBoolean("WebVideos", true)
+                    wv.evaluateJavascript("window.__splWebPrefs=[$c,$v]; if(window.splSyncWebPrefs) window.splSyncWebPrefs($c,$v,true);", null)
                 }
                 "PlaylistSortEnabled" -> {
                     val sortOn = prefs.getBoolean("PlaylistSortEnabled", true)

@@ -1,0 +1,57 @@
+name: release
+on:
+  push:
+    tags: ['*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
+        run: |
+          mkdir -p keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotilol-release.p12
+          echo "$KEYSTORE_PROPERTIES" > keystore/keystore.properties
+      # Test builds install next to the original app: own package id and name.
+      # Source keeps com.project.lol; this only changes the CI build.
+      - name: Test package id and app name
+        run: |
+          sed -i 's/applicationId = "com.project.lol"/applicationId = "com.project.lol.test"/' app/build.gradle.kts
+          sed -i 's#<string name="app_name">Spotilol</string>#<string name="app_name">Spotilol Test</string>#' app/src/main/res/values/strings.xml
+          grep -q 'applicationId = "com.project.lol.test"' app/build.gradle.kts
+          grep -q '>Spotilol Test<' app/src/main/res/values/strings.xml
+      - name: Placeholder google-services.json
+        run: |
+          cat > app/google-services.json <<'JSON'
+          {
+            "project_info": {"project_number": "000000000000", "project_id": "ci-placeholder", "storage_bucket": "ci-placeholder.appspot.com"},
+            "client": [{
+              "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.project.lol.test"}},
+              "api_key": [{"current_key": "AIzaSyA-ci-placeholder-0000000000000000"}]
+            }],
+            "configuration_version": "1"
+          }
+          JSON
+      # No real Firebase project for test builds: turn collection off so the
+      # SDKs never try to reach Firebase with the placeholder config.
+      - name: Disable Firebase collection
+        run: |
+          sed -i 's#</application>#    <meta-data android:name="firebase_performance_collection_deactivated" android:value="true" />\n        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />\n        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />\n    </application>#' app/src/main/AndroidManifest.xml
+          grep -c 'firebase_.*collection' app/src/main/AndroidManifest.xml | grep -qx 3
+      - run: chmod +x gradlew && ./gradlew assembleRelease --stacktrace
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk \
+            --title "Spotilol - v$GITHUB_REF_NAME (test build)" --notes-file .github/release-notes.md --prerelease

@@ -57,11 +57,13 @@ object FetchOverride {
                         }
                     }
                     var method = (init && init.method) ? String(init.method).toUpperCase() : 'GET';
+                    var gqlOp = null;
                     if(!window.__splOwnCall && url && url.indexOf && url.indexOf('api-partner.spotify.com/pathfinder/v2/query') !== -1 && init && init.body) {
                         try {
                             var qb = typeof init.body==='string' ? JSON.parse(init.body) : init.body;
                             if(qb && qb.operationName && qb.extensions && qb.extensions.persistedQuery && qb.extensions.persistedQuery.sha256Hash) {
                                 window.splOpHashes[qb.operationName] = qb.extensions.persistedQuery.sha256Hash;
+                                gqlOp = qb.operationName;
                             }
                         } catch(e){}
                     }
@@ -79,6 +81,16 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
+                    if(gqlOp === 'canvas' && window.__splFullPlayer) {
+                        // The Full Screen Player plays Canvas itself: answer "no Canvas" to the
+                        // web player's own lookup so its hidden sidebar does not play a second copy.
+                        return p.then(function(resp){
+                            return resp.clone().json().then(function(j){
+                                if(j && j.data && j.data.trackUnion) j.data.trackUnion.canvas = null;
+                                return new Response(JSON.stringify(j), {status: resp.status, statusText: resp.statusText, headers: resp.headers});
+                            }).catch(function(){ return resp; });
+                        });
+                    }
                     if(url && url.indexOf && url.indexOf('/metadata/4/track/') !== -1) {
                         p.then(function(resp){
                             try {
