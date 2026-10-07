@@ -787,6 +787,7 @@ object SpotilolPlayer {
                     cvEl.id='spl-canvas';cvEl.muted=true;cvEl.loop=true;cvEl.playsInline=true;
                     cvEl.setAttribute('muted','');cvEl.setAttribute('playsinline','');cvEl.setAttribute('preload','auto');
                     var cvShade=document.createElement('div');cvShade.id='spl-canvas-shade';
+                    document.addEventListener('visibilitychange',function(){ if(document.hidden&&!cvEl.paused) cvEl.pause(); });
                     var vSlot=document.createElement('div');vSlot.id='spl-video';
                     pl.insertBefore(cvShade,pl.firstChild);pl.insertBefore(cvEl,pl.firstChild);pl.insertBefore(vSlot,pl.firstChild);
                     var cvToggle=document.createElement('button');
@@ -869,7 +870,11 @@ object SpotilolPlayer {
                             splApplyCanvas();
                         }
                         var want=pl.classList.contains('spl-canvas')&&pl.classList.contains('spl-full')&&!!window.splIsPlayingSticky();
-                        if(want&&cvEl.paused&&cvEl.getAttribute('src')){ var pp=cvEl.play(); if(pp&&pp.catch) pp.catch(function(){}); }
+                        if(want&&cvEl.paused&&cvEl.getAttribute('src')){
+                            // After the app was in the background the decoder can be gone; reload before playing.
+                            if((cvEl.readyState===0||cvEl.error)&&Date.now()-(cvEl.__splReload||0)>3000){ cvEl.__splReload=Date.now(); cvEl.load(); }
+                            var pp=cvEl.play(); if(pp&&pp.catch) pp.catch(function(){});
+                        }
                         else if(!want&&!cvEl.paused) cvEl.pause();
                     }
                     // Video episodes: borrow the web player's own <video> (DRM blob, it moves the

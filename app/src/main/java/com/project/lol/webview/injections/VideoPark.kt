@@ -30,6 +30,8 @@ object VideoPark {
 
                 function isCanvasVid(v){
                     try{
+                        /* The Full Screen Player's Canvas manages its own source and playback. */
+                        if(v.id === 'spl-canvas') return false;
                         if(v.muted) return true;
                         if(v.hasAttribute && v.hasAttribute('loop')) return true;
                         if(v.style && v.style.objectFit === 'cover') return true;

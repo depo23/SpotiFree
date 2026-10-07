@@ -1,6 +1,9 @@
-# Spotilol - v1.1.8.15 (test build)
+# Spotilol - v1.1.8.16 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.16
+- Fix: Canvas starts again when you resume playback after leaving the app. It also pauses while the app is in the background.
 
 ## New in 1.1.8.15: full-screen video + What's new card
 - Video episodes fill the whole expanded player, with the controls on top (like Canvas). Vertical videos fill the screen; widescreen videos fit the width (rotate the phone for full screen).
