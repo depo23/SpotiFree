@@ -816,31 +816,24 @@ object SpotilolPlayer {
                         try{ if(window.ensureAuthToken) await window.ensureAuthToken(); }catch(e){}
                         var auth=window.spotAuthToken;
                         if(!auth){ clog(tid+' no auth token'); return null; }
-                        var seen=window.splCanvasSeen&&window.splCanvasSeen[uri];
-                        if(seen){ clog(tid+' from web player url='+seen); return seen; }
-                        var ct=window.spotCliToken||'';
                         var hash=window.splOpHashes&&window.splOpHashes.canvas;
                         if(hash){
                             try{
-                                var gh={'Authorization':auth,'Content-Type':'application/json;charset=UTF-8','app-platform':'WebPlayer'};
-                                if(ct) gh['Client-Token']=ct;
                                 window.__splOwnCall=true;
-                                var rp=f('https://api-partner.spotify.com/pathfinder/v2/query',{method:'POST',headers:gh,
+                                var rp=f('https://api-partner.spotify.com/pathfinder/v2/query',{method:'POST',headers:{'Authorization':auth,'Content-Type':'application/json;charset=UTF-8','app-platform':'WebPlayer'},
                                     body:JSON.stringify({variables:{trackUri:uri},operationName:'canvas',extensions:{persistedQuery:{version:1,sha256Hash:hash}}})});
                                 window.__splOwnCall=false;
                                 var r=await rp;
                                 var txt=await r.text();
                                 var u=splCanvasUrlFrom(txt);
-                                clog(tid+' gql status='+r.status+' ct='+(ct?'yes':'no')+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)));
+                                clog(tid+' gql status='+r.status+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)+(txt.indexOf('"canvas":null')!==-1?' (no Canvas for this song, or Canvas is off in Spotify settings)':'')));
                                 if(u) return u;
                             }catch(e){ window.__splOwnCall=false; clog(tid+' gql error '+e); }
                         } else clog(tid+' no canvas gql hash seen; ops='+Object.keys(window.splOpHashes||{}).length);
                         try{
                             var inner='\u000a'+String.fromCharCode(uri.length)+uri;
                             var body='\u000a'+String.fromCharCode(inner.length)+inner;
-                            var ch={'Authorization':auth,'Content-Type':'application/x-protobuf','Accept':'application/protobuf'};
-                            if(ct) ch['Client-Token']=ct;
-                            var r2=await f('https://spclient.wg.spotify.com/canvaz-cache/v0/canvases',{method:'POST',headers:ch,body:body});
+                            var r2=await f('https://spclient.wg.spotify.com/canvaz-cache/v0/canvases',{method:'POST',headers:{'Authorization':auth,'Content-Type':'application/x-protobuf','Accept':'application/protobuf'},body:body});
                             var t2=await r2.text();
                             var u2=splCanvasUrlFrom(t2);
                             clog(tid+' canvaz status='+r2.status+' url='+(u2||'none')+' len='+t2.length);
@@ -862,10 +855,6 @@ object SpotilolPlayer {
                                     if(splCanvasFor===tid){ splCanvasUrl=u||null; splApplyCanvas(); }
                                 });
                             }
-                            splApplyCanvas();
-                        }
-                        if(tid&&!splCanvasUrl&&window.splCanvasSeen&&window.splCanvasSeen['spotify:track:'+tid]){
-                            splCanvasUrl=splCanvasCache[tid]=window.splCanvasSeen['spotify:track:'+tid];
                             splApplyCanvas();
                         }
                         var want=pl.classList.contains('spl-canvas')&&pl.classList.contains('spl-full')&&!!window.splIsPlayingSticky();

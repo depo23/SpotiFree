@@ -47,6 +47,14 @@ object MediaProbe {
             }
             setInterval(tick,2000);
             tick();
+            // Can this WebView decrypt Widevine video (video podcasts), or only audio?
+            try{
+                var drm=[['video avc1','video/mp4; codecs="avc1.42E01E"'],['video vp9','video/webm; codecs="vp9"'],['audio','audio/mp4; codecs="mp4a.40.2"']];
+                drm.forEach(function(d){
+                    var cfg=d[0]==='audio'?{audioCapabilities:[{contentType:d[1]}]}:{videoCapabilities:[{contentType:d[1]}]};
+                    navigator.requestMediaKeySystemAccess('com.widevine.alpha',[cfg]).then(function(){ AndBridge.dbg('i','[probe] drm '+d[0]+' ok'); },function(e){ AndBridge.dbg('i','[probe] drm '+d[0]+' fail '+e); });
+                });
+            }catch(e){ try{AndBridge.dbg('i','[probe] drm error '+e)}catch(_){} }
 
             // Debug > Test Video Embed: overlay the playing episode's video embed and
             // log, once a second for 60s, what the embed renders and whether video plays.

@@ -63,7 +63,7 @@ object FetchOverride {
                             var qb = typeof init.body==='string' ? JSON.parse(init.body) : init.body;
                             if(qb && qb.operationName && qb.extensions && qb.extensions.persistedQuery && qb.extensions.persistedQuery.sha256Hash) {
                                 window.splOpHashes[qb.operationName] = qb.extensions.persistedQuery.sha256Hash;
-                                gqlOp = qb;
+                                gqlOp = qb.operationName;
                             }
                         } catch(e){}
                     }
@@ -81,16 +81,29 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
-                    if(gqlOp && gqlOp.operationName === 'canvas') {
-                        // The web player's own Canvas lookup: keep its answer for the full-screen player.
-                        p.then(function(resp){
-                            resp.clone().text().then(function(t){
-                                var cu = (t.match(/https:\/\/canvaz\.scdn\.co\/[^"\s]+?\.mp4/) || [])[0] || null;
-                                var turi = (gqlOp.variables && (gqlOp.variables.trackUri || gqlOp.variables.uri)) || '?';
-                                if(cu) { window.splCanvasSeen = window.splCanvasSeen || {}; window.splCanvasSeen[turi] = cu; }
-                                try { AndBridge.dbg('i', '[probe] canvas web-player '+turi+' status='+resp.status+' url='+(cu || 'none')+(cu ? '' : ' body='+t.slice(0,160))); } catch(e){}
+                    if(gqlOp === 'canvas' && window.__splFullPlayer) {
+                        // The Full Screen Player plays Canvas itself: answer "no Canvas" to the
+                        // web player's own lookup so its hidden sidebar does not play a second copy.
+                        return p.then(function(resp){
+                            return resp.clone().json().then(function(j){
+                                if(j && j.data && j.data.trackUnion) j.data.trackUnion.canvas = null;
+                                return new Response(JSON.stringify(j), {status: resp.status, statusText: resp.statusText, headers: resp.headers});
+                            }).catch(function(){ return resp; });
+                        });
+                    }
+                    if(gqlOp && window.__splProbeOn) {
+                        window.__splOpsLogged = window.__splOpsLogged || {};
+                        var onEp = location.pathname.indexOf('/episode/') === 0 || !!document.querySelector('[data-testid="context-item-info-show"]');
+                        var opKey = gqlOp + (onEp ? '@ep' : '');
+                        if(!window.__splOpsLogged[opKey]) {
+                            window.__splOpsLogged[opKey] = 1;
+                            p.then(function(resp){
+                                resp.clone().text().then(function(t){
+                                    var vm = t.match(/[^{},]{0,40}video[^{},]{0,60}/gi) || [];
+                                    try { AndBridge.dbg('i', '[probe] gql '+opKey+' status='+resp.status+' len='+t.length+(vm.length ? ' video: '+vm.slice(0,4).join(' | ') : '')); } catch(e){}
+                                }).catch(function(){});
                             }).catch(function(){});
-                        }).catch(function(){});
+                        }
                     }
                     if(url && url.indexOf && url.indexOf('/metadata/4/track/') !== -1) {
                         p.then(function(resp){

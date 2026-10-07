@@ -2,9 +2,10 @@
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
 
-## New in 1.1.8.12: Canvas lookup sends the client token
-- Canvas lookups now send Spotify's client token, like the web player's own requests. Without it Spotify answered "no Canvas" even for songs that have one.
-- When the web player looks up a Canvas itself, the full-screen player reuses that answer. The probe log shows it as `[probe] canvas web-player`.
+## New in 1.1.8.12: Canvas fix + video podcast probe
+- **Canvas needs Spotify's own Canvas setting on:** web player Settings → *Videos and Canvas* → **Canvas**. With it off, Spotify answers "no Canvas" for every song.
+- With Canvas on, the web player also played its own copy of the Canvas in the hidden sidebar. In the Full Screen Player that copy is now suppressed, so only one video downloads and plays.
+- Probe log: DRM support check (`[probe] drm …`) and the web player's queries while an episode plays (`[probe] gql …`), to find out why video podcasts don't show video.
 
 ## New in 1.1.8.11: Canvas (test)
 - **Canvas** in the Full Screen Player: songs with a Spotify Canvas loop it behind the controls, like the Spotify app. The film icon (top right of the expanded player) is always visible: lit = Canvas on, dimmed = this song has no Canvas.
