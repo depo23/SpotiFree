@@ -51,7 +51,7 @@ object SpotilolPlayer {
                     +'<span class="spl-np-spacer"></span>'
                     +'</div>'
                     +'<div class="spl-top">'
-                    +'<div class="spl-cover"><img id="spl-cover-img" src="" alt=""><div id="spl-video"></div></div>'
+                    +'<div class="spl-cover"><img id="spl-cover-img" src="" alt=""></div>'
                     +'<div class="spl-info"><div class="spl-track" id="spl-track">No track</div>'
                     +'<div class="spl-artist" id="spl-artist">\u2014</div></div>'
                     +'<button class="spl-btn spl-btn-sm spl-liked-btn" id="spl-liked" aria-label="Like"><svg viewBox="0 0 16 16"><path fill="currentColor" d="M15.724 4.22A4.313 4.313 0 0 0 12.192.814a4.269 4.269 0 0 0-3.622 1.13.837.837 0 0 1-1.14 0 4.272 4.272 0 0 0-6.38 5.69l5.4 6.06a1.09 1.09 0 0 0 1.504.06l5.397-5.892a4.32 4.32 0 0 0 1.253-3.436z"/></svg></button>'
@@ -168,9 +168,11 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full.spl-canvas #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
                         '#spotilolPlayerControls.spl-full.spl-canvas .spl-cover{visibility:hidden}',
                         '#spotilolPlayerControls #spl-video{display:none}',
-                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-cover-img{display:none!important}',
-                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-video{display:block;width:calc(100vw - 32px);aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;box-shadow:0 12px 40px rgba(0,0,0,.55)}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-video{display:block;position:absolute;inset:0;z-index:-1;background:#000;pointer-events:none}',
                         '#spotilolPlayerControls #spl-video video{position:static!important;display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;transform:none!important;opacity:1!important;visibility:visible!important}',
+                        '#spotilolPlayerControls.spl-video-tall #spl-video video{object-fit:cover!important}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-cover{visibility:hidden}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
                         '#spotilolPlayerControls .spl-canvas-toggle{visibility:hidden}',
                         '#spotilolPlayerControls.spl-full:not(.spl-episode) .spl-canvas-toggle{visibility:visible}',
                         '#spotilolPlayerControls.spl-full:not(.spl-has-canvas) .spl-canvas-toggle{opacity:.4}',
@@ -189,7 +191,6 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full .spl-top{display:contents}',
                         '#spotilolPlayerControls.spl-full .spl-cover{grid-area:cover;align-self:center}',
                         '#spotilolPlayerControls.spl-full .spl-cover img{width:min(calc(100vh - 96px),40vw)!important}',
-                        '#spotilolPlayerControls.spl-full.spl-video-on #spl-video{width:min(calc((100vh - 96px) * 16 / 9),55vw)}',
                         '#spotilolPlayerControls.spl-full .spl-info{grid-area:info;align-self:end;padding-right:48px}',
                         '#spotilolPlayerControls.spl-full .spl-top .spl-liked-btn{grid-area:info;justify-self:end;align-self:end}',
                         '#spotilolPlayerControls.spl-full .spl-bottom{grid-area:seek;margin:12px 0 0!important}',
@@ -786,7 +787,8 @@ object SpotilolPlayer {
                     cvEl.id='spl-canvas';cvEl.muted=true;cvEl.loop=true;cvEl.playsInline=true;
                     cvEl.setAttribute('muted','');cvEl.setAttribute('playsinline','');cvEl.setAttribute('preload','auto');
                     var cvShade=document.createElement('div');cvShade.id='spl-canvas-shade';
-                    pl.insertBefore(cvShade,pl.firstChild);pl.insertBefore(cvEl,pl.firstChild);
+                    var vSlot=document.createElement('div');vSlot.id='spl-video';
+                    pl.insertBefore(cvShade,pl.firstChild);pl.insertBefore(cvEl,pl.firstChild);pl.insertBefore(vSlot,pl.firstChild);
                     var cvToggle=document.createElement('button');
                     cvToggle.className='spl-btn spl-canvas-toggle';cvToggle.id='spl-canvas-toggle';cvToggle.setAttribute('aria-label','Canvas');
                     cvToggle.innerHTML='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v12h16V6H4zm5 2.5 6 3.5-6 3.5v-7z"/></svg>';
@@ -890,6 +892,7 @@ object SpotilolPlayer {
                             splVidHome.appendChild(v); v=null;
                         }
                         pl.classList.toggle('spl-video-on',!!(v&&v.videoWidth));
+                        pl.classList.toggle('spl-video-tall',!!(v&&v.videoHeight>v.videoWidth));
                     }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);

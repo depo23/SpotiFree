@@ -1,6 +1,10 @@
-# Spotilol - v1.1.8.14 (test build)
+# Spotilol - v1.1.8.15 (test build)
 
 Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), plus the new **Player Mode picker** proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
+
+## New in 1.1.8.15: full-screen video + What's new card
+- Video episodes fill the whole expanded player, with the controls on top (like Canvas). Vertical videos fill the screen; widescreen videos fit the width (rotate the phone for full screen).
+- A short "What's new" card appears once, on first run or after updating, explaining the new player, video podcasts, Canvas and podcast controls.
 
 ## New in 1.1.8.14: video podcasts in the Full Screen Player
 - Video episodes now show their video in place of the cover art when the Full Screen Player is expanded (Spotify's own video, moved into the player; it goes back when you minimize).

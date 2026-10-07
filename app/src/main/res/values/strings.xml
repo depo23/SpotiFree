@@ -83,6 +83,16 @@
     <string name="settings_web_canvas_subtitle">Looping videos behind songs (Spotify\'s Canvas setting)</string>
     <string name="settings_web_videos">Video Podcasts</string>
     <string name="settings_web_videos_subtitle">Let Spotify play video for podcast episodes</string>
+    <string name="whats_new_title">What\'s new</string>
+    <string name="whats_new_ok">Got it</string>
+    <string name="whats_new_player_title">Full Screen Player</string>
+    <string name="whats_new_player_body">A big Now Playing screen like the Spotify app. Turn it on in Settings → Playback → Player Mode. Tap the mini player to open it, swipe down to close it. It stays the way you leave it.</string>
+    <string name="whats_new_video_title">Video podcasts</string>
+    <string name="whats_new_video_body">Video episodes now play their video right in the Full Screen Player.</string>
+    <string name="whats_new_canvas_title">Canvas</string>
+    <string name="whats_new_canvas_body">Songs with a Canvas show their looping video behind the player. Switch it off in Settings → Playback, or with the film button in the player.</string>
+    <string name="whats_new_podcast_title">Podcast controls</string>
+    <string name="whats_new_podcast_body">Episodes get buttons to skip 15 seconds back or forward and to change the playback speed.</string>
     <string name="settings_hide_empty_player">Hide Empty Mini Player</string>
     <string name="settings_hide_empty_player_subtitle">Hide the mini player until a track is loaded</string>
     <string name="settings_playlist_sort">Sort Playlists by Column</string>

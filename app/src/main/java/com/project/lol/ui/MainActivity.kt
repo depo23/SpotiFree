@@ -111,6 +111,8 @@ import com.project.lol.profile.ProfileManager
 import com.project.lol.proxy.LocalProxyManager
 import com.project.lol.service.MediaNotificationService
 import com.project.lol.ui.components.ChangelogDialog
+import com.project.lol.ui.components.WhatsNew
+import com.project.lol.ui.components.WhatsNewDialog
 import com.project.lol.ui.components.SettingsDialog
 import com.project.lol.ui.theme.SpotifyTheme
 import com.project.lol.util.BuildInfo
@@ -270,6 +272,7 @@ class MainActivity : ComponentActivity() {
             var settingsDialogOpen by remember { mutableStateOf(false) }
             var playerExpanded by remember { mutableStateOf(false) }
             var showMiniMenu by remember { mutableStateOf(false) }
+            var showWhatsNew by rememberSaveable { mutableStateOf(WhatsNew.pending(this@MainActivity)) }
             var showChangelog by rememberSaveable { mutableStateOf(changelogOnUpdate) }
             val versionName = remember {
                 runCatching { packageManager.getPackageInfo(packageName, 0).versionName }
@@ -294,7 +297,15 @@ class MainActivity : ComponentActivity() {
             }
 
             SpotifyTheme(useDynamicColor = materialYou, amoled = amoled, seedColor = seedColor) {
-                if (showChangelog) {
+                if (showWhatsNew) {
+                    // Replaces the release-notes popup for this launch, so only one card shows.
+                    WhatsNewDialog(onDismiss = {
+                        showWhatsNew = false
+                        showChangelog = false
+                        WhatsNew.markSeen(this@MainActivity)
+                        ChangelogPrefs.markShown(this@MainActivity)
+                    })
+                } else if (showChangelog) {
                     ChangelogDialog(onDismiss = {
                         showChangelog = false
                         ChangelogPrefs.markShown(this@MainActivity)
