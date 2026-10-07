@@ -880,7 +880,7 @@ object SpotilolPlayer {
                     // Video episodes: borrow the web player's own <video> (DRM blob, it moves the
                     // element between its bar and sidebar itself) into the cover slot while the
                     // Full Screen Player is expanded, and hand it back when collapsed.
-                    var splVidHome=null;
+                    var splVidHome=null,splVidWide=false;
                     function splVideoTick(){
                         var slot=document.getElementById('spl-video');
                         if(!slot) return;
@@ -898,6 +898,8 @@ object SpotilolPlayer {
                         }
                         pl.classList.toggle('spl-video-on',!!(v&&v.videoWidth));
                         pl.classList.toggle('spl-video-tall',!!(v&&v.videoHeight>v.videoWidth));
+                        var wide=!!(v&&v.videoWidth>v.videoHeight&&pl.classList.contains('spl-full'));
+                        if(wide!==splVidWide){ splVidWide=wide; try{ AndBridge.wideVideo(wide); }catch(e){} }
                     }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);

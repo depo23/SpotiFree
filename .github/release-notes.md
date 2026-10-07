@@ -4,6 +4,7 @@ Fork test build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/
 
 ## New in 1.1.8.16
 - Fix: Canvas starts again when you resume playback after leaving the app. It also pauses while the app is in the background.
+- Widescreen video episodes: with the player expanded, turn the phone sideways to watch full screen. Spotilol goes back to portrait when the video ends or you minimize the player. Your phone's rotation lock is respected.
 
 ## New in 1.1.8.15: full-screen video + What's new card
 - Video episodes fill the whole expanded player, with the controls on top (like Canvas). Vertical videos fill the screen; widescreen videos fit the width (rotate the phone for full screen).

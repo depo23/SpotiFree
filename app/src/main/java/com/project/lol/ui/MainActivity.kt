@@ -170,6 +170,7 @@ class MainActivity : ComponentActivity() {
     private val amoledState = mutableStateOf(false)
     private val hideTopBarState = mutableStateOf(false)
     private val landscapeModeState = mutableStateOf(false)
+    private var wideVideoShowing = false
     private val keepScreenOnState = mutableStateOf(false)
     private val paletteSeedState = mutableStateOf<String?>(null)
 
@@ -448,6 +449,11 @@ class MainActivity : ComponentActivity() {
                             }
 
                             bridge.onPlayerExpanded = { playerExpanded = it }
+
+                            bridge.onWideVideo = {
+                                wideVideoShowing = it
+                                applyOrientation()
+                            }
 
                             bridge.onEnterPipRequest = {
                                 enterPipMode()
@@ -1371,6 +1377,10 @@ class MainActivity : ComponentActivity() {
     private fun applyOrientation() {
         requestedOrientation = if (landscapeModeState.value) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else if (wideVideoShowing) {
+            // Widescreen episode video in the expanded player: rotate like the Spotify app
+            // (still honours the system rotation lock), back to portrait once it's gone.
+            ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
