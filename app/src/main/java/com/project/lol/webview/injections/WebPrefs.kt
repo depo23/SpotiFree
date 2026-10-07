@@ -10,7 +10,6 @@ object WebPrefs {
     const val CONTENT = """
         (function(){
             if(window.splSyncWebPrefs) return;
-            function log(m){ try{ AndBridge.dbg('i','[probe] webprefs '+m); }catch(e){} }
             var busy=false;
             window.splSyncWebPrefs=function(canvas,videos,force){
                 var want=(canvas?'c1':'c0')+(videos?'v1':'v0');
@@ -29,13 +28,12 @@ object WebPrefs {
                     if(!boxes.length&&++tries<40) return;
                     clearInterval(iv);
                     if(boxes.length){
-                        log('before '+boxes.map(function(b){ return b.id+'='+b.checked; }).join(','));
                         boxes.forEach(function(b){
                             var on=b.id.slice(-7)==='.canvas'?canvas:videos;
                             if(b.checked!==on) b.click();
                         });
                         try{ localStorage.setItem('splWebPrefs',want); }catch(e){}
-                    } else log('toggles not found');
+                    }
                     setTimeout(function(){ if(back) history.back(); busy=false; },400);
                 },250);
             };

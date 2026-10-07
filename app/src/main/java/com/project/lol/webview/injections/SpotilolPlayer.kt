@@ -172,6 +172,8 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls #spl-video video{position:static!important;display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;transform:none!important;opacity:1!important;visibility:visible!important}',
                         '#spotilolPlayerControls.spl-video-tall #spl-video video{object-fit:cover!important}',
                         '#spotilolPlayerControls.spl-full.spl-video-on .spl-cover{visibility:hidden}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on>*:not(#spl-video){transition:opacity .25s}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on.spl-ctl-hidden>*:not(#spl-video){opacity:0;pointer-events:none}',
                         '#spotilolPlayerControls.spl-full.spl-video-on #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
                         '#spotilolPlayerControls .spl-canvas-toggle{visibility:hidden}',
                         '#spotilolPlayerControls.spl-full:not(.spl-episode) .spl-canvas-toggle{visibility:visible}',
@@ -427,7 +429,7 @@ object SpotilolPlayer {
                             clearInterval(iv);
                             try{
                                 var menu=document.querySelector('#context-menu,[role="menu"],[data-tippy-root]');
-                                AndBridge.dbg('w','[probe] speed-menu not matched: '+(menu?menu.outerHTML.slice(0,1400):'no menu element'));
+                                AndBridge.dbg('w','speed-menu not matched');
                             }catch(e){}
                             splCloseSpeedMenu();
                             cb(null);
@@ -474,7 +476,6 @@ object SpotilolPlayer {
                     splWithSpeedMenu(function(items){
                         if(!items) return;
                         splSpeedVals=items.map(function(x){return x.v;});
-                        try{ AndBridge.dbg('i','[probe] speed-menu values '+splSpeedVals.join(',')); }catch(e){}
                         splCloseSpeedMenu();
                         splShowSpeedSheet(splSpeedVals);
                     });
@@ -592,7 +593,7 @@ object SpotilolPlayer {
                 pl.addEventListener('mousedown',function(e){if(e.button!==0)return;if(e.target.closest('#spl-bar')||e.target.closest('#spl-edgebar')||e.target.closest('.spl-vol-bar')||e.target.closest('button'))return;splDragStart(e.clientX,e.clientY);});
                 document.addEventListener('mousemove',function(e){splDragMove(e.clientX,e.clientY);});
                 document.addEventListener('mouseup',function(){splDragEnd();});
-                pl.addEventListener('click',function(e){if(splSuppressClick)return;if(Date.now()-splLastDragEnd<400)return;if(splMini&&!e.target.closest('button')&&!e.target.closest('#spl-bar')&&!e.target.closest('#spl-edgebar'))splSetMini(false);});                    window.splUpdate=function(){
+                pl.addEventListener('click',function(e){if(splSuppressClick)return;if(Date.now()-splLastDragEnd<400)return;var free=!e.target.closest('button')&&!e.target.closest('#spl-bar')&&!e.target.closest('#spl-edgebar')&&!e.target.closest('.spl-vol-bar');if(splMini&&free)splSetMini(false);else if(free&&pl.classList.contains('spl-video-on')&&pl.classList.contains('spl-full'))splShowControls(pl.classList.contains('spl-ctl-hidden'));});                    window.splUpdate=function(){
                         var ci=document.getElementById('spl-cover-img');
                         var tk=document.getElementById('spl-track');
                         var ar=document.getElementById('spl-artist');
@@ -779,7 +780,7 @@ object SpotilolPlayer {
                     // Canvas: Spotify's short looping, silent, DRM-free MP4 behind a song.
                     // Full Screen Player + songs only. Looked up per track, via the web
                     // player's own "canvas" GraphQL query when its hash has been seen,
-                    // else Spotify's canvaz-cache protobuf endpoint. Logged as "[probe] canvas".
+                    // else Spotify's canvaz-cache protobuf endpoint.
                     var splCanvasFor=null,splCanvasUrl=null,splCanvasCache={};
                     var splCanvasOff=false;
                     try{ splCanvasOff=localStorage.getItem('splCanvasOff')==='1'; }catch(e){}
@@ -802,7 +803,7 @@ object SpotilolPlayer {
                         var msg=splCanvasOff?'Canvas off':(splCanvasUrl?'Canvas on':'Canvas on \u2014 this song has no Canvas');
                         try{ AndBridge.deferMessage(msg); }catch(e){}
                     };
-                    function clog(m){ try{ AndBridge.dbg('i','[probe] canvas '+m); }catch(e){} }
+                    function clog(m){ try{ AndBridge.dbg('d','canvas '+m); }catch(e){} }
                     function splApplyCanvas(){
                         var has=!!splCanvasUrl;
                         pl.classList.toggle('spl-has-canvas',has);
@@ -838,7 +839,7 @@ object SpotilolPlayer {
                                 var r=await rp;
                                 var txt=await r.text();
                                 var u=splCanvasUrlFrom(txt);
-                                clog(tid+' gql status='+r.status+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)+(txt.indexOf('"canvas":null')!==-1?' (no Canvas for this song, or Canvas is off in Spotify settings)':'')));
+                                clog(tid+' gql status='+r.status+' url='+(u||'none')+(u?'':' body='+txt.slice(0,160)));
                                 if(u) return u;
                             }catch(e){ window.__splOwnCall=false; clog(tid+' gql error '+e); }
                         } else clog(tid+' no canvas gql hash seen; ops='+Object.keys(window.splOpHashes||{}).length);
@@ -880,7 +881,14 @@ object SpotilolPlayer {
                     // Video episodes: borrow the web player's own <video> (DRM blob, it moves the
                     // element between its bar and sidebar itself) into the cover slot while the
                     // Full Screen Player is expanded, and hand it back when collapsed.
-                    var splVidHome=null,splVidWide=false;
+                    var splVidHome=null,splVidWide=false,splCtlTimer=0;
+                    // Tap the video to hide or show the controls. In landscape they also hide
+                    // by themselves a few seconds after being shown, like the Spotify app.
+                    function splShowControls(show){
+                        clearTimeout(splCtlTimer);
+                        pl.classList.toggle('spl-ctl-hidden',!show);
+                        if(show&&splVidWide) splCtlTimer=setTimeout(function(){ if(window.splIsPlayingSticky()) pl.classList.add('spl-ctl-hidden'); },4000);
+                    }
                     function splVideoTick(){
                         var slot=document.getElementById('spl-video');
                         if(!slot) return;
@@ -890,7 +898,6 @@ object SpotilolPlayer {
                                 var sv=document.querySelector('.VideoPlayer__container video');
                                 if(sv&&sv.videoWidth){
                                     splVidHome=sv.parentNode; slot.appendChild(sv); v=sv;
-                                    try{ AndBridge.dbg('i','[probe] video adopted '+sv.videoWidth+'x'+sv.videoHeight); }catch(e){}
                                 }
                             }
                         } else if(v&&splVidHome&&splVidHome.isConnected){
@@ -899,7 +906,8 @@ object SpotilolPlayer {
                         pl.classList.toggle('spl-video-on',!!(v&&v.videoWidth));
                         pl.classList.toggle('spl-video-tall',!!(v&&v.videoHeight>v.videoWidth));
                         var wide=!!(v&&v.videoWidth>v.videoHeight&&pl.classList.contains('spl-full'));
-                        if(wide!==splVidWide){ splVidWide=wide; try{ AndBridge.wideVideo(wide); }catch(e){} }
+                        if(wide!==splVidWide){ splVidWide=wide; try{ AndBridge.wideVideo(wide); }catch(e){} if(wide) splShowControls(true); }
+                        if(!v&&pl.classList.contains('spl-ctl-hidden')) splShowControls(true);
                     }
                     function formatTime(ms){
                         var t=Math.floor(ms/1000);

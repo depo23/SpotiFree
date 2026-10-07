@@ -91,20 +91,6 @@ object FetchOverride {
                             }).catch(function(){ return resp; });
                         });
                     }
-                    if(gqlOp && window.__splProbeOn) {
-                        window.__splOpsLogged = window.__splOpsLogged || {};
-                        var onEp = location.pathname.indexOf('/episode/') === 0 || !!document.querySelector('[data-testid="context-item-info-show"]');
-                        var opKey = gqlOp + (onEp ? '@ep' : '');
-                        if(!window.__splOpsLogged[opKey]) {
-                            window.__splOpsLogged[opKey] = 1;
-                            p.then(function(resp){
-                                resp.clone().text().then(function(t){
-                                    var vm = t.match(/[^{},]{0,40}video[^{},]{0,60}/gi) || [];
-                                    try { AndBridge.dbg('i', '[probe] gql '+opKey+' status='+resp.status+' len='+t.length+(vm.length ? ' video: '+vm.slice(0,4).join(' | ') : '')); } catch(e){}
-                                }).catch(function(){});
-                            }).catch(function(){});
-                        }
-                    }
                     if(url && url.indexOf && url.indexOf('/metadata/4/track/') !== -1) {
                         p.then(function(resp){
                             try {

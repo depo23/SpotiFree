@@ -32,14 +32,6 @@
     <string name="settings_section_security_network">SECURITY AND NETWORK</string>
     <string name="settings_section_about">ABOUT</string>
     <string name="settings_section_experimental">EXPERIMENTAL</string>
-    <string name="settings_section_debug">DEBUG</string>
-    <string name="settings_copy_probe_log">Copy Probe Log</string>
-    <string name="settings_test_video_embed">Test Video Embed</string>
-    <string name="settings_test_video_embed_needs_debug">Turn on Collect Debug first, so the test can be logged</string>
-    <string name="settings_test_video_embed_subtitle">Open the playing episode\'s video embed and log whether video plays</string>
-    <string name="settings_copy_probe_log_subtitle">Copy the [probe] media log lines to the clipboard</string>
-    <string name="settings_copy_probe_log_done">Copied %1$d probe lines</string>
-    <string name="settings_copy_probe_log_empty">No probe lines yet. Turn on Collect Debug, then play a video or podcast.</string>
 
     <string name="settings_gui_hack_mode">GUI Hack Mode</string>
     <string name="settings_gui_mode_css_js">Mobile CSS + JS</string>
@@ -88,7 +80,7 @@
     <string name="whats_new_player_title">Full Screen Player</string>
     <string name="whats_new_player_body">A big Now Playing screen like the Spotify app. Turn it on in Settings → Playback → Player Mode. Tap the mini player to open it, swipe down to close it. It stays the way you leave it.</string>
     <string name="whats_new_video_title">Video podcasts</string>
-    <string name="whats_new_video_body">Video episodes now play their video right in the Full Screen Player.</string>
+    <string name="whats_new_video_body">Video episodes now play their video right in the Full Screen Player. Turn your phone sideways for widescreen videos, and tap the video to hide or show the controls.</string>
     <string name="whats_new_canvas_title">Canvas</string>
     <string name="whats_new_canvas_body">Songs with a Canvas show their looping video behind the player. Switch it off in Settings → Playback, or with the film button in the player.</string>
     <string name="whats_new_podcast_title">Podcast controls</string>

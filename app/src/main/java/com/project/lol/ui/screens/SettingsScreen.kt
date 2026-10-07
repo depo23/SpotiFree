@@ -1,7 +1,6 @@
 package com.project.lol.ui.screens
 
 import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -122,7 +121,6 @@ import com.project.lol.util.MarkdownText
 import com.project.lol.webview.helpers.LyricsTheme
 import compose.icons.TablerIcons
 import compose.icons.tablericons.AlertTriangle
-import compose.icons.tablericons.Copy
 import compose.icons.tablericons.ArrowsMinimize
 import compose.icons.tablericons.ArrowsSort
 import compose.icons.tablericons.ArrowsUpDown
@@ -140,6 +138,7 @@ import compose.icons.tablericons.ColorSwatch
 import compose.icons.tablericons.DeviceMobile
 import compose.icons.tablericons.Download
 import compose.icons.tablericons.EyeOff
+import compose.icons.tablericons.Flask
 import compose.icons.tablericons.Folder
 import compose.icons.tablericons.InfoCircle
 import compose.icons.tablericons.Language
@@ -227,7 +226,6 @@ fun SettingsContent(
     onClearCache: () -> Unit,
     onClearData: () -> Unit,
     onDebugToggle: (Boolean) -> Unit = {},
-    onTestVideoEmbed: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit
 ) {
@@ -938,12 +936,10 @@ fun SettingsContent(
                     )
                 }
 
-                // Test builds: Debug section is always visible (upstream hides it
-                // behind 5 taps on WebView Engine).
-                run {
+                if (debugUnlocked) {
                     SettingSectionCard(
-                        title = stringResource(R.string.settings_section_debug),
-                        icon = TablerIcons.Bug
+                        title = stringResource(R.string.settings_section_experimental),
+                        icon = TablerIcons.Flask
                     ) {
                         SettingSwitchTile(
                             title = stringResource(R.string.settings_collect_debug),
@@ -965,40 +961,6 @@ fun SettingsContent(
                             else stringResource(R.string.settings_open_logger_off),
                             icon = TablerIcons.Code,
                             onClick = { showDevlogDialog = true }
-                        )
-
-                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                        SettingTile(
-                            title = stringResource(R.string.settings_test_video_embed),
-                            subtitle = stringResource(R.string.settings_test_video_embed_subtitle),
-                            icon = TablerIcons.PlayerPlay,
-                            onClick = {
-                                if (!loggingOn) {
-                                    Toast.makeText(context, context.getString(R.string.settings_test_video_embed_needs_debug), Toast.LENGTH_LONG).show()
-                                } else {
-                                    onTestVideoEmbed()
-                                }
-                            }
-                        )
-
-                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                        SettingTile(
-                            title = stringResource(R.string.settings_copy_probe_log),
-                            subtitle = stringResource(R.string.settings_copy_probe_log_subtitle),
-                            icon = TablerIcons.Copy,
-                            onClick = {
-                                val lines = Logger.snapshot().filter { it.contains("[probe]") }
-                                if (lines.isEmpty()) {
-                                    Toast.makeText(context, context.getString(R.string.settings_copy_probe_log_empty), Toast.LENGTH_LONG).show()
-                                } else {
-                                    val header = "spotilol probe log  version: $appVersionName  lines: ${lines.size}"
-                                    context.getSystemService(ClipboardManager::class.java)
-                                        ?.setPrimaryClip(ClipData.newPlainText("spotilol_probe_log", header + "\n" + lines.joinToString("\n")))
-                                    Toast.makeText(context, context.getString(R.string.settings_copy_probe_log_done, lines.size), Toast.LENGTH_SHORT).show()
-                                }
-                            }
                         )
 
                         HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
