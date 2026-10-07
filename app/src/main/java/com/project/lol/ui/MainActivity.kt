@@ -84,6 +84,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -379,6 +380,7 @@ class MainActivity : ComponentActivity() {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             text = stringResource(R.string.app_name),
+                                            style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Spacer(Modifier.width(6.dp))
@@ -407,6 +409,7 @@ class MainActivity : ComponentActivity() {
                                 Switch(
                                     checked = serviceEnabled,
                                     onCheckedChange = { newValue -> setServiceEnabled(newValue) },
+                                    modifier = Modifier.scale(0.75f),
                                     colors = SwitchDefaults.colors(
                                         checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                                         checkedTrackColor = MaterialTheme.colorScheme.primary,
@@ -416,6 +419,8 @@ class MainActivity : ComponentActivity() {
                                 )
                                 Spacer(Modifier.width(8.dp))
                             },
+                                // Slimmer than the 64dp default, to leave more room for the player.
+                                expandedHeight = 48.dp,
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.surface,
                                     titleContentColor = MaterialTheme.colorScheme.onSurface,
