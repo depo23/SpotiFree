@@ -87,6 +87,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -118,6 +119,7 @@ import com.project.lol.util.LogFilter
 import com.project.lol.util.LogLevel
 import com.project.lol.util.Logger
 import com.project.lol.util.MarkdownText
+import com.project.lol.util.Telemetry
 import com.project.lol.webview.helpers.LyricsTheme
 import compose.icons.TablerIcons
 import compose.icons.tablericons.AlertTriangle
@@ -144,6 +146,7 @@ import compose.icons.tablericons.InfoCircle
 import compose.icons.tablericons.Language
 import compose.icons.tablericons.Link
 import compose.icons.tablericons.Moon
+import compose.icons.tablericons.Movie
 import compose.icons.tablericons.Palette
 import compose.icons.tablericons.PlayerPlay
 import compose.icons.tablericons.Playlist
@@ -154,6 +157,7 @@ import compose.icons.tablericons.Trash
 import compose.icons.tablericons.TrashOff
 import compose.icons.tablericons.User
 import compose.icons.tablericons.UserPlus
+import compose.icons.tablericons.Video
 import compose.icons.tablericons.WaveSine
 import compose.icons.tablericons.X
 import java.text.SimpleDateFormat
@@ -243,11 +247,16 @@ fun SettingsContent(
     var offlineMode by remember { mutableStateOf(prefs.getBoolean("OfflineMode", false)) }
     var blockSW by remember { mutableStateOf(blockServiceWorker) }
     var hideEmptyPlayer by remember { mutableStateOf(prefs.getBoolean("HideEmptyPlayer", false)) }
+    var webCanvas by remember { mutableStateOf(prefs.getBoolean("WebCanvas", true)) }
+    var webVideos by remember { mutableStateOf(prefs.getBoolean("WebVideos", true)) }
     var playlistSortEnabled by remember { mutableStateOf(prefs.getBoolean("PlaylistSortEnabled", true)) }
     var showScrollbar by remember { mutableStateOf(prefs.getBoolean("ShowScrollbar", true)) }
     var lyricsStyle by remember { mutableStateOf(prefs.getString("LyricsStyle", LyricsTheme.DEFAULT_STYLE) ?: LyricsTheme.DEFAULT_STYLE) }
+    var spicyLyricsEnabled by remember { mutableStateOf(prefs.getBoolean("SpicyLyrics", true)) }
+    var telemetryEnabled by remember { mutableStateOf(prefs.getBoolean(Telemetry.KEY, false)) }
 
     val context = LocalContext.current
+    val resources = LocalResources.current
     var profiles by remember { mutableStateOf(ProfileManager.getProfiles(context)) }
 
     var showConnectionModeDialog by remember { mutableStateOf(false) }
@@ -290,7 +299,7 @@ fun SettingsContent(
             DownloadPrefs.setFolder(context, uri)
             refreshFolderState()
         } else {
-            Toast.makeText(context, context.getString(R.string.settings_folder_access_error), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, resources.getString(R.string.settings_folder_access_error), Toast.LENGTH_SHORT).show()
         }
     }
     var dlTags by remember { mutableStateOf(DownloadPrefs.writeTags(context)) }
@@ -303,12 +312,12 @@ fun SettingsContent(
             debugTapCount = 0
             debugUnlocked = true
             prefs.edit().putBoolean("DebugUnlocked", true).apply()
-            Toast.makeText(context, context.getString(R.string.settings_debug_unlocked), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, resources.getString(R.string.settings_debug_unlocked), Toast.LENGTH_SHORT).show()
         } else {
             val message = if (remaining == 1) {
-                context.getString(R.string.settings_debug_tap_one_left)
+                resources.getString(R.string.settings_debug_tap_one_left)
             } else {
-                context.getString(R.string.settings_debug_taps_left, remaining)
+                resources.getString(R.string.settings_debug_taps_left, remaining)
             }
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
@@ -324,9 +333,9 @@ fun SettingsContent(
                 Logger.setEnabled(context, false)
                 onDebugToggle(false)
             }
-            Toast.makeText(context, context.getString(R.string.settings_debug_hidden), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, resources.getString(R.string.settings_debug_hidden), Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(context, context.getString(R.string.settings_debug_is_hidden), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, resources.getString(R.string.settings_debug_is_hidden), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -524,6 +533,7 @@ fun SettingsContent(
                     val playerModeLabel = when (playerMode) {
                         "spotilol" -> stringResource(R.string.settings_player_spotilol)
                         "original" -> stringResource(R.string.settings_player_original)
+                        "fullscreen" -> stringResource(R.string.settings_player_fullscreen)
                         else -> stringResource(R.string.settings_player_spotilol)
                     }
                     SettingTile(
@@ -531,6 +541,32 @@ fun SettingsContent(
                         subtitle = playerModeLabel,
                         icon = TablerIcons.PlayerPlay,
                         onClick = { showPlayerModeDialog = true }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_web_canvas),
+                        subtitle = stringResource(R.string.settings_web_canvas_subtitle),
+                        icon = TablerIcons.Movie,
+                        checked = webCanvas,
+                        onCheckedChange = {
+                            webCanvas = it
+                            prefs.edit().putBoolean("WebCanvas", it).apply()
+                        }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_web_videos),
+                        subtitle = stringResource(R.string.settings_web_videos_subtitle),
+                        icon = TablerIcons.Video,
+                        checked = webVideos,
+                        onCheckedChange = {
+                            webVideos = it
+                            prefs.edit().putBoolean("WebVideos", it).apply()
+                        }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
@@ -570,6 +606,19 @@ fun SettingsContent(
                         subtitle = lyricsStyleLabel,
                         icon = TablerIcons.Playlist,
                         onClick = { showLyricsStyleDialog = true }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_spicylyrics),
+                        subtitle = stringResource(R.string.settings_spicylyrics_subtitle),
+                        icon = TablerIcons.WaveSine,
+                        checked = spicyLyricsEnabled,
+                        onCheckedChange = {
+                            spicyLyricsEnabled = it
+                            prefs.edit().putBoolean("SpicyLyrics", it).apply()
+                        }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
@@ -735,7 +784,7 @@ fun SettingsContent(
                         onClick = {
                             val cookies = ProfileManager.captureSession(context)
                             if (cookies == null) {
-                                Toast.makeText(context, context.getString(R.string.settings_login_first), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, resources.getString(R.string.settings_login_first), Toast.LENGTH_SHORT).show()
                             } else {
                                 pendingCookies = cookies
                                 accountNameInput = prefs.getString("CurrentAccountName", "") ?: ""
@@ -748,7 +797,7 @@ fun SettingsContent(
                         profiles.forEachIndexed { index, profile ->
                             ProfileRow(
                                 name = profile.name,
-                                subtitle = stringResource(R.string.settings_profile_saved, SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(profile.savedAt))),
+                                subtitle = stringResource(R.string.settings_profile_saved, SimpleDateFormat("MMM d, yyyy", resources.configuration.locales[0]).format(Date(profile.savedAt))),
                                 onLoad = { onLoadProfile(profile.cookies) },
                                 onDelete = {
                                     onDeleteProfile(profile.name)
@@ -831,11 +880,27 @@ fun SettingsContent(
                                     runCatching { context.startActivity(intent) }.isSuccess
                                 }
                                 if (!opened) {
-                                    Toast.makeText(context, context.getString(R.string.settings_open_links_unsupported), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, resources.getString(R.string.settings_open_links_unsupported), Toast.LENGTH_SHORT).show()
                                 }
                             } else {
-                                Toast.makeText(context, context.getString(R.string.settings_open_links_always_hint), Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, resources.getString(R.string.settings_open_links_always_hint), Toast.LENGTH_LONG).show()
                             }
+                        }
+                    )
+                }
+
+                SettingSectionCard(
+                    title = stringResource(R.string.settings_section_privacy),
+                    icon = TablerIcons.Shield
+                ) {
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_telemetry),
+                        subtitle = stringResource(R.string.settings_telemetry_subtitle),
+                        icon = TablerIcons.EyeOff,
+                        checked = telemetryEnabled,
+                        onCheckedChange = { enabled ->
+                            telemetryEnabled = enabled
+                            Telemetry.setEnabled(context, enabled)
                         }
                     )
                 }
@@ -851,7 +916,7 @@ fun SettingsContent(
                             icon = TablerIcons.Shield,
                             onClick = {
                                 val path = LocalProxyManager.exportCACert(context)
-                                Toast.makeText(context, context.getString(R.string.settings_cert_exported, path), Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, resources.getString(R.string.settings_cert_exported, path), Toast.LENGTH_LONG).show()
                             }
                         )
                     }
@@ -938,7 +1003,7 @@ fun SettingsContent(
                             title = stringResource(R.string.settings_crash_test),
                             subtitle = stringResource(R.string.settings_crash_test_subtitle),
                             icon = TablerIcons.AlertTriangle,
-                            onClick = { throw IllegalStateException(context.getString(R.string.settings_crash_test_exception)) }
+                            onClick = { throw IllegalStateException(resources.getString(R.string.settings_crash_test_exception)) }
                         )
                     }
                 }
@@ -1061,6 +1126,7 @@ fun SettingsContent(
             title = stringResource(R.string.settings_player_mode),
             options = listOf(
                 "spotilol" to stringResource(R.string.settings_player_spotilol),
+                "fullscreen" to stringResource(R.string.settings_player_fullscreen),
                 "original" to stringResource(R.string.settings_player_original)
             ),
             selected = playerMode,
@@ -1892,6 +1958,7 @@ fun ConfirmationDialog(
 @Composable
 fun SettingsContentPreview() {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val prefs = remember { context.getSharedPreferences("preview_prefs", Context.MODE_PRIVATE) }
     SpotifyTheme {
         SettingsContent(

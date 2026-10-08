@@ -49,6 +49,7 @@ class OfflineMediaService : Service() {
         const val ACTION_NEXT = "com.project.lol.offline.ACTION_NEXT"
         const val ACTION_PREV = "com.project.lol.offline.ACTION_PREV"
         const val ACTION_STOP = "com.project.lol.offline.ACTION_STOP"
+        const val ACTION_SHUFFLE = "com.project.lol.offline.ACTION_SHUFFLE"
         const val ACTION_WIDGET_REFRESH = "com.project.lol.offline.ACTION_WIDGET_REFRESH"
 
         private val PLAYBACK_ACTIONS: Long =
@@ -67,15 +68,18 @@ class OfflineMediaService : Service() {
     }
 
     interface OfflineController {
+        fun onPlayFromSearch(query: String?)
         fun onPlayPause()
         fun onNext()
         fun onPrev()
         fun onStop()
         fun onSeekTo(position: Long)
+        fun onToggleShuffle()
     }
 
     private lateinit var mediaSession: MediaSessionCompat
     private var isPlaying = false
+    private var isShuffle = false
     private var coverBitmap: Bitmap? = null
     private var currentTitle = ""
     private var currentArtist = ""
@@ -92,6 +96,7 @@ class OfflineMediaService : Service() {
                 ACTION_NEXT -> controller?.onNext()
                 ACTION_PREV -> controller?.onPrev()
                 ACTION_STOP -> controller?.onStop()
+                ACTION_SHUFFLE -> controller?.onToggleShuffle()
                 ACTION_WIDGET_REFRESH -> pushWidgetState(force = true)
             }
         }
@@ -154,6 +159,7 @@ class OfflineMediaService : Service() {
             currentDuration = intent.getLongExtra("duration", 0L)
             isPlaying = intent.getBooleanExtra("playing", false)
             currentPosition = intent.getLongExtra("position", 0L)
+            isShuffle = intent.getBooleanExtra("shuffle", isShuffle)
             coverBitmap = null
             val coverPath = intent.getStringExtra("coverPath")
             if (!coverPath.isNullOrBlank()) {
@@ -217,6 +223,10 @@ class OfflineMediaService : Service() {
                     if (!isPlaying) OfflineMediaService.controller?.onPlayPause()
                 }
 
+                override fun onPlayFromSearch(query: String?, extras: Bundle?) {
+                    OfflineMediaService.controller?.onPlayFromSearch(query)
+                }
+
                 override fun onPause() {
                     if (isPlaying) OfflineMediaService.controller?.onPlayPause()
                 }
@@ -247,14 +257,11 @@ class OfflineMediaService : Service() {
             addAction(ACTION_NEXT)
             addAction(ACTION_PREV)
             addAction(ACTION_STOP)
+            addAction(ACTION_SHUFFLE)
             addAction(ACTION_WIDGET_REFRESH)
             addAction(Intent.ACTION_MEDIA_BUTTON)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(actionReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(actionReceiver, filter)
-        }
+        androidx.core.content.ContextCompat.registerReceiver(this, actionReceiver, filter, androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
 
         val noisyFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -285,6 +292,12 @@ class OfflineMediaService : Service() {
         pushWidgetState(force = true)
     }
 
+    fun updateShuffle(on: Boolean) {
+        if (isShuffle == on) return
+        isShuffle = on
+        showNotification()
+    }
+
     fun updatePosition(position: Long) {
         currentPosition = position
         updatePlaybackState()
@@ -305,7 +318,7 @@ class OfflineMediaService : Service() {
             artist = currentArtist,
             playing = isPlaying,
             favorite = false,
-            shuffle = "disabled",
+            shuffle = if (isShuffle) "shuffle" else "off",
             repeat = "false",
             position = currentPosition,
             duration = currentDuration,
@@ -432,6 +445,12 @@ class OfflineMediaService : Service() {
             R.drawable.ic_skip_next, getString(R.string.notif_action_next), getActionPendingIntent(ACTION_NEXT)
         ).build()
 
+        val shuffleAction = NotificationCompat.Action.Builder(
+            if (isShuffle) R.drawable.ic_shuffle_active else R.drawable.ic_shuffle,
+            getString(if (isShuffle) R.string.notif_shuffle_disable else R.string.notif_shuffle_enable),
+            getActionPendingIntent(ACTION_SHUFFLE)
+        ).build()
+
         val style = MediaStyle()
             .setShowActionsInCompactView(0, 1, 2)
             .setShowCancelButton(true)
@@ -455,6 +474,7 @@ class OfflineMediaService : Service() {
             .addAction(prevAction)
             .addAction(playPauseAction)
             .addAction(nextAction)
+            .addAction(shuffleAction)
 
         coverBitmap?.let { builder.setLargeIcon(it) }
 
