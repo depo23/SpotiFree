@@ -21,8 +21,6 @@ package com.project.lol.webview.injections
 
 
 object SpotilolPlayer {
-    // Split in two: a single string constant is limited to 65535 bytes in the
-    // class file. joinToString keeps the compiler from folding them back into one.
     val CONTENT: String = listOf(PART_1, PART_2).joinToString("")
 
     private const val PART_1 = """
@@ -173,7 +171,9 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-video-tall #spl-video video{object-fit:cover!important}',
                         '#spotilolPlayerControls.spl-full.spl-video-on .spl-cover{visibility:hidden}',
                         '#spotilolPlayerControls.spl-full.spl-video-on>*:not(#spl-video){transition:opacity .25s}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on .spl-top>*{transition:opacity .25s}',
                         '#spotilolPlayerControls.spl-full.spl-video-on.spl-ctl-hidden>*:not(#spl-video){opacity:0;pointer-events:none}',
+                        '#spotilolPlayerControls.spl-full.spl-video-on.spl-ctl-hidden .spl-top>*{opacity:0;pointer-events:none}',
                         '#spotilolPlayerControls.spl-full.spl-video-on #spl-canvas-shade{display:block;position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 78%)}',
                         '#spotilolPlayerControls .spl-canvas-toggle{visibility:hidden}',
                         '#spotilolPlayerControls.spl-full:not(.spl-episode) .spl-canvas-toggle{visibility:visible}',
@@ -199,7 +199,6 @@ object SpotilolPlayer {
                         '#spotilolPlayerControls.spl-full .spl-transport{grid-area:transport}',
                         '#spotilolPlayerControls.spl-full .spl-transport .spl-play{min-width:56px;min-height:56px}',
                         '#spotilolPlayerControls.spl-full .spl-row2{grid-area:actions;margin-top:8px!important}',
-                        // Sideways video: controls span the screen width over the video.
                         '#spotilolPlayerControls.spl-full.spl-video-on{grid-template-columns:1fr;grid-template-rows:48px 1fr auto auto;grid-template-areas:"head" "info" "seek" "ctl";column-gap:0;padding:8px 28px 10px!important}',
                         '#spotilolPlayerControls.spl-full.spl-video-on .spl-cover{display:none}',
                         '#spotilolPlayerControls.spl-full.spl-video-on .spl-np-head{height:48px}',
@@ -394,29 +393,22 @@ object SpotilolPlayer {
     private const val PART_2 = """                document.getElementById('spl-liked').onclick=function(){actAddToFav()};
                 document.getElementById('spl-seekb').onclick=function(){var b=document.querySelector('button[data-testid="control-button-seek-back-15"]');if(b)b.click()};
                 document.getElementById('spl-seekf').onclick=function(){var b=document.querySelector('button[data-testid="control-button-seek-forward-15"]');if(b)b.click()};
-                // Speed picker. Spotify's speed menu closes on any outside tap, so it is
-                // opened once to read the available speeds, closed, and our own sheet is
-                // shown; picking a speed reopens Spotify's menu and clicks that item.
-                // Items are matched by their "1.5x"-style text.
                 function splSpeedBtn(){ return document.querySelector('button[data-testid="control-button-playback-speed"]'); }
-                // Only items that are actually laid out: Spotify also keeps hidden
-                // fine-grained (0.1 step) items in the DOM, which the native list doesn't show.
                 function splSpeedItems(){
                     var seen={};
                     return [].slice.call(document.querySelectorAll('#context-menu [role^="menuitem"], [role="menu"] [role^="menuitem"], [data-tippy-root] button'))
                         .map(function(b){
-                            var m=(b.textContent||'').trim().match(/^([\d.]+)\s*[\u00d7x]$/);
+                            var m=(b.textContent||'').trim().match(/^([\d.,]+)\s*[\u00d7x]$/);
                             if(!m) return null;
                             var r=b.getBoundingClientRect();
                             if(r.width===0||r.height===0) return null;
-                            var v=parseFloat(m[1]);
+                            var v=parseFloat(m[1].replace(',','.'));
                             if(seen[v]) return null;
                             seen[v]=1;
                             return {b:b,v:v};
                         })
                         .filter(Boolean).sort(function(a,b){return a.v-b.v;});
                 }
-                // Spotify's menu is opened programmatically; keep it invisible meanwhile.
                 function splHideNativeMenu(on){ document.documentElement.classList.toggle('spl-hide-ctx',!!on); }
                 function splCloseSpeedMenu(){
                     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
@@ -448,7 +440,8 @@ object SpotilolPlayer {
                 }
                 function splCurSpeed(){
                     var sb=splSpeedBtn();
-                    return parseFloat(((sb&&sb.getAttribute('aria-label')||'').match(/([\d.]+)\s*\u00d7/)||[])[1])||1;
+                    var al=(sb&&sb.getAttribute('aria-label')||'').replace(',','.');
+                    return parseFloat((al.match(/([\d.]+)\s*[\u00d7x]/)||[])[1])||1;
                 }
                 var speedSheet=document.createElement('div');
                 speedSheet.id='spl-speed-sheet';
@@ -479,7 +472,6 @@ object SpotilolPlayer {
                     });
                     speedSheet.classList.add('spl-open');
                 }
-                // The list of speeds doesn't change, so it is read from Spotify's menu once.
                 var splSpeedVals=null;
                 document.getElementById('spl-speed').onclick=function(){
                     if(splSpeedVals){ splShowSpeedSheet(splSpeedVals); return; }
@@ -526,8 +518,6 @@ object SpotilolPlayer {
 
                 var splMini=false,splClosing=false;
                 var splDrag=null,splSuppressClick=false,splLastDragEnd=0;
-                // window.__splFullPlayer: true = mini bar / full screen ("fullscreen" mode),
-                // false = mini bar / floating card ("spotilol" mode).
                 function splApplyMode(m){
                     if(m&&window.splHideSpeedSheet) window.splHideSpeedSheet();
                     var fs=!!window.__splFullPlayer;
@@ -539,12 +529,10 @@ object SpotilolPlayer {
                     pl.classList.toggle('spl-full',fs&&!splMini);
                     var isFull=fs&&!splMini;
                     if(isFull!==wasFull){ try{ AndBridge.playerExpanded(isFull); }catch(e){} }
-                    // Remember expanded/minimized so new songs and app restarts keep it.
                     if(fs){ try{ localStorage.setItem('splFullOpen',isFull?'1':'0'); }catch(e){} }
                 }
                 function splCollapseFull(){ if(pl.classList.contains('spl-full')) splSetMini(true); }
                 window.splRefreshMode=function(){ splApplyMode(window.__splFullPlayer?true:splMini); };
-                // Collapsing slides the full-screen player down before switching to the mini bar.
                 function splSetMini(m){
                     m=!!m;
                     if(splClosing) return;
@@ -603,7 +591,7 @@ object SpotilolPlayer {
                 pl.addEventListener('mousedown',function(e){if(e.button!==0)return;if(e.target.closest('#spl-bar')||e.target.closest('#spl-edgebar')||e.target.closest('.spl-vol-bar')||e.target.closest('button'))return;splDragStart(e.clientX,e.clientY);});
                 document.addEventListener('mousemove',function(e){splDragMove(e.clientX,e.clientY);});
                 document.addEventListener('mouseup',function(){splDragEnd();});
-                pl.addEventListener('click',function(e){if(splSuppressClick)return;if(Date.now()-splLastDragEnd<400)return;var free=!e.target.closest('button')&&!e.target.closest('#spl-bar')&&!e.target.closest('#spl-edgebar')&&!e.target.closest('.spl-vol-bar');if(splMini&&free)splSetMini(false);else if(free&&pl.classList.contains('spl-video-on')&&pl.classList.contains('spl-full'))splShowControls(pl.classList.contains('spl-ctl-hidden'));});                    window.splUpdate=function(){
+                pl.addEventListener('click',function(e){if(splSuppressClick)return;if(Date.now()-splLastDragEnd<400)return;var free=!e.target.closest('button')&&!e.target.closest('#spl-bar')&&!e.target.closest('#spl-edgebar')&&!e.target.closest('.spl-vol-bar');if(splMini&&free)splSetMini(false);else if(free&&pl.classList.contains('spl-video-on')&&pl.classList.contains('spl-full'))splShowControls(pl.classList.contains('spl-ctl-hidden'));});                    window.splUpdate=function(){ if(window.__splBusy) return;
                         var ci=document.getElementById('spl-cover-img');
                         var tk=document.getElementById('spl-track');
                         var ar=document.getElementById('spl-artist');
@@ -626,9 +614,13 @@ object SpotilolPlayer {
                         if(ci&&imgEl&&imgEl.src&&ci.getAttribute('data-src')!==imgEl.src){
                             var lo=imgEl.src;
                             ci.setAttribute('data-src',lo);
-                            ci.onerror=function(){ ci.onerror=null; if(ci.getAttribute('data-src')===lo) ci.src=lo; };
-                            ci.src=splHiRes(imgEl);
-                            splTint(lo);
+                            if(window.__splFullPlayer){
+                                ci.onerror=function(){ ci.onerror=null; if(ci.getAttribute('data-src')===lo) ci.src=lo; };
+                                ci.src=splHiRes(imgEl);
+                                splTint(lo);
+                            } else {
+                                ci.src=lo;
+                            }
                         }
 
                         var trackEl=document.querySelector('a[data-testid=context-item-link]');
@@ -674,13 +666,12 @@ object SpotilolPlayer {
                                 rp.innerHTML='<svg viewBox="0 0 16 16"><path fill="currentColor" d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75z"/></svg>';
                             }
                         }
-                        // Video episodes swap the "episode" cover for "video-player-npb"; the show link is always there.
                         var isEp=!!document.querySelector('[data-testid="now-playing-widget"] [data-testid="episode"],[data-testid="now-playing-widget"] [data-testid="context-item-info-show"]');
                         pl.classList.toggle('spl-episode',isEp);
                         var spb=document.querySelector('button[data-testid="control-button-playback-speed"]');
                         var spt=document.getElementById('spl-speed-l');
                         if(spt&&spb){
-                            var spm=(spb.getAttribute('aria-label')||'').match(/([\d.]+)\s*\u00d7/);
+                            var spm=(spb.getAttribute('aria-label')||'').replace(',','.').match(/([\d.]+)\s*[\u00d7x]/);
                             var spv=(spm?spm[1]:'1')+'\u00d7';
                             if(spt.textContent!==spv) spt.textContent=spv;
                         }
@@ -688,7 +679,6 @@ object SpotilolPlayer {
                             var fb=document.querySelector('div[data-testid=now-playing-widget]>div:last-child>button');
                             var liked=fb&&fb.getAttribute('aria-checked')==='true';
                             lk.classList.toggle('spl-active',liked===true);
-                            // Episodes are saved to Your Episodes: plus / check icon instead of the heart.
                             var lkKind=isEp?(liked?'c':'p'):'h';
                             if((lk.getAttribute('data-k')||'h')!==lkKind){
                                 lk.setAttribute('data-k',lkKind);
@@ -748,8 +738,6 @@ object SpotilolPlayer {
                         splCanvasTick();
                         splVideoTick();
                     };
-                    // Background tint from the cover art, like the Spotify app. Needs CORS on the
-                    // image; on failure the player keeps its default colors.
                     function splTint(src){
                         var im=new Image();
                         im.crossOrigin='anonymous';
@@ -774,9 +762,6 @@ object SpotilolPlayer {
                         };
                         im.src=src;
                     }
-                    // The now-playing widget only shows a 64px cover. Use the largest srcset
-                    // entry, else swap Spotify's 64/300px image-size prefix for 640px.
-                    // onerror above falls back to the original src.
                     function splHiRes(im){
                         var best=im.src,bw=0;
                         (im.getAttribute('srcset')||'').split(',').forEach(function(p){
@@ -787,10 +772,6 @@ object SpotilolPlayer {
                         return best.replace(/ab67616d0000(4851|1e02)/,'ab67616d0000b273')
                                    .replace(/ab6765630000f68d|ab67656300005f1f/,'ab6765630000ba8a');
                     }
-                    // Canvas: Spotify's short looping, silent, DRM-free MP4 behind a song.
-                    // Full Screen Player + songs only. Looked up per track, via the web
-                    // player's own "canvas" GraphQL query when its hash has been seen,
-                    // else Spotify's canvaz-cache protobuf endpoint.
                     var splCanvasFor=null,splCanvasUrl=null,splCanvasCache={};
                     var splCanvasOff=false;
                     try{ splCanvasOff=localStorage.getItem('splCanvasOff')==='1'; }catch(e){}
@@ -882,18 +863,12 @@ object SpotilolPlayer {
                         }
                         var want=pl.classList.contains('spl-canvas')&&pl.classList.contains('spl-full')&&!!window.splIsPlayingSticky();
                         if(want&&cvEl.paused&&cvEl.getAttribute('src')){
-                            // After the app was in the background the decoder can be gone; reload before playing.
                             if((cvEl.readyState===0||cvEl.error)&&Date.now()-(cvEl.__splReload||0)>3000){ cvEl.__splReload=Date.now(); cvEl.load(); }
                             var pp=cvEl.play(); if(pp&&pp.catch) pp.catch(function(){});
                         }
                         else if(!want&&!cvEl.paused) cvEl.pause();
                     }
-                    // Video episodes: borrow the web player's own <video> (DRM blob, it moves the
-                    // element between its bar and sidebar itself) into the cover slot while the
-                    // Full Screen Player is expanded, and hand it back when collapsed.
                     var splVidHome=null,splVidWide=false,splCtlTimer=0;
-                    // Tap the video to hide or show the controls. In landscape they also hide
-                    // by themselves a few seconds after being shown, like the Spotify app.
                     function splShowControls(show){
                         clearTimeout(splCtlTimer);
                         pl.classList.toggle('spl-ctl-hidden',!show);
@@ -926,7 +901,7 @@ object SpotilolPlayer {
 
                     var rafLastTime=0;
                     function rafUpdate(timestamp){
-                        if(timestamp-rafLastTime>100){ splUpdate(); rafLastTime=timestamp; }
+                        if(!window.__splBusy&&!window.__splBg&&timestamp-rafLastTime>100){ splUpdate(); rafLastTime=timestamp; }
                         requestAnimationFrame(rafUpdate);
                     }
                     var splWasOpen=false;
@@ -937,7 +912,7 @@ object SpotilolPlayer {
             if(document.readyState==='complete') initSpotilolPlayer();
             else window.addEventListener('load',initSpotilolPlayer);
             setInterval(function(){
-                if(window.__splBg) return;
+                if(window.__splBg||window.__splBusy) return;
                 var npb=document.querySelector('aside[data-testid="now-playing-bar"]');
                 if(npb&&npb.style.display!=='none') initSpotilolPlayer();
             },3000);

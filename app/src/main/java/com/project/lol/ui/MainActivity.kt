@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -106,17 +107,16 @@ import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
-import androidx.webkit.WebSettingsCompat
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.project.lol.R
+import com.project.lol.bridge.OriginScopedBridge
+import com.project.lol.security.WebSecurityPolicy
 import com.project.lol.bridge.SpotifyBridge
 import com.project.lol.offline.DownloadManager
 import com.project.lol.profile.ProfileManager
 import com.project.lol.proxy.LocalProxyManager
 import com.project.lol.service.MediaNotificationService
 import com.project.lol.ui.components.ChangelogDialog
-import com.project.lol.ui.components.WhatsNew
-import com.project.lol.ui.components.WhatsNewDialog
 import com.project.lol.ui.components.SettingsDialog
 import com.project.lol.ui.theme.SpotifyTheme
 import com.project.lol.util.BuildInfo
@@ -155,6 +155,20 @@ class MainActivity : ComponentActivity() {
     }
 
     private var webView: WebView? = null
+    private var pendingMediaSearch: String? = null
+
+    private fun captureMediaSearch(intent: Intent): Boolean {
+        if (intent.action != "android.media.action.MEDIA_PLAY_FROM_SEARCH") return false
+        pendingMediaSearch = intent.getStringExtra(android.app.SearchManager.QUERY).orEmpty().take(1024)
+        return true
+    }
+
+    private fun playPendingSearch(view: WebView) {
+        if (!WebSecurityPolicy.isPlayer(view.url)) return
+        val query = pendingMediaSearch ?: return
+        pendingMediaSearch = null
+        view.evaluateJavascript(com.project.lol.service.MediaSearch.playSearchScript(query), null)
+    }
     private var serviceStarted = false
     @Volatile private var pipCoverBitmap: Bitmap? = null
     @Volatile private var pipPlaying = false
@@ -166,6 +180,7 @@ class MainActivity : ComponentActivity() {
     private var pipVideoCallback: android.webkit.WebChromeClient.CustomViewCallback? = null
     private var pipVideoAspect: Rational? = null
     private var pipVideoRequested = false
+    private var pipLyricsRequested = false
     private val pipVideoActive = mutableStateOf(false)
 
     private val serviceEnabledState = mutableStateOf(true)
@@ -174,6 +189,7 @@ class MainActivity : ComponentActivity() {
     private val hideTopBarState = mutableStateOf(false)
     private val landscapeModeState = mutableStateOf(false)
     private val wideVideoState = mutableStateOf(false)
+    private val videoFullscreenState = mutableStateOf(false)
     private val keepScreenOnState = mutableStateOf(false)
     private val paletteSeedState = mutableStateOf<String?>(null)
 
@@ -247,6 +263,7 @@ class MainActivity : ComponentActivity() {
         applyOrientation()
         applyKeepScreenOn()
 
+        captureMediaSearch(intent)
         pendingLink = extractSpotifyLink(intent)
         if (pendingLink != null && !serviceEnabledState.value) {
             setServiceEnabled(true)
@@ -272,12 +289,12 @@ class MainActivity : ComponentActivity() {
             val loadProgress = loadingProgress.intValue
             val blockServiceWorker = blockServiceWorkerState.value
             val pipFilling = pipVideoActive.value
-            // Widescreen episode video turned sideways: hide the top bar and the system bars.
-            val videoFullscreen = wideVideoState.value &&
+            val videoFullscreen = videoFullscreenState.value
+            val wideVideoFullscreen = wideVideoState.value &&
                 LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-            LaunchedEffect(videoFullscreen) {
+            LaunchedEffect(wideVideoFullscreen) {
                 WindowCompat.getInsetsController(window, window.decorView).apply {
-                    if (videoFullscreen) {
+                    if (wideVideoFullscreen) {
                         systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                         hide(WindowInsetsCompat.Type.systemBars())
                     } else {
@@ -289,7 +306,6 @@ class MainActivity : ComponentActivity() {
             var settingsDialogOpen by remember { mutableStateOf(false) }
             var playerExpanded by remember { mutableStateOf(false) }
             var showMiniMenu by remember { mutableStateOf(false) }
-            var showWhatsNew by rememberSaveable { mutableStateOf(WhatsNew.pending(this@MainActivity)) }
             var showChangelog by rememberSaveable { mutableStateOf(changelogOnUpdate) }
             val versionName = remember {
                 runCatching { packageManager.getPackageInfo(packageName, 0).versionName }
@@ -302,27 +318,25 @@ class MainActivity : ComponentActivity() {
                 AccentTheme.resolveColor(this@MainActivity)
             }
 
-            BackHandler(enabled = settingsDialogOpen || playerExpanded || webView?.canGoBack() == true) {
-                if (settingsDialogOpen) {
-                    settingsDialogOpen = false
-                } else if (playerExpanded) {
-                    playerExpanded = false
-                    webView?.evaluateJavascript("window.splSetMini&&window.splSetMini(true)", null)
-                } else {
-                    webView?.goBack()
+            BackHandler(
+                enabled = settingsDialogOpen || videoFullscreenState.value || playerExpanded || webView?.canGoBack() == true
+            ) {
+                when {
+                    settingsDialogOpen -> settingsDialogOpen = false
+                    videoFullscreenState.value -> {
+                        webView?.evaluateJavascript("window.__splVfsExit&&window.__splVfsExit()", null)
+                        exitVideoFullscreenMode()
+                    }
+                    playerExpanded -> {
+                        playerExpanded = false
+                        webView?.evaluateJavascript("window.splSetMini&&window.splSetMini(true)", null)
+                    }
+                    else -> webView?.goBack()
                 }
             }
 
             SpotifyTheme(useDynamicColor = materialYou, amoled = amoled, seedColor = seedColor) {
-                if (showWhatsNew) {
-                    // Replaces the release-notes popup for this launch, so only one card shows.
-                    WhatsNewDialog(onDismiss = {
-                        showWhatsNew = false
-                        showChangelog = false
-                        WhatsNew.markSeen(this@MainActivity)
-                        ChangelogPrefs.markShown(this@MainActivity)
-                    })
-                } else if (showChangelog) {
+                if (showChangelog) {
                     ChangelogDialog(onDismiss = {
                         showChangelog = false
                         ChangelogPrefs.markShown(this@MainActivity)
@@ -390,7 +404,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         topBar = {
-                            if (!hideTopBar && !pipFilling && !videoFullscreen) {
+                            if (!hideTopBar && !pipFilling && !videoFullscreen && !wideVideoFullscreen) {
                                 CenterAlignedTopAppBar(
                                 title = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -435,7 +449,6 @@ class MainActivity : ComponentActivity() {
                                 )
                                 Spacer(Modifier.width(8.dp))
                             },
-                                // Slimmer than the 64dp default, to leave more room for the player.
                                 expandedHeight = 48.dp,
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.surface,
@@ -450,7 +463,7 @@ class MainActivity : ComponentActivity() {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(innerPadding)
+                                .padding(if (videoFullscreen) PaddingValues(0.dp) else innerPadding)
                         ) {
                             if (serviceEnabled) {
                             val bridge = remember {
@@ -477,6 +490,18 @@ class MainActivity : ComponentActivity() {
 
                             bridge.onEnterPipVideoRequest = { w, h ->
                                 enterPipVideoMode(w, h)
+                            }
+
+                            bridge.onEnterVideoFullscreen = {
+                                enterVideoFullscreenMode()
+                            }
+
+                            bridge.onExitVideoFullscreen = {
+                                exitVideoFullscreenMode()
+                            }
+
+                            bridge.onEnterLyricsPipRequest = {
+                                enterPipLyricsMode()
                             }
 
                             bridge.onMediaStatus = { json ->
@@ -531,11 +556,12 @@ class MainActivity : ComponentActivity() {
                                         setInitialScale(100)
                                         setBackgroundColor(0xFF000000.toInt())
 
-                                        if (WebViewFeature.isFeatureSupported(WebViewFeature.BACK_FORWARD_CACHE)) {
-                                            WebSettingsCompat.setBackForwardCacheEnabled(settings, true)
+                                        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) ||
+                                            !WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+                                            webViewError.value = -1 to "Update Android System WebView to use the secure player bridge"
+                                            return@apply
                                         }
-
-                                        addJavascriptInterface(bridge, "AndBridge")
+                                        OriginScopedBridge.install(this, bridge)
                                         webChromeClient = SpotifyWebChromeClient(
                                             onProgressChanged = { progress ->
                                                 loadingProgress.intValue = progress
@@ -549,6 +575,7 @@ class MainActivity : ComponentActivity() {
                                         )
 
                                         val spotifyClient = SpotifyWebViewClient(
+                                            onPlayerReady = { playPendingSearch(it) },
                                             onLoginRequired = {
                                                 loadUrl("https://accounts.spotify.com/login")
                                             },
@@ -566,18 +593,23 @@ class MainActivity : ComponentActivity() {
                                         // Before the first loadUrl, so it applies to the first page.
                                         spotifyClient.installDocumentStartScripts(this)
 
-                                        val executor = Executors.newSingleThreadExecutor()
-                                        if (useProxy && LocalProxyManager.isRunning) {
-                                            val proxyConfig = ProxyConfig.Builder()
-                                                .addProxyRule("localhost:${LocalProxyManager.port}")
-                                                .build()
-                                            ProxyController.getInstance().setProxyOverride(
-                                                proxyConfig,
-                                                executor,
-                                                { }
-                                            )
-                                        } else {
-                                            ProxyController.getInstance().clearProxyOverride(executor, { })
+                                        if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
+                                            val executor = Executors.newSingleThreadExecutor()
+                                            if (useProxy && LocalProxyManager.isRunning) {
+                                                val proxyConfig = ProxyConfig.Builder()
+                                                    .addProxyRule("localhost:${LocalProxyManager.port}")
+                                                    .build()
+                                                ProxyController.getInstance().setProxyOverride(
+                                                    proxyConfig, executor, { executor.shutdown() }
+                                                )
+                                            } else {
+                                                ProxyController.getInstance().clearProxyOverride(
+                                                    executor, { executor.shutdown() }
+                                                )
+                                            }
+                                        } else if (useProxy) {
+                                            webViewError.value = -1 to "Update Android System WebView to use proxy mode"
+                                            return@apply
                                         }
 
                                         val target = pendingLink
@@ -616,7 +648,7 @@ class MainActivity : ComponentActivity() {
                                 animationSpec = tween(durationMillis = 600, delayMillis = 200),
                                 label = "progressAlpha"
                             )
-                            if (progressAlpha > 0.001f) {
+                            if (progressAlpha > 0.001f && !pipFilling) {
                                 LinearProgressIndicator(
                                     progress = { loadProgress / 100f },
                                     modifier = Modifier
@@ -681,7 +713,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        if (hideTopBar) {
+                        if (hideTopBar && !pipFilling) {
                             QuickAccessOverlay(
                                 showMenu = showMiniMenu,
                                 onToggleMenu = { showMiniMenu = !showMiniMenu },
@@ -704,9 +736,8 @@ class MainActivity : ComponentActivity() {
 
     private fun extractSpotifyLink(intent: Intent?): String? {
         val uri = intent?.data ?: return null
-        val host = uri.host ?: return null
-        val accepted = host == "spotify.link" || host.endsWith("spotify.com")
-        return if (accepted) uri.toString() else null
+        val url = uri.toString()
+        return url.takeIf(WebSecurityPolicy::isDeepLink)
     }
 
     private fun setServiceEnabled(newValue: Boolean) {
@@ -752,8 +783,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun saveProfile(name: String, cookies: String) {
-        Logger.i(TAG, "saving account profile: $name")
-        ProfileManager.saveProfile(this, name, cookies)
+        Logger.i(TAG, "saving account profile")
+        if (runCatching { ProfileManager.saveProfile(this, name, cookies) }.isFailure) {
+            Toast.makeText(this, "Could not save encrypted profile", Toast.LENGTH_LONG).show()
+            return
+        }
         Toast.makeText(this, getString(R.string.main_account_saved), Toast.LENGTH_SHORT).show()
     }
 
@@ -772,8 +806,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun deleteProfile(name: String) {
-        Logger.i(TAG, "deleting account profile: $name")
-        ProfileManager.deleteProfile(this, name)
+        Logger.i(TAG, "deleting account profile")
+        if (runCatching { ProfileManager.deleteProfile(this, name) }.isFailure) {
+            Toast.makeText(this, "Could not update encrypted profiles", Toast.LENGTH_LONG).show()
+            return
+        }
         Toast.makeText(this, getString(R.string.main_profile_deleted), Toast.LENGTH_SHORT).show()
     }
 
@@ -1104,7 +1141,9 @@ class MainActivity : ComponentActivity() {
         if (!ok) {
             hidePipOverlay()
             pipVideoActive.value = false
+            pipLyricsRequested = false
             if (video) setPipFillVideo(false)
+            setPipFillLyrics(false)
         }
     }
 
@@ -1119,6 +1158,21 @@ class MainActivity : ComponentActivity() {
         wv.post {
             wv.evaluateJavascript(
                 "window.__splPipFillVideo&&window.__splPipFillVideo(true)"
+            ) { enterPipMode(video = true) }
+        }
+    }
+
+    private fun enterPipLyricsMode() {
+        pipLyricsRequested = true
+        pipVideoAspect = Rational(9, 16)
+        val wv = webView
+        if (wv == null) {
+            enterPipMode(video = true)
+            return
+        }
+        wv.post {
+            wv.evaluateJavascript(
+                "window.__splPipFillLyrics&&window.__splPipFillLyrics(true)"
             ) { enterPipMode(video = true) }
         }
     }
@@ -1156,6 +1210,13 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    private fun setPipFillLyrics(on: Boolean) {
+        webView?.evaluateJavascript(
+            "window.__splPipFillLyrics&&window.__splPipFillLyrics($on)",
+            null
+        )
+    }
+
     private fun fallbackPipToCover() {
         if (!isInPictureInPictureMode) return
         pipVideoAspect = Rational(1, 1)
@@ -1179,8 +1240,10 @@ class MainActivity : ComponentActivity() {
             pipVideoView = null
             pipVideoAspect = null
             pipVideoRequested = false
+            pipLyricsRequested = false
             pipVideoActive.value = false
             setPipFillVideo(false)
+            setPipFillLyrics(false)
             pipVideoCallback?.onCustomViewHidden()
             pipVideoCallback = null
         }
@@ -1371,11 +1434,13 @@ class MainActivity : ComponentActivity() {
         pipVideoView = null
         pipVideoCallback = null
         pipVideoActive.value = false
+        pipLyricsRequested = false
         hidePipOverlay()
         webView?.let {
             it.stopLoading()
-            it.removeJavascriptInterface("AndBridge")
-            if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE)) {
+            OriginScopedBridge.remove(it)
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_VIEW_RENDERER) &&
+                WebViewFeature.isFeatureSupported(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE)) {
                 try {
                     WebViewCompat.getWebViewRenderProcess(it)?.terminate()
                 } catch (_: Exception) {}
@@ -1391,22 +1456,38 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun applyOrientation() {
-        requestedOrientation = if (landscapeModeState.value) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else if (wideVideoState.value) {
-            // Widescreen episode video in the expanded player: rotate like the Spotify app
-            // (still honours the system rotation lock), back to portrait once it's gone.
-            ActivityInfo.SCREEN_ORIENTATION_FULL_USER
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requestedOrientation = when {
+            videoFullscreenState.value -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            landscapeModeState.value -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            wideVideoState.value -> ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+            else -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+    }
+
+    private fun enterVideoFullscreenMode() {
+        if (videoFullscreenState.value) return
+        videoFullscreenState.value = true
+        applyOrientation()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
+    private fun exitVideoFullscreenMode() {
+        if (!videoFullscreenState.value) return
+        videoFullscreenState.value = false
+        WindowInsetsControllerCompat(window, window.decorView).show(WindowInsetsCompat.Type.systemBars())
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        applyOrientation()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Logger.d(TAG, "config changed: orientation=${newConfig.orientation} pip=$isInPictureInPictureMode")
         if (isInPictureInPictureMode && pipVideoRequested) {
-            setPipFillVideo(true)
+            if (pipLyricsRequested) setPipFillLyrics(true) else setPipFillVideo(true)
             updatePipParams()
         }
     }
@@ -1475,6 +1556,8 @@ class MainActivity : ComponentActivity() {
         val amoledEnabled = prefs.getBoolean("AmoledTheme", false)
 
         webView?.let { view ->
+            if (!WebSecurityPolicy.isPlayer(view.url)) return@let
+            val resumedUrl = view.url
             view.evaluateJavascript("""
                 try {
                     window.__splBg = false;
@@ -1498,6 +1581,7 @@ class MainActivity : ComponentActivity() {
             view.evaluateJavascript(js, null)
 
             view.evaluateJavascript(LogoutCheck.CONTENT) { result ->
+                if (view.url != resumedUrl || !WebSecurityPolicy.isPlayer(view.url)) return@evaluateJavascript
                 if (result == "\"out\"") {
                     prefs.edit().putBoolean("LoggedIn", false).apply()
                     view.loadUrl("https://accounts.spotify.com/login")
@@ -1508,6 +1592,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (captureMediaSearch(intent)) {
+            webView?.let { view ->
+                if (WebSecurityPolicy.isPlayer(view.url)) {
+                    view.evaluateJavascript("typeof window.searchMediaItems==='function'") { ready ->
+                        if (ready == "true") playPendingSearch(view)
+                    }
+                }
+            }
+            return
+        }
         val link = extractSpotifyLink(intent)
         Logger.i(TAG, "new intent received: link=${link ?: "none"}")
         if (link == null) {
@@ -1583,12 +1677,13 @@ class MainActivity : ComponentActivity() {
         pipVideoView = null
         pipVideoCallback = null
         pipVideoActive.value = false
+        pipLyricsRequested = false
         hidePipOverlay()
         webView?.let {
             it.stopLoading()
             it.clearHistory()
             it.clearFormData()
-            it.removeJavascriptInterface("AndBridge")
+            OriginScopedBridge.remove(it)
             (it.parent as? ViewGroup)?.removeView(it)
             it.removeAllViews()
             it.destroy()

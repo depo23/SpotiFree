@@ -70,21 +70,11 @@
     <string name="settings_player_mode">Player Mode</string>
     <string name="settings_player_spotilol">Spotilol Player</string>
     <string name="settings_player_original">Spotify Original</string>
-    <string name="settings_player_fullscreen">Full Screen Player</string>
+    <string name="settings_player_fullscreen">Spotilol Player FullScreen</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Looping videos behind songs (Spotify\'s Canvas setting)</string>
     <string name="settings_web_videos">Video Podcasts</string>
     <string name="settings_web_videos_subtitle">Let Spotify play video for podcast episodes</string>
-    <string name="whats_new_title">What\'s new</string>
-    <string name="whats_new_ok">Got it</string>
-    <string name="whats_new_player_title">Full Screen Player</string>
-    <string name="whats_new_player_body">A big Now Playing screen like the Spotify app. Turn it on in Settings → Playback → Player Mode. Tap the mini player to open it, swipe down to close it. It stays the way you leave it.</string>
-    <string name="whats_new_video_title">Video podcasts</string>
-    <string name="whats_new_video_body">Video episodes now play their video right in the Full Screen Player. Turn your phone sideways for widescreen videos, and tap the video to hide or show the controls.</string>
-    <string name="whats_new_canvas_title">Canvas</string>
-    <string name="whats_new_canvas_body">Songs with a Canvas show their looping video behind the player. Switch it off in Settings → Playback, or with the film button in the player.</string>
-    <string name="whats_new_podcast_title">Podcast controls</string>
-    <string name="whats_new_podcast_body">Episodes get buttons to skip 15 seconds back or forward and to change the playback speed.</string>
     <string name="settings_hide_empty_player">Hide Empty Mini Player</string>
     <string name="settings_hide_empty_player_subtitle">Hide the mini player until a track is loaded</string>
     <string name="settings_playlist_sort">Sort Playlists by Column</string>
@@ -95,6 +85,8 @@
     <string name="settings_lyrics_style_compact">Compact</string>
     <string name="settings_lyrics_style_karaoke">Karaoke</string>
     <string name="settings_lyrics_style_bold">Bold Large</string>
+    <string name="settings_spicylyrics">SpicyLyrics</string>
+    <string name="settings_spicylyrics_subtitle">Fill in lyrics Spotify is missing (SpicyLyrics API)</string>
     <string name="settings_take_control">Take Player Control</string>
     <string name="settings_take_control_subtitle">Auto accept the Take Control prompt</string>
     <string name="settings_android_auto">Android Auto Controls</string>
@@ -236,6 +228,12 @@
     <string name="offline_desc_play">Play</string>
     <string name="offline_desc_next">Next</string>
     <string name="offline_desc_close_player">Close player</string>
+    <string name="offline_desc_shuffle_enable">Enable shuffle</string>
+    <string name="offline_desc_shuffle_disable">Disable shuffle</string>
+    <string name="offline_now_playing">Now playing</string>
+    <string name="offline_desc_collapse_player">Collapse player</string>
+    <string name="offline_desc_enter_pip">Picture in picture</string>
+    <string name="offline_desc_volume">Volume</string>
     <string name="offline_toast_could_not_delete_file">Could not delete file</string>
     <string name="offline_toast_could_not_delete_one_file">Could not delete 1 file</string>
     <string name="offline_toast_could_not_delete_files">Could not delete %1$d files</string>
@@ -375,4 +373,7 @@
     <string name="widget_action_repeat">Repeat</string>
     <string name="widget_empty_title">Spotilol</string>
     <string name="widget_empty_subtitle">Open the app to start playing</string>
+    <string name="settings_section_privacy">Privacy</string>
+    <string name="settings_telemetry">Usage and performance data</string>
+    <string name="settings_telemetry_subtitle">Share anonymous usage and performance data. Off by default; crash reports are always sent.</string>
 </resources>

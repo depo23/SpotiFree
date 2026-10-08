@@ -1,11 +1,5 @@
 package com.project.lol.webview.injections
 
-/**
- * Keeps the web player's own "Videos and Canvas" settings in line with Spotilol's
- * Canvas / Videos switches. With them off, Spotify serves no Canvas and no episode
- * video at all. Applied once per change: opens /preferences in-app, flips the
- * toggles that differ, then goes back. Expects window.__splWebPrefs=[canvas,videos].
- */
 object WebPrefs {
     const val CONTENT = """
         (function(){
@@ -32,12 +26,11 @@ object WebPrefs {
                             var on=b.id.slice(-7)==='.canvas'?canvas:videos;
                             if(b.checked!==on) b.click();
                         });
-                        try{ localStorage.setItem('splWebPrefs',want); }catch(e){}
                     }
+                    try{ localStorage.setItem('splWebPrefs',want); }catch(e){}
                     setTimeout(function(){ if(back) history.back(); busy=false; },400);
                 },250);
             };
-            // First run: wait until signed in, then apply the saved switches.
             var waited=0;
             var boot=setInterval(function(){
                 if(document.querySelector('[data-testid="user-widget-link"]')){
