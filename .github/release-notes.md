@@ -1,8 +1,15 @@
-# Spotilol - v1.2.5.2 (test build)
+# Spotilol - v1.2.5.3 (test build)
 
 Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
 
 ## Fixes
+- After allowing installs from Spotilol, the update popup now enables Install straight away (no restart).
+- When an update finishes installing you get a notification with **Open**, and a message the next time the app starts.
+
+## New
+- **Automatic update checks** can be set to every day, every week, every month, or never (Settings → About).
+
+## Fixes (earlier)
 - Update test: this build exists to check that the updater finds and installs a newer version.
 - Changelog and update checks now find pre-release test builds ("Could not load release notes" is fixed).
 

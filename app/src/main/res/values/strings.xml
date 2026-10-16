@@ -186,6 +186,11 @@
     <string name="update_check_failed">Could not check for updates. Check your connection.</string>
     <string name="update_download_failed">Could not download the update. It will retry on the next check.</string>
     <string name="update_no_apk">The latest release has no installable APK</string>
+    <string name="update_channel_name">App updates</string>
+    <string name="update_installed_title">Spotilol %1$s installed</string>
+    <string name="update_installed_text">Tap to open the new version.</string>
+    <string name="update_open">Open</string>
+    <string name="update_installed_toast">Spotilol updated to %1$s</string>
     <string name="update_install_failed">Install failed: %1$s</string>
     <string name="settings_update_frequency">Automatic update checks</string>
     <string name="update_freq_day">Every day</string>
