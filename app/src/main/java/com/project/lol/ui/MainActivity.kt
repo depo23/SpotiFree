@@ -120,9 +120,7 @@ import com.project.lol.util.BuildInfo
 import com.project.lol.util.Logger
 import com.project.lol.util.UpdateChecker
 import com.project.lol.util.UpdateEvent
-import com.project.lol.util.InstallState
 import com.project.lol.util.UpdateInstaller
-import com.project.lol.ui.components.InstallStatusDialog
 import com.project.lol.ui.components.UpdateDialog
 import java.io.File
 import com.project.lol.webview.WebViewHost
@@ -340,20 +338,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             }
 
             SpotifyTheme {
-                UpdateInstaller.state.value.let { install ->
-                    if (install != InstallState.Idle) {
-                        InstallStatusDialog(
-                            state = install,
-                            onOpen = {
-                                UpdateInstaller.state.value = InstallState.Idle
-                                packageManager.getLaunchIntentForPackage(packageName)?.let { startActivity(it) }
-                            },
-                            onConfirm = { UpdateInstaller.openConfirm(this@MainActivity) },
-                            onClose = { UpdateInstaller.state.value = InstallState.Idle }
-                        )
-                    }
-                }
-
                 updateEvent.value?.let { update ->
                     UpdateDialog(
                         event = update,
@@ -773,15 +757,13 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
     private fun installUpdate(apk: File) {
         val version = updateEvent.value?.version ?: return
-        updateEvent.value = null
-        Thread {
-            try {
-                UpdateInstaller.install(this, apk, version)
-            } catch (e: Exception) {
-                Logger.e(TAG, "update install failed", e)
-                UpdateInstaller.setState(InstallState.Failed(e.message ?: "error"))
-            }
-        }.start()
+        try {
+            UpdateInstaller.install(this, apk, version)
+            updateEvent.value = null
+        } catch (e: Exception) {
+            Logger.e(TAG, "update install failed", e)
+            Toast.makeText(this, getString(R.string.update_install_failed, e.message ?: "error"), Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setServiceEnabled(newValue: Boolean) {

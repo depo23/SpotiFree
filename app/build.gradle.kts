@@ -24,8 +24,8 @@ android {
         applicationId = "com.project.lol"
         minSdk = 28
         targetSdk = 36
-        versionCode = 48
-        versionName = "1.2.6"
+        versionCode = 49
+        versionName = "1.2.7"
         // Where automatic and manual update checks look. Each build must update from the
         // releases signed with its own key: fork test builds set -PupdateRepo=depo23/Spotilol.
         buildConfigField("String", "UPDATE_REPO", "\"${project.findProperty("updateRepo") ?: "lyssadev/Spotilol"}\"")
