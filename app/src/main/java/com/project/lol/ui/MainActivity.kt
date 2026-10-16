@@ -120,7 +120,9 @@ import com.project.lol.util.BuildInfo
 import com.project.lol.util.Logger
 import com.project.lol.util.UpdateChecker
 import com.project.lol.util.UpdateEvent
+import com.project.lol.util.InstallState
 import com.project.lol.util.UpdateInstaller
+import com.project.lol.ui.components.InstallStatusDialog
 import com.project.lol.ui.components.UpdateDialog
 import java.io.File
 import com.project.lol.webview.WebViewHost
@@ -338,6 +340,19 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             }
 
             SpotifyTheme {
+                UpdateInstaller.state.value.let { install ->
+                    if (install != InstallState.Idle) {
+                        InstallStatusDialog(
+                            state = install,
+                            onOpen = {
+                                UpdateInstaller.state.value = InstallState.Idle
+                                packageManager.getLaunchIntentForPackage(packageName)?.let { startActivity(it) }
+                            },
+                            onClose = { UpdateInstaller.state.value = InstallState.Idle }
+                        )
+                    }
+                }
+
                 updateEvent.value?.let { update ->
                     UpdateDialog(
                         event = update,
@@ -758,8 +773,8 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     private fun installUpdate(apk: File) {
         val version = updateEvent.value?.version ?: return
         try {
-            UpdateInstaller.install(this, apk, version)
             updateEvent.value = null
+            UpdateInstaller.install(this, apk, version)
         } catch (e: Exception) {
             Logger.e(TAG, "update install failed", e)
             Toast.makeText(this, getString(R.string.update_install_failed, e.message ?: "error"), Toast.LENGTH_LONG).show()
