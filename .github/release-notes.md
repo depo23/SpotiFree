@@ -1,8 +1,9 @@
-# Spotilol - v1.2.5.3 (test build)
+# Spotilol - v1.2.5.4 (test build)
 
 Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
 
 ## Fixes
+- Update test: this build exists so you can check the updater from 1.2.5.3 to 1.2.5.4.
 - After allowing installs from Spotilol, the update popup now enables Install straight away (no restart).
 - When an update finishes installing you get a notification with **Open**, and a message the next time the app starts.
 
