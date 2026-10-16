@@ -19,7 +19,7 @@ import java.io.File
 
 /** Progress and result of the system install: installing, confirm, installed, failed. */
 @Composable
-fun InstallStatusDialog(state: InstallState, onOpen: () -> Unit, onClose: () -> Unit) {
+fun InstallStatusDialog(state: InstallState, onOpen: () -> Unit, onConfirm: () -> Unit, onClose: () -> Unit) {
     when (state) {
         InstallState.Idle -> Unit
 
@@ -28,18 +28,29 @@ fun InstallStatusDialog(state: InstallState, onOpen: () -> Unit, onClose: () -> 
             title = { Text(stringResource(R.string.update_installing_title, state.version)) },
             text = {
                 Column {
-                    Text(stringResource(R.string.update_installing_text))
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(top = 12.dp))
+                    Text(
+                        if (state.percent < 0) stringResource(R.string.update_finishing_text)
+                        else stringResource(R.string.update_copying_text, state.percent)
+                    )
+                    if (state.percent < 0) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(top = 12.dp))
+                    } else {
+                        LinearProgressIndicator(
+                            progress = { state.percent / 100f },
+                            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                        )
+                    }
                 }
             },
             confirmButton = {}
         )
 
         is InstallState.Confirm -> AlertDialog(
-            onDismissRequest = {},
+            onDismissRequest = onClose,
             title = { Text(stringResource(R.string.update_confirm_title, state.version)) },
             text = { Text(stringResource(R.string.update_confirm_text)) },
-            confirmButton = {}
+            confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(R.string.update_open_installer)) } },
+            dismissButton = { TextButton(onClick = onClose) { Text(stringResource(R.string.update_close)) } }
         )
 
         is InstallState.Installed -> AlertDialog(
