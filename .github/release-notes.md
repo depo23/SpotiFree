@@ -1,8 +1,9 @@
-# Spotilol - v1.2.7 (test build)
+# Spotilol - v1.2.8 (test build)
 
 Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
 
 ## Fixes
+- Update test: a newer build to check the new installer flow from 1.2.7.
 - Updates now open Android's own installer directly (confirm, progress, and an Open button when it finishes), like OpenWispr. The background installer and its custom dialogs were removed.
 
 ## Fixes (earlier)
