@@ -77,7 +77,7 @@ object FetchOverride {
                             }
                         } catch(e){}
                     }
-                    if(!window.__spotilolUseProxy && url && url.indexOf && (url.indexOf('connect-state') !== -1 || url.indexOf('melody/v1/msg') !== -1 || url.indexOf('/track-playback/') !== -1) && window.mngFetch) {
+                    if(url && url.indexOf && (url.indexOf('connect-state') !== -1 || url.indexOf('melody/v1/msg') !== -1 || url.indexOf('/track-playback/') !== -1) && window.mngFetch) {
                         return window.mngFetch(input, init);
                     }
                     if(window.ffDone && url && url.indexOf && url.indexOf('/track-playback/') !== -1 && method === 'PUT' && init && init.body && !window.__splRemoteActive()) {
@@ -114,14 +114,24 @@ object FetchOverride {
                                                 name: j.name || null,
                                                 artist: (j.artist && j.artist.length) ? j.artist[0].name : null,
                                                 album: (j.album) ? j.album.name : null,
-                                                cover: (cg && cg.length) ? 'https://i.scdn.co/image/' + cg[0].file_id : null
+                                                cover: (cg && cg.length) ? 'https://i.scdn.co/image/' + cg[0].file_id : null,
+                                                trackNumber: (typeof j.number === 'number' && j.number > 0) ? j.number : null,
+                                                discNumber: (typeof j.disc_number === 'number' && j.disc_number > 0) ? j.disc_number : null,
+                                                year: (j.album && j.album.date && j.album.date.year) ? j.album.date.year : null
                                             };
-                                            window.__curTrackUri = j.canonical_uri;
-                                            window.__curTrackId = tid;
-                                            window.__curTrackName = j.name || null;
-                                            window.__curTrackArtist = (j.artist && j.artist.length) ? j.artist[0].name : null;
-                                            window.__curTrackAlbum = (j.album) ? j.album.name : null;
-                                            if(cg && cg.length) window.__curTrackCover = 'https://i.scdn.co/image/' + cg[0].file_id;
+                                            var splPlayingId = (typeof window.splPlayingTrackId === 'function')
+                                                ? window.splPlayingTrackId()
+                                                : (window.splTrackId || null);
+                                            if(!splPlayingId || tid === splPlayingId) {
+                                                window.__curTrackUri = j.canonical_uri;
+                                                window.__curTrackId = tid;
+                                                window.__curTrackName = j.name || null;
+                                                window.__curTrackArtist = (j.artist && j.artist.length) ? j.artist[0].name : null;
+                                                window.__curTrackAlbum = (j.album) ? j.album.name : null;
+                                                if(cg && cg.length) window.__curTrackCover = 'https://i.scdn.co/image/' + cg[0].file_id;
+                                                window.lastState = null;
+                                                if(window.updMedia && typeof track !== 'undefined'){ try{ window.updMedia(); }catch(e){} }
+                                            }
                                         }
                                     } catch(e){}
                                 });

@@ -4,83 +4,79 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.PictureInPictureParams
 import android.app.RemoteAction
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Rational
-import android.widget.Toast
 import android.view.LayoutInflater
 import android.view.View
-import android.view.WindowManager
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.WebStorage
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -88,87 +84,74 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.webkit.ProxyConfig
-import androidx.webkit.ProxyController
 import androidx.webkit.WebViewCompat
-import androidx.webkit.WebViewFeature
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.project.lol.R
-import com.project.lol.bridge.OriginScopedBridge
-import com.project.lol.security.WebSecurityPolicy
-import com.project.lol.bridge.SpotifyBridge
 import com.project.lol.offline.DownloadManager
 import com.project.lol.profile.ProfileManager
-import com.project.lol.proxy.LocalProxyManager
 import com.project.lol.service.MediaNotificationService
-import com.project.lol.ui.components.ChangelogDialog
+import com.project.lol.timer.AppQuit
+import com.project.lol.timer.SleepTimerAction
+import com.project.lol.timer.SleepTimerManager
+import com.project.lol.ui.components.BatteryOptimizationDialog
 import com.project.lol.ui.components.SettingsDialog
+import com.project.lol.ui.components.SleepTimerDialog
 import com.project.lol.ui.theme.SpotifyTheme
+import com.project.lol.ui.theme.ThemeController
+import com.project.lol.ui.theme.ThemeHarmony
+import com.project.lol.ui.theme.ThemePresets
+import com.project.lol.util.AppLocale
+import com.project.lol.util.BatterySaver
 import com.project.lol.util.BuildInfo
-import com.project.lol.util.ChangelogPrefs
 import com.project.lol.util.Logger
 import com.project.lol.util.UpdateChecker
-import com.project.lol.webview.SpotifyWebChromeClient
-import com.project.lol.webview.SpotifyWebViewClient
+import com.project.lol.webview.WebViewHost
 import com.project.lol.webview.helpers.DevLogPrelude
-import com.project.lol.webview.helpers.LyricsTheme
 import com.project.lol.webview.helpers.buildAmoledJs
 import com.project.lol.webview.helpers.buildCustomCssJs
 import com.project.lol.webview.injections.LogoutCheck
+import com.project.lol.widget.WidgetActions
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Menu2
 import compose.icons.tablericons.Settings
+import org.json.JSONObject
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.Executors
 import kotlin.math.min
-import org.json.JSONObject
-import androidx.core.content.edit
-import androidx.core.graphics.scale
-import androidx.core.graphics.toColorInt
-import com.project.lol.ui.components.ErrorScreen
-import com.project.lol.ui.components.mapWebViewError
-import com.project.lol.webview.helpers.AccentTheme
-import java.util.Locale
+import android.media.AudioManager
+import androidx.compose.runtime.mutableFloatStateOf
+import com.project.lol.ui.components.VolumeDialog
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
     companion object {
         private const val TAG = "main"
+
+        @Volatile
+        private var batteryPromptChecked = false
     }
 
-    private var webView: WebView? = null
-    private var pendingMediaSearch: String? = null
+    private val webView: WebView?
+        get() = WebViewHost.webView
 
-    private fun captureMediaSearch(intent: Intent): Boolean {
-        if (intent.action != "android.media.action.MEDIA_PLAY_FROM_SEARCH") return false
-        pendingMediaSearch = intent.getStringExtra(android.app.SearchManager.QUERY).orEmpty().take(1024)
-        return true
-    }
-
-    private fun playPendingSearch(view: WebView) {
-        if (!WebSecurityPolicy.isPlayer(view.url)) return
-        val query = pendingMediaSearch ?: return
-        pendingMediaSearch = null
-        view.evaluateJavascript(com.project.lol.service.MediaSearch.playSearchScript(query), null)
-    }
+    private val webViewGeneration = mutableIntStateOf(0)
     private var serviceStarted = false
     @Volatile private var pipCoverBitmap: Bitmap? = null
     @Volatile private var pipPlaying = false
@@ -191,22 +174,45 @@ class MainActivity : ComponentActivity() {
     private val wideVideoState = mutableStateOf(false)
     private val videoFullscreenState = mutableStateOf(false)
     private val keepScreenOnState = mutableStateOf(false)
-    private val paletteSeedState = mutableStateOf<String?>(null)
+    private val themePresetState = mutableStateOf(ThemePresets.DEFAULT_ID)
+    private val themeSecondaryState = mutableStateOf<Color?>(null)
 
     private val showSleepTimerDialog = mutableStateOf(false)
+    private val showBatteryDialog = mutableStateOf(false)
     private val sleepTimerInputText = mutableStateOf("")
-    private var sleepTimer: CountDownTimer? = null
-    private val sleepTimerRemainingMs = mutableLongStateOf(0L)
-    private val sleepTimerActive = mutableStateOf(false)
+    private val sleepTimerState = mutableStateOf(SleepTimerManager.state())
+    private val showVolumeDialog = mutableStateOf(false)
+    private val volumeFractionState = mutableFloatStateOf(0f)
+    private val volumeObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean, uri: Uri?) {
+            if (uri != null && !uri.path.orEmpty().contains("volume")) return
+            publishVolumeIcon(syncVolumeState())
+        }
+    }
 
     private val loadingProgress = mutableIntStateOf(100)
     private val blockServiceWorkerState = mutableStateOf(true)
     private val webViewError = mutableStateOf<Pair<Int, String>?>(null)
     private var pendingLink: String? = null
+    private var pendingMediaSearch: String? = null
+
+    private fun isPlayerUrl(url: String?): Boolean =
+        url != null && (url == "https://open.spotify.com" || url.startsWith("https://open.spotify.com/"))
+
+    private fun captureMediaSearch(intent: Intent): Boolean {
+        if (intent.action != "android.media.action.MEDIA_PLAY_FROM_SEARCH") return false
+        pendingMediaSearch = intent.getStringExtra(android.app.SearchManager.QUERY).orEmpty().take(1024)
+        return true
+    }
+
+    private fun playPendingSearch(view: WebView) {
+        if (!isPlayerUrl(view.url)) return
+        val query = pendingMediaSearch ?: return
+        pendingMediaSearch = null
+        view.evaluateJavascript(com.project.lol.service.MediaSearch.playSearchScript(query), null)
+    }
 
     private lateinit var prefs: SharedPreferences
-
-    private var changelogOnUpdate = false
 
     private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
 
@@ -226,15 +232,11 @@ class MainActivity : ComponentActivity() {
         })
 
         prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
-        changelogOnUpdate = ChangelogPrefs.shouldShowOnUpdate(this)
-        val useProxy = prefs.getString("ConnectionMode", "normal") == "proxy"
 
-        // After an OOM kill, Android can resume directly at MainActivity
-        if (useProxy && !LocalProxyManager.isRunning) {
-            startActivity(Intent(this, SplashActivity::class.java))
-            finish()
-            return
-        }
+        contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, volumeObserver)
+
+        SleepTimerManager.loadAction(this)
+        sleepTimerState.value = SleepTimerManager.state()
 
         if ((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -258,7 +260,8 @@ class MainActivity : ComponentActivity() {
         hideTopBarState.value = prefs.getBoolean("HideTopBar", false)
         landscapeModeState.value = prefs.getBoolean("LandscapeMode", false)
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
-        paletteSeedState.value = prefs.getString("PaletteSeed", null)
+        themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
+        themeSecondaryState.value = ThemeHarmony.parseHex(prefs.getString("ThemeSecondary", null))
         blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", true)
         applyOrientation()
         applyKeepScreenOn()
@@ -271,8 +274,8 @@ class MainActivity : ComponentActivity() {
 
         Logger.s(
             TAG,
-            "session: loggedIn=$loggedIn service=${serviceEnabledState.value} mode=${prefs.getString("ConnectionMode", "normal")} " +
-                "engine=${prefs.getString("PlayerMode", "spotilol")} proxyRunning=${LocalProxyManager.isRunning} " +
+            "session: loggedIn=$loggedIn service=${serviceEnabledState.value} " +
+                "engine=${prefs.getString("PlayerMode", "spotilol")} " +
                 "deeplink=${pendingLink ?: "none"} logging=${com.project.lol.util.Logger.isEnabled()}"
         )
 
@@ -283,9 +286,11 @@ class MainActivity : ComponentActivity() {
             val hideTopBar = hideTopBarState.value
             val landscapeMode = landscapeModeState.value
             val keepScreenOn = keepScreenOnState.value
-            val paletteSeed = paletteSeedState.value
+            val themePreset = themePresetState.value
+            val themeSecondary = themeSecondaryState.value
             val showDialog = showSleepTimerDialog.value
-            val timerActive = sleepTimerActive.value
+            val showVolume = showVolumeDialog.value
+            val showBatteryPrompt = showBatteryDialog.value
             val loadProgress = loadingProgress.intValue
             val blockServiceWorker = blockServiceWorkerState.value
             val pipFilling = pipVideoActive.value
@@ -305,24 +310,23 @@ class MainActivity : ComponentActivity() {
 
             var settingsDialogOpen by remember { mutableStateOf(false) }
             var playerExpanded by remember { mutableStateOf(false) }
+            var ctxSheetOpen by remember { mutableStateOf(false) }
             var showMiniMenu by remember { mutableStateOf(false) }
-            var showChangelog by rememberSaveable { mutableStateOf(changelogOnUpdate) }
             val versionName = remember {
                 runCatching { packageManager.getPackageInfo(packageName, 0).versionName }
                     .getOrNull() ?: ""
             }
-            val seedColor = paletteSeed?.let { hex ->
-                runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrNull()
-            }
-            val accentColor = remember(materialYou, paletteSeed) {
-                AccentTheme.resolveColor(this@MainActivity)
-            }
+            val accentColor = MaterialTheme.colorScheme.primary
 
             BackHandler(
-                enabled = settingsDialogOpen || videoFullscreenState.value || playerExpanded || webView?.canGoBack() == true
+                enabled = settingsDialogOpen || ctxSheetOpen || videoFullscreenState.value || playerExpanded || webView?.canGoBack() == true
             ) {
                 when {
                     settingsDialogOpen -> settingsDialogOpen = false
+                    ctxSheetOpen -> {
+                        ctxSheetOpen = false
+                        webView?.evaluateJavascript("window.__splCloseCtxSheet&&window.__splCloseCtxSheet()", null)
+                    }
                     videoFullscreenState.value -> {
                         webView?.evaluateJavascript("window.__splVfsExit&&window.__splVfsExit()", null)
                         exitVideoFullscreenMode()
@@ -335,13 +339,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            SpotifyTheme(useDynamicColor = materialYou, amoled = amoled, seedColor = seedColor) {
-                if (showChangelog) {
-                    ChangelogDialog(onDismiss = {
-                        showChangelog = false
-                        ChangelogPrefs.markShown(this@MainActivity)
-                    })
-                }
+            SpotifyTheme {
                 SettingsDialog(
                     visible = settingsDialogOpen,
                     onClose = { settingsDialogOpen = false },
@@ -349,12 +347,12 @@ class MainActivity : ComponentActivity() {
                     materialYou = materialYou,
                     onMaterialYouChange = { enabled ->
                         materialYouState.value = enabled
-                        prefs.edit().putBoolean("MaterialYou", enabled).apply()
+                        ThemeController.updateDynamicColor(enabled)
                     },
                     amoledThemeState = amoled,
                     onAmoledThemeChange = { enabled ->
                         amoledState.value = enabled
-                        prefs.edit().putBoolean("AmoledTheme", enabled).apply()
+                        ThemeController.updateAmoled(enabled)
                     },
                     hideTopBar = hideTopBar,
                     onHideTopBarChange = { enabled ->
@@ -373,22 +371,23 @@ class MainActivity : ComponentActivity() {
                         prefs.edit().putBoolean("KeepScreenOn", enabled).apply()
                         applyKeepScreenOn()
                     },
-                    paletteSeed = paletteSeed,
-                    onPaletteSeedChange = { hex ->
-                        paletteSeedState.value = hex
-                        if (hex.isNullOrBlank()) {
-                            prefs.edit().remove("PaletteSeed").apply()
-                        } else {
-                            prefs.edit().putString("PaletteSeed", hex).apply()
-                        }
+                    themePreset = themePreset,
+                    onThemePresetChange = { id ->
+                        themePresetState.value = id
+                        ThemeController.updatePreset(id)
                     },
-                    onConnectionModeChange = { switchConnectionMode(it) },
+                    themeSecondary = themeSecondary,
+                    onThemeSecondaryChange = { color ->
+                        themeSecondaryState.value = color
+                        ThemeController.updateSecondary(color)
+                    },
                     onOfflineModeChange = { switchOfflineMode(it) },
                     onSaveProfile = { name, cookies -> saveProfile(name, cookies) },
                     onLoadProfile = { cookies -> loadProfile(cookies) },
                     onDeleteProfile = { name -> deleteProfile(name) },
                     onClearCache = { clearWebViewCache() },
                     onClearData = { clearAllData() },
+                    onClearThirdParty = { clearThirdPartyLogins() },
                     onDebugToggle = { enabled ->
                         webView?.evaluateJavascript(
                             if (enabled) DevLogPrelude.js()
@@ -466,18 +465,49 @@ class MainActivity : ComponentActivity() {
                                 .padding(if (videoFullscreen) PaddingValues(0.dp) else innerPadding)
                         ) {
                             if (serviceEnabled) {
-                            val bridge = remember {
-                                SpotifyBridge(WeakReference(this@MainActivity))
-                            }
+                            val bridge = WebViewHost.bridgeFor(this@MainActivity)
+                            bridge.rebind(WeakReference(this@MainActivity))
 
                             bridge.onTimerDialogRequest = {
                                 showSleepTimerDialog.value = true
-                                if (!timerActive) {
+                                if (!SleepTimerManager.isActive) {
                                     sleepTimerInputText.value = ""
                                 }
                             }
 
+                                bridge.onVolumeDialogRequest = {
+                                    publishVolumeIcon(syncVolumeState())
+                                    showVolumeDialog.value = true
+                                }
+
+                                bridge.onPlayLoaded = {
+                                    publishTimerHighlight(SleepTimerManager.isActive)
+                                    publishVolumeIcon(syncVolumeState())
+                                }
+
+                            bridge.onMediaPosition = { position ->
+                                SleepTimerManager.onPosition(position)
+                            }
+
+                            DisposableEffect(bridge) {
+                                var styledActive: Boolean? = null
+                                val releaseHost = SleepTimerManager.registerHost(
+                                    stateChange = {
+                                        sleepTimerState.value = SleepTimerManager.state()
+                                        val isActiveNow = SleepTimerManager.isActive
+                                        if (isActiveNow != styledActive) {
+                                            styledActive = isActiveNow
+                                            publishTimerHighlight(isActiveNow)
+                                        }
+                                    },
+                                    expire = { handleSleepTimerExpire() }
+                                )
+                                onDispose { releaseHost() }
+                            }
+
                             bridge.onPlayerExpanded = { playerExpanded = it }
+
+                            bridge.onCtxMenuState = { ctxSheetOpen = it }
 
                             bridge.onWideVideo = {
                                 wideVideoState.value = it
@@ -520,115 +550,33 @@ class MainActivity : ComponentActivity() {
                                 DownloadManager.downloadCollection(this@MainActivity, payload)
                             }
 
-                            AndroidView(
-                                factory = { context ->
-                                    WebView(context).apply {
-                                        layoutParams = ViewGroup.LayoutParams(
-                                            ViewGroup.LayoutParams.MATCH_PARENT,
-                                            ViewGroup.LayoutParams.MATCH_PARENT
-                                        )
-
-                                        webView = this
-
-                                        setLayerType(View.LAYER_TYPE_HARDWARE, null)
-
-                                        settings.apply {
-                                            userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
-                                            javaScriptEnabled = true
-                                            domStorageEnabled = true
-                                            useWideViewPort = true
-                                            loadWithOverviewMode = true
-                                            setSupportZoom(true)
-                                            builtInZoomControls = true
-                                            displayZoomControls = false
-                                            allowFileAccess = false
-                                            allowContentAccess = false
-                                            mediaPlaybackRequiresUserGesture = false
-                                            setSupportMultipleWindows(true)
-                                            javaScriptCanOpenWindowsAutomatically = true
-                                            cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
-                                            setGeolocationEnabled(false)
-                                            @Suppress("DEPRECATION")
-                                            saveFormData = false
-                                            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
-                                        }
-
-                                        setInitialScale(100)
-                                        setBackgroundColor(0xFF000000.toInt())
-
-                                        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) ||
-                                            !WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
-                                            webViewError.value = -1 to "Update Android System WebView to use the secure player bridge"
-                                            return@apply
-                                        }
-                                        OriginScopedBridge.install(this, bridge)
-                                        webChromeClient = SpotifyWebChromeClient(
-                                            onProgressChanged = { progress ->
-                                                loadingProgress.intValue = progress
-                                            },
-                                            onShowCustomView = { view, callback ->
-                                                handleCustomViewShown(view, callback)
-                                            },
-                                            onHideCustomView = {
-                                                handleCustomViewHidden()
-                                            }
-                                        )
-
-                                        val spotifyClient = SpotifyWebViewClient(
-                                            onPlayerReady = { playPendingSearch(it) },
-                                            onLoginRequired = {
-                                                loadUrl("https://accounts.spotify.com/login")
-                                            },
-                                            onRenderProcessGone = {
-                                                runOnUiThread {
-                                                    webViewError.value = null
-                                                    destroyWebView()
-                                                }
-                                            },
-                                            onWebViewError = { code, desc ->
-                                                webViewError.value = code to desc
-                                            }
-                                        )
-                                        webViewClient = spotifyClient
-                                        // Before the first loadUrl, so it applies to the first page.
-                                        spotifyClient.installDocumentStartScripts(this)
-
-                                        if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
-                                            val executor = Executors.newSingleThreadExecutor()
-                                            if (useProxy && LocalProxyManager.isRunning) {
-                                                val proxyConfig = ProxyConfig.Builder()
-                                                    .addProxyRule("localhost:${LocalProxyManager.port}")
-                                                    .build()
-                                                ProxyController.getInstance().setProxyOverride(
-                                                    proxyConfig, executor, { executor.shutdown() }
+                            key(webViewGeneration.intValue) {
+                                AndroidView(
+                                    factory = { context ->
+                                        FrameLayout(context).apply {
+                                            layoutParams = ViewGroup.LayoutParams(
+                                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                                ViewGroup.LayoutParams.MATCH_PARENT
+                                            )
+                                            val hosted = WebViewHost.ensure(context)
+                                            (hosted.parent as? ViewGroup)?.removeView(hosted)
+                                            addView(
+                                                hosted,
+                                                ViewGroup.LayoutParams(
+                                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                                    ViewGroup.LayoutParams.MATCH_PARENT
                                                 )
-                                            } else {
-                                                ProxyController.getInstance().clearProxyOverride(
-                                                    executor, { executor.shutdown() }
-                                                )
-                                            }
-                                        } else if (useProxy) {
-                                            webViewError.value = -1 to "Update Android System WebView to use proxy mode"
-                                            return@apply
+                                            )
                                         }
-
-                                        val target = pendingLink
-                                            ?: if (loggedIn) "https://open.spotify.com/"
-                                            else "https://accounts.spotify.com/login"
-                                        pendingLink = null
-                                        Logger.i(
-                                            TAG,
-                                            "webview ready: js=on dom=on multiWindow=on bfcache=" +
-                                                WebViewFeature.isFeatureSupported(WebViewFeature.BACK_FORWARD_CACHE) +
-                                                " proxy=$useProxy target=$target"
-                                        )
-                                        loadUrl(target)
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.background)
-                            )
+                                    },
+                                    onRelease = { frame ->
+                                        frame.removeAllViews()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(MaterialTheme.colorScheme.background)
+                                )
+                            }
 
                             LaunchedEffect(webView) {
                                 webView?.let { startMediaService() }
@@ -675,27 +623,59 @@ class MainActivity : ComponentActivity() {
 
                             if (showDialog) {
                                 SleepTimerDialog(
-                                    timerActive = timerActive,
-                                    timerRemainingMs = sleepTimerRemainingMs.longValue,
+                                    state = sleepTimerState.value,
                                     inputText = sleepTimerInputText.value,
                                     onInputChange = { sleepTimerInputText.value = it },
-                                    onSetTimer = { minutes ->
+                                    onStartCountdown = { minutes ->
                                         showSleepTimerDialog.value = false
-                                        if (minutes > 0) {
-                                            startSleepTimer(minutes)
-                                        } else {
-                                            cancelSleepTimer()
-                                        }
+                                        analytics.logEvent("sleep_timer_start", Bundle().apply {
+                                            putString("minutes", minutes.toString())
+                                        })
+                                        SleepTimerManager.startCountdown(minutes)
                                     },
+                                    onStartEndOfSong = {
+                                        showSleepTimerDialog.value = false
+                                        analytics.logEvent("sleep_timer_end_of_song", null)
+                                        SleepTimerManager.startEndOfSong()
+                                    },
+                                    onActionChange = { SleepTimerManager.setAction(this@MainActivity, it) },
                                     onCancelTimer = {
                                         showSleepTimerDialog.value = false
-                                        cancelSleepTimer()
+                                        SleepTimerManager.cancel()
                                     },
                                     onDismiss = {
                                         showSleepTimerDialog.value = false
                                     }
                                 )
                             }
+
+                                if (showVolume) {
+                                    VolumeDialog(
+                                        fraction = volumeFractionState.floatValue,
+                                        onChange = { fraction ->
+                                            volumeFractionState.value = fraction
+                                            applySystemVolume(fraction)
+                                        },
+                                        onDismiss = { showVolumeDialog.value = false }
+                                    )
+                                }
+
+                                if (showBatteryPrompt) {
+                                    BatteryOptimizationDialog(
+                                        onConfirm = {
+                                            showBatteryDialog.value = false
+                                            analytics.logEvent("battery_prompt_allow", null)
+                                            if (!BatterySaver.requestExemption(this@MainActivity)) {
+                                                Logger.w(TAG, "battery exemption dialog unavailable, opening app details")
+                                                BatterySaver.openAppSettings(this@MainActivity)
+                                            }
+                                        },
+                                        onDismiss = {
+                                            showBatteryDialog.value = false
+                                            analytics.logEvent("battery_prompt_dismiss", null)
+                                        }
+                                    )
+                                }
                         } else {
                             AndroidView(
                                 factory = { context ->
@@ -736,8 +716,9 @@ class MainActivity : ComponentActivity() {
 
     private fun extractSpotifyLink(intent: Intent?): String? {
         val uri = intent?.data ?: return null
-        val url = uri.toString()
-        return url.takeIf(WebSecurityPolicy::isDeepLink)
+        val host = uri.host ?: return null
+        val accepted = host == "spotify.link" || host.endsWith("spotify.com")
+        return if (accepted) uri.toString() else null
     }
 
     private fun setServiceEnabled(newValue: Boolean) {
@@ -758,22 +739,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun switchConnectionMode(mode: String) {
-        Logger.i(TAG, "connection mode -> $mode, restarting app")
-        prefs.edit().putString("ConnectionMode", mode).apply()
-        prefs.edit().putBoolean("ServiceOn", false).apply()
-        stopService(Intent(this, MediaNotificationService::class.java))
-        LocalProxyManager.stop()
-        val intent = Intent(this, SplashActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        finish()
-    }
-
     private fun switchOfflineMode(enabled: Boolean) {
         Logger.i(TAG, "offline mode -> $enabled, restarting app")
+        SleepTimerManager.cancel()
         prefs.edit().putBoolean("OfflineMode", enabled).apply()
+        WidgetActions.setOfflineMode(this, enabled)
         stopService(Intent(this, MediaNotificationService::class.java))
         val intent = Intent(this, SplashActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -783,11 +753,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun saveProfile(name: String, cookies: String) {
-        Logger.i(TAG, "saving account profile")
-        if (runCatching { ProfileManager.saveProfile(this, name, cookies) }.isFailure) {
-            Toast.makeText(this, "Could not save encrypted profile", Toast.LENGTH_LONG).show()
-            return
-        }
+        Logger.i(TAG, "saving account profile: $name")
+        ProfileManager.saveProfile(this, name, cookies)
         Toast.makeText(this, getString(R.string.main_account_saved), Toast.LENGTH_SHORT).show()
     }
 
@@ -806,11 +773,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun deleteProfile(name: String) {
-        Logger.i(TAG, "deleting account profile")
-        if (runCatching { ProfileManager.deleteProfile(this, name) }.isFailure) {
-            Toast.makeText(this, "Could not update encrypted profiles", Toast.LENGTH_LONG).show()
-            return
-        }
+        Logger.i(TAG, "deleting account profile: $name")
+        ProfileManager.deleteProfile(this, name)
         Toast.makeText(this, getString(R.string.main_profile_deleted), Toast.LENGTH_SHORT).show()
     }
 
@@ -842,188 +806,80 @@ class MainActivity : ComponentActivity() {
         finish()
     }
 
-    private fun startSleepTimer(minutes: Int) {
-        cancelSleepTimer()
-        val totalMs = minutes * 60 * 1000L
-        Logger.i(TAG, "sleep timer started: ${minutes}min")
-        sleepTimerActive.value = true
-        sleepTimerRemainingMs.longValue = totalMs
-
-        analytics.logEvent("sleep_timer_start", Bundle().apply {
-            putString("minutes", minutes.toString())
-        })
-
-        webView?.evaluateJavascript("""
-            if(window.timerBtn) timerBtn.style.color='var(--spl-accent,#2d6)';
-            var t=document.getElementById('spl-timer');
-            if(t) t.classList.add('spl-active');
-        """.trimIndent(), null)
-
-        sleepTimer = object : CountDownTimer(totalMs, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                sleepTimerRemainingMs.longValue = millisUntilFinished
-            }
-
-            override fun onFinish() {
-                Logger.i(TAG, "sleep timer finished, pausing playback")
-                sleepTimerActive.value = false
-                sleepTimerRemainingMs.longValue = 0L
-                webView?.evaluateJavascript("""
-                    if(window.timerBtn) timerBtn.style.color='';
-                    var t=document.getElementById('spl-timer');
-                    if(t) t.classList.remove('spl-active');
-                """.trimIndent(), null)
-                webView?.evaluateJavascript("actPlayPause(false)", null)
-            }
-        }.start()
-    }
-
-    private fun cancelSleepTimer() {
-        if (sleepTimer != null) Logger.i(TAG, "sleep timer cancelled")
-        sleepTimer?.cancel()
-        sleepTimer = null
-        sleepTimerActive.value = false
-        sleepTimerRemainingMs.longValue = 0L
-        webView?.evaluateJavascript("""
-            if(window.timerBtn) timerBtn.style.color='';
-            var t=document.getElementById('spl-timer');
-            if(t) t.classList.remove('spl-active');
-        """.trimIndent(), null)
-    }
-
-    @Composable
-    private fun SleepTimerDialog(
-        timerActive: Boolean,
-        timerRemainingMs: Long,
-        inputText: String,
-        onInputChange: (String) -> Unit,
-        onSetTimer: (Int) -> Unit,
-        onCancelTimer: () -> Unit,
-        onDismiss: () -> Unit
-    ) {
-        val minutes = inputText.toIntOrNull() ?: 0
-        if (timerActive) {
-            val remainingSecs = timerRemainingMs / 1000
-            val mins = remainingSecs / 60
-            val secs = remainingSecs % 60
-            val timeStr = stringResource(R.string.main_timer_remaining, mins, secs)
-
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                shape = RoundedCornerShape(16.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                titleContentColor = MaterialTheme.colorScheme.onSurface,
-                textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                title = {
-                    Text(
-                        stringResource(R.string.main_sleep_timer_title),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                text = {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.main_sleep_timer_emoji),
-                            style = MaterialTheme.typography.displaySmall
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.main_timer_active),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = timeStr,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                confirmButton = {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Button(onClick = onDismiss) {
-                            Text(stringResource(R.string.main_close))
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Button(
-                            onClick = onCancelTimer,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
-                        ) {
-                            Text(stringResource(R.string.main_cancel_timer))
-                        }
-                    }
-                },
-                dismissButton = {}
-            )
+    private fun clearThirdPartyLogins() {
+        Logger.w(TAG, "clearing third-party login sessions")
+        val session = ProfileManager.captureSession(this)
+        if (session != null) {
+            ProfileManager.applyProfile(this, session)
         } else {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                shape = RoundedCornerShape(16.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                titleContentColor = MaterialTheme.colorScheme.onSurface,
-                textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                title = {
-                    Text(
-                        stringResource(R.string.main_sleep_timer_title),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                text = {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.main_set_minutes),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        OutlinedTextField(
-                            value = inputText,
-                            onValueChange = { new ->
-                                if (new.length <= 5 && new.all { it.isDigit() }) {
-                                    onInputChange(new)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            placeholder = { Text(stringResource(R.string.main_timer_minutes_hint)) },
-                            trailingIcon = { Text(stringResource(R.string.main_minutes_suffix), style = MaterialTheme.typography.bodyMedium) }
-                        )
-                    }
-                },
-                confirmButton = {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Button(onClick = onDismiss) {
-                            Text(stringResource(R.string.main_cancel))
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Button(
-                            onClick = { onSetTimer(minutes) },
-                            enabled = minutes > 0
-                        ) {
-                            Text(stringResource(R.string.main_set_timer))
-                        }
-                    }
-                },
-                dismissButton = {}
-            )
+            CookieManager.getInstance().removeAllCookies(null)
+            CookieManager.getInstance().flush()
         }
+        Toast.makeText(this, getString(R.string.main_third_party_cleared), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleSleepTimerExpire() {
+        runOnUiThread {
+            when (SleepTimerManager.action) {
+                SleepTimerAction.PAUSE -> {
+                    Logger.i(TAG, "sleep timer expired: pausing playback")
+                    webView?.evaluateJavascript("actPlayPause(false)", null)
+                }
+
+                SleepTimerAction.QUIT -> {
+                    Logger.i(TAG, "sleep timer expired: quitting app")
+                    webView?.evaluateJavascript("actPlayPause(false)", null)
+                    AppQuit.quit(this)
+                }
+            }
+        }
+    }
+
+    private fun publishTimerHighlight(active: Boolean) {
+        webView?.evaluateJavascript(
+            """
+            (function(a){
+                window.sleepTimerActive={value:a};
+                if(window.timerBtn) timerBtn.style.color=a?'var(--spl-accent,#2d6)':'';
+                var t=document.getElementById('spl-timer');
+                if(t) t.classList.toggle('spl-active',a);
+            })($active)
+            """.trimIndent(),
+            null
+        )
+    }
+
+    private fun audioManager(): AudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+    private fun syncVolumeState(): Boolean {
+        val am = audioManager()
+        val max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        val current = runCatching { am.getStreamVolume(AudioManager.STREAM_MUSIC) }.getOrDefault(0)
+        val fraction = (current.toFloat() / max).coerceIn(0f, 1f)
+        volumeFractionState.value = fraction
+        return fraction <= 0f
+    }
+
+    private fun applySystemVolume(fraction: Float) {
+        val am = audioManager()
+        val max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        val level = (fraction.coerceIn(0f, 1f) * max).roundToInt()
+        runCatching { am.setStreamVolume(AudioManager.STREAM_MUSIC, level, 0) }
+        volumeFractionState.value = level.toFloat() / max
+        publishVolumeIcon(level <= 0)
+    }
+
+    private fun publishVolumeIcon(muted: Boolean) {
+        webView?.evaluateJavascript(
+            """
+        (function(m){
+            window.__splSysMuted=!!m;
+            var b=document.getElementById('spl-vol-btn');
+            if(b) b.classList.toggle('spl-active',!!m);
+        })($muted)
+        """.trimIndent(),
+            null
+        )
     }
 
     @Composable
@@ -1357,6 +1213,14 @@ class MainActivity : ComponentActivity() {
         try {
             val obj = JSONObject(json)
             pipPlaying = obj.optBoolean("playing", false)
+
+            SleepTimerManager.onTrackInfo(
+                obj.optString("track").ifBlank { null },
+                obj.optLong("duration", 0L),
+                obj.optLong("position", 0L),
+                obj.optBoolean("playing", false)
+            )
+
             Logger.v(TAG, "media status: playing=$pipPlaying title=${obj.optString("title", "").take(48)}")
             val coverUrl = obj.optString("cover", "")
             if (coverUrl.isNotEmpty() && coverUrl != "null" && coverUrl != lastPipCoverUrl) {
@@ -1430,29 +1294,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun destroyWebView() {
-        Logger.i(TAG, "destroying webview")
+        Logger.i(TAG, "releasing webview")
         pipVideoView = null
         pipVideoCallback = null
         pipVideoActive.value = false
         pipLyricsRequested = false
         hidePipOverlay()
-        webView?.let {
-            it.stopLoading()
-            OriginScopedBridge.remove(it)
-            if (WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_VIEW_RENDERER) &&
-                WebViewFeature.isFeatureSupported(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE)) {
-                try {
-                    WebViewCompat.getWebViewRenderProcess(it)?.terminate()
-                } catch (_: Exception) {}
-            }
-            // Must detach from its parent before destroy()
-            // Otherwise the WebView and its renderer will be left in a bad state;
-            (it.parent as? ViewGroup)?.removeView(it)
-            it.removeAllViews()
-            it.destroy()
-        }
-        webView = null
-        MediaNotificationService.webView = null
+        WebViewHost.release()
+        webViewGeneration.intValue++
     }
 
     private fun applyOrientation() {
@@ -1503,13 +1352,11 @@ class MainActivity : ComponentActivity() {
     private fun startMediaService() {
         Logger.d(TAG, "startMediaService requested")
         if (MediaNotificationService.instance != null) {
-            Logger.d(TAG, "media service already running, rebinding webview")
-            MediaNotificationService.webView = webView
+            Logger.d(TAG, "media service already running")
             return
         }
         if (serviceStarted) return
         serviceStarted = true
-        MediaNotificationService.webView = webView
         val intent = Intent(this, MediaNotificationService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
@@ -1521,6 +1368,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         Logger.i(TAG, "activity stopped: suspending webview loops")
+        WebViewHost.detach(this)
         webView?.evaluateJavascript("""
             try {
                 window.__splBg = true;
@@ -1534,6 +1382,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Logger.i(TAG, "activity resumed: restoring webview loops")
+        WebViewHost.attach(this)
 
         analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, Bundle().apply {
             putString(FirebaseAnalytics.Param.SCREEN_NAME, "MainActivity")
@@ -1547,17 +1396,29 @@ class MainActivity : ComponentActivity() {
         hideTopBarState.value = prefs.getBoolean("HideTopBar", false)
         landscapeModeState.value = prefs.getBoolean("LandscapeMode", false)
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
-        paletteSeedState.value = prefs.getString("PaletteSeed", null)
+        themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
+        themeSecondaryState.value = ThemeHarmony.parseHex(prefs.getString("ThemeSecondary", null))
         blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", true)
         applyOrientation()
         applyKeepScreenOn()
+
+        if (serviceEnabledState.value && WebViewHost.webView == null) {
+            Logger.i(TAG, "resuming without a live webview, rebuilding")
+            webViewGeneration.intValue++
+        }
+
+        if (!batteryPromptChecked) {
+            batteryPromptChecked = true
+            if (BatterySaver.shouldPrompt(this)) {
+                Logger.i(TAG, "first resume this run: showing battery optimization prompt")
+                showBatteryDialog.value = true
+            }
+        }
 
         val customCss = prefs.getString("CustomCss", "") ?: ""
         val amoledEnabled = prefs.getBoolean("AmoledTheme", false)
 
         webView?.let { view ->
-            if (!WebSecurityPolicy.isPlayer(view.url)) return@let
-            val resumedUrl = view.url
             view.evaluateJavascript("""
                 try {
                     window.__splBg = false;
@@ -1574,19 +1435,18 @@ class MainActivity : ComponentActivity() {
 
             val js = buildString {
                 append(buildAmoledJs(amoledEnabled))
-                append(AccentTheme.buildAccentJs(this@MainActivity))
+                append(ThemeController.buildAccentJs(this@MainActivity))
                 append(buildCustomCssJs(customCss))
-                append(LyricsTheme.buildLyricsStyleJs(prefs.getString("LyricsStyle", LyricsTheme.DEFAULT_STYLE) ?: LyricsTheme.DEFAULT_STYLE))
             }
             view.evaluateJavascript(js, null)
 
             view.evaluateJavascript(LogoutCheck.CONTENT) { result ->
-                if (view.url != resumedUrl || !WebSecurityPolicy.isPlayer(view.url)) return@evaluateJavascript
                 if (result == "\"out\"") {
                     prefs.edit().putBoolean("LoggedIn", false).apply()
                     view.loadUrl("https://accounts.spotify.com/login")
                 }
             }
+            publishVolumeIcon(syncVolumeState())
         }
     }
 
@@ -1594,7 +1454,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         if (captureMediaSearch(intent)) {
             webView?.let { view ->
-                if (WebSecurityPolicy.isPlayer(view.url)) {
+                if (isPlayerUrl(view.url)) {
                     view.evaluateJavascript("typeof window.searchMediaItems==='function'") { ready ->
                         if (ready == "true") playPendingSearch(view)
                     }
@@ -1645,7 +1505,7 @@ class MainActivity : ComponentActivity() {
         val js = """
             (function() {
                 try {
-                    var target = '$path';
+                    var target = ${JSONObject.quote(path)};
                     if (window.location.pathname === target) return 'same';
                     window.history.pushState({}, '', target);
                     window.dispatchEvent(new PopStateEvent('popstate'));
@@ -1672,26 +1532,49 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        Logger.i(TAG, "activity destroyed, tearing down webview")
-        cancelSleepTimer()
+        Logger.i(TAG, "activity destroyed, detaching from the webview")
         pipVideoView = null
         pipVideoCallback = null
         pipVideoActive.value = false
         pipLyricsRequested = false
         hidePipOverlay()
-        webView?.let {
-            it.stopLoading()
-            it.clearHistory()
-            it.clearFormData()
-            OriginScopedBridge.remove(it)
-            (it.parent as? ViewGroup)?.removeView(it)
-            it.removeAllViews()
-            it.destroy()
-        }
-        webView = null
-        MediaNotificationService.webView = null
+        WebViewHost.detach(this)
+        WebViewHost.bridge?.rebind(WeakReference(null))
+        if (MediaNotificationService.instance == null) WebViewHost.release()
         serviceStarted = false
+        runCatching { contentResolver.unregisterContentObserver(volumeObserver) }
         super.onDestroy()
+    }
+
+    override fun onProgress(progress: Int) {
+        loadingProgress.intValue = progress
+    }
+
+    override fun onShowCustomView(view: View?, callback: android.webkit.WebChromeClient.CustomViewCallback?) {
+        handleCustomViewShown(view, callback)
+    }
+
+    override fun onHideCustomView() {
+        handleCustomViewHidden()
+    }
+
+    override fun onWebViewError(code: Int, description: String) {
+        webViewError.value = code to description
+    }
+
+    override fun onRenderProcessGone() {
+        runOnUiThread {
+            webViewError.value = null
+            webViewGeneration.intValue++
+        }
+    }
+
+    override fun onPlayerReady(view: WebView) {
+        playPendingSearch(view)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
     }
 }
 

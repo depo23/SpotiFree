@@ -1,13 +1,12 @@
 package com.project.lol.offline
 
-import com.project.lol.security.WebSecurityPolicy
-
 import android.content.ContentValues
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.project.lol.R
 import com.project.lol.util.Logger
 import com.project.lol.innertube.YouTube
 import com.project.lol.innertube.models.SongItem
@@ -16,6 +15,8 @@ import com.project.lol.offline.audio.Mp3Encoder
 import com.project.lol.offline.audio.Mp4Remux
 import com.project.lol.offline.audio.Mp4Tags
 import com.project.lol.offline.audio.Tags
+import com.project.lol.offline.lyrics.LyricsFetcher
+import com.project.lol.offline.lyrics.LyricsStore
 import com.project.lol.yt.AudioQuality
 import com.project.lol.yt.CandidateScorer
 import com.project.lol.yt.CandidateScorer.isAcceptableMatch
@@ -41,6 +42,9 @@ private data class TrackMeta(
     val artist: String,
     val album: String,
     val cover: String?,
+    val trackNumber: Int? = null,
+    val discNumber: Int? = null,
+    val year: Int? = null,
 )
 
 private data class YtMeta(
@@ -66,6 +70,7 @@ private sealed class TrackResult {
         val title: String,
         val artist: String,
         val album: String,
+        val year: Int? = null,
         val yt: YtMeta? = null,
     ) : TrackResult()
     data class Failed(val title: String, val artist: String, val album: String) : TrackResult()
@@ -98,6 +103,8 @@ private sealed class DownloadJob {
         val tracks: List<TrackMeta>,
     ) : DownloadJob()
 }
+
+private fun JSONObject.positiveInt(key: String): Int? = optInt(key, 0).takeIf { it > 0 }
 
 object DownloadManager {
     private const val TAG = "Spl-DL"
@@ -233,18 +240,18 @@ object DownloadManager {
     ) {
         val appContext = context.applicationContext
         val parsed = runCatching { JSONObject(payload) }.getOrNull() ?: run {
-            onStatus?.invoke("Invalid download request")
+            onStatus?.invoke(appContext.getString(R.string.dl_status_invalid_request))
             return
         }
         val trackId = parsed.optString("trackId").trim()
-        if (!WebSecurityPolicy.isTrackId(trackId)) {
+        if (trackId.isBlank()) {
             Logger.e(TAG, "downloadCurrentTrack: empty trackId in payload")
-            onStatus?.invoke("Could not identify the current track")
+            onStatus?.invoke(appContext.getString(R.string.dl_status_no_current_track))
             return
         }
         if (trackId == activeTrackId) {
             Logger.w(TAG, "downloadCurrentTrack: $trackId is already in progress")
-            onStatus?.invoke("This track is already downloading")
+            onStatus?.invoke(appContext.getString(R.string.dl_status_already_downloading))
             return
         }
         val track = TrackMeta(
@@ -253,6 +260,9 @@ object DownloadManager {
             artist = parsed.optString("artist"),
             album = parsed.optString("album"),
             cover = parsed.optString("cover").ifBlank { null },
+            trackNumber = parsed.positiveInt("trackNumber"),
+            discNumber = parsed.positiveInt("discNumber"),
+            year = parsed.positiveInt("year"),
         )
         markStatus(
             active = true,
@@ -267,7 +277,7 @@ object DownloadManager {
             skipped = 0,
             error = false,
         )
-        progress(0, "Resolving audio...")
+        progress(0, appContext.getString(R.string.dl_progress_resolving_audio))
         enqueue(appContext, DownloadJob.Single(track))
     }
 
@@ -277,11 +287,11 @@ object DownloadManager {
     ) {
         val appContext = context.applicationContext
         val parsed = runCatching { JSONObject(payload) }.getOrNull() ?: run {
-            onStatus?.invoke("Invalid download request")
+            onStatus?.invoke(appContext.getString(R.string.dl_status_invalid_request))
             return
         }
         val tracksJson = parsed.optJSONArray("tracks") ?: run {
-            onStatus?.invoke("No tracks found")
+            onStatus?.invoke(appContext.getString(R.string.dl_status_no_tracks))
             return
         }
         val seen = HashSet<String>()
@@ -289,7 +299,7 @@ object DownloadManager {
         for (i in 0 until tracksJson.length()) {
             val o = tracksJson.optJSONObject(i) ?: continue
             val id = o.optString("trackId").trim()
-            if (!WebSecurityPolicy.isTrackId(id) || !seen.add(id)) continue
+            if (id.isBlank() || !seen.add(id)) continue
             tracks.add(
                 TrackMeta(
                     trackId = id,
@@ -297,14 +307,17 @@ object DownloadManager {
                     artist = o.optString("artist"),
                     album = o.optString("album"),
                     cover = o.optString("cover").ifBlank { null },
+                    trackNumber = o.positiveInt("trackNumber"),
+                    discNumber = o.positiveInt("discNumber"),
+                    year = o.positiveInt("year"),
                 )
             )
         }
         if (tracks.isEmpty()) {
-            onStatus?.invoke("No downloadable tracks found")
+            onStatus?.invoke(appContext.getString(R.string.dl_status_no_downloadable_tracks))
             return
         }
-        val name = parsed.optString("name").ifBlank { "Collection" }
+        val name = parsed.optString("name").ifBlank { appContext.getString(R.string.dl_collection_default) }
         val collectionCover = parsed.optString("cover").ifBlank { null }
         val batch = if (collectionCover != null) {
             tracks.map { if (it.cover == null) it.copy(cover = collectionCover) else it }
@@ -323,7 +336,7 @@ object DownloadManager {
             skipped = 0,
             error = false,
         )
-        progress(0, "Queued ${batch.size} tracks — $name", "Queued")
+        progress(0, appContext.getString(R.string.dl_progress_queued, batch.size, name), appContext.getString(R.string.dl_stage_queued))
         enqueue(appContext, DownloadJob.Collection(name, collectionCover, batch))
     }
 
@@ -354,9 +367,9 @@ object DownloadManager {
     private suspend fun runSingle(appContext: Context, track: TrackMeta) {
         val trackName = track.title.ifBlank { track.trackId }
         if (OfflineStore.isTrackSaved(appContext, track.trackId)) {
-            markStatus(active = false, title = trackName, artist = track.artist, stage = "Already saved", error = false)
-            progress(100, "Already saved")
-            withContext(Dispatchers.Main) { onStatus?.invoke("Already saved to ${DownloadPrefs.folderLabel(appContext)}") }
+            markStatus(active = false, title = trackName, artist = track.artist, stage = appContext.getString(R.string.dl_progress_already_saved), error = false)
+            progress(100, appContext.getString(R.string.dl_progress_already_saved))
+            withContext(Dispatchers.Main) { onStatus?.invoke(appContext.getString(R.string.dl_status_already_saved_to, DownloadPrefs.folderLabel(appContext))) }
             return
         }
         activeTrackId = track.trackId
@@ -365,7 +378,7 @@ object DownloadManager {
             batch = false,
             title = trackName,
             artist = track.artist,
-            stage = "Resolving audio",
+            stage = appContext.getString(R.string.dl_stage_resolving_audio),
             index = 0,
             total = 1,
             saved = 0,
@@ -399,20 +412,21 @@ object DownloadManager {
                         durationSec = result.yt?.durationSec,
                         explicit = result.yt?.explicit ?: false,
                         shareLink = result.yt?.shareLink,
+                        year = result.year,
                     )
-                    progress(100, "Saved to ${DownloadPrefs.folderLabel(appContext)}")
-                    withContext(Dispatchers.Main) { onStatus?.invoke("Saved to ${DownloadPrefs.folderLabel(appContext)}") }
+                    progress(100, appContext.getString(R.string.dl_status_saved_to, DownloadPrefs.folderLabel(appContext)))
+                    withContext(Dispatchers.Main) { onStatus?.invoke(appContext.getString(R.string.dl_status_saved_to, DownloadPrefs.folderLabel(appContext))) }
                 }
                 is TrackResult.Failed -> {
-                    val msg = "Download failed: ${lastDownloadError ?: "unknown error"}"
+                    val msg = appContext.getString(R.string.dl_status_failed, lastDownloadError ?: appContext.getString(R.string.dl_error_unknown))
                     progress(-1, msg)
                     withContext(Dispatchers.Main) { onStatus?.invoke(msg) }
                 }
                 // Single track: skip and cancel both simply stop the download.
                 TrackResult.Aborted -> {
                     consumeSignal()
-                    progress(-1, "Cancelled")
-                    withContext(Dispatchers.Main) { onStatus?.invoke("Download cancelled") }
+                    progress(-1, appContext.getString(R.string.dl_progress_cancelled))
+                    withContext(Dispatchers.Main) { onStatus?.invoke(appContext.getString(R.string.dl_status_cancelled)) }
                 }
             }
         } finally {
@@ -434,7 +448,7 @@ object DownloadManager {
             collection = job.name,
             title = "",
             artist = "",
-            stage = "Reading playlist",
+            stage = appContext.getString(R.string.dl_stage_reading_playlist),
             index = 0,
             total = total,
             saved = 0,
@@ -456,7 +470,7 @@ object DownloadManager {
                 }
 
                 fun report(pct: Int, text: String) {
-                    progress(overallPct(pct), "$n/$total · $shortTitle — $text", text)
+                    progress(overallPct(pct), appContext.getString(R.string.dl_progress_track_of, n, total, shortTitle, text), text)
                 }
 
                 markStatus(
@@ -479,7 +493,7 @@ object DownloadManager {
                     ControlSignal.SKIP -> {
                         skipped++
                         Logger.i(TAG, "runCollection: user skipped ${track.trackId}")
-                        report(100, "Skipped")
+                        report(100, appContext.getString(R.string.dl_progress_skipped))
                         continue
                     }
                     null -> {}
@@ -487,14 +501,14 @@ object DownloadManager {
 
                 if (OfflineStore.isTrackSaved(appContext, track.trackId)) {
                     skipped++
-                    report(100, "Already saved")
+                    report(100, appContext.getString(R.string.dl_progress_already_saved))
                     continue
                 }
 
                 activeTrackId = track.trackId
                 // Report at track start so the batch flags reach the UI
                 // before the (non-interruptible) resolver runs.
-                report(0, "Resolving...")
+                report(0, appContext.getString(R.string.dl_progress_resolving))
                 try {
                     val result = runCatching {
                         downloadToFile(appContext, track) { pct, text -> report(pct, text) }
@@ -522,20 +536,21 @@ object DownloadManager {
                                 durationSec = result.yt?.durationSec,
                                 explicit = result.yt?.explicit ?: false,
                                 shareLink = result.yt?.shareLink,
+                                year = result.year,
                             )
-                            report(100, "Saved")
+                            report(100, appContext.getString(R.string.dl_progress_saved))
                         }
                         is TrackResult.Failed -> {
                             failed++
                             Logger.w(TAG, "runCollection: ${track.trackId} failed: $lastDownloadError")
-                            report(0, "Failed — skipping")
+                            report(0, appContext.getString(R.string.dl_progress_failed_skipping))
                         }
                         TrackResult.Aborted -> when (consumeSignal()) {
                             ControlSignal.CANCEL -> cancelled = true
                             // SKIP (or the tail of a cancel): drop this track, batch lives on.
                             else -> {
                                 skipped++
-                                report(100, "Skipped")
+                                report(100, appContext.getString(R.string.dl_progress_skipped))
                             }
                         }
                     }
@@ -555,11 +570,13 @@ object DownloadManager {
 
         val processed = saved + failed + skipped
         val summary = buildString {
-            append(saved)
-            append(if (saved == 1) " track saved" else " tracks saved")
-            if (skipped > 0) append(", $skipped skipped")
-            if (failed > 0) append(", $failed failed")
-            if (cancelled) append(" — cancelled at $processed/$total")
+            append(
+                if (saved == 1) appContext.getString(R.string.dl_summary_saved_one)
+                else appContext.getString(R.string.dl_summary_saved_many, saved)
+            )
+            if (skipped > 0) append(", " + appContext.getString(R.string.dl_summary_skipped, skipped))
+            if (failed > 0) append(", " + appContext.getString(R.string.dl_summary_failed, failed))
+            if (cancelled) append(" — " + appContext.getString(R.string.dl_summary_cancelled, processed, total))
         }
         Logger.i(TAG, "runCollection: done '${job.name}' saved=$saved failed=$failed skipped=$skipped cancelled=$cancelled")
         markStatus(
@@ -575,7 +592,7 @@ object DownloadManager {
         withContext(Dispatchers.Main) { onStatus?.invoke(summary) }
         when {
             cancelled -> progress(-1, summary)
-            saved > 0 -> progress(100, "$summary — ${DownloadPrefs.folderLabel(appContext)}")
+            saved > 0 -> progress(100, appContext.getString(R.string.dl_progress_summary, summary, DownloadPrefs.folderLabel(appContext)))
             failed > 0 -> progress(-1, summary)
         }
     }
@@ -586,7 +603,6 @@ object DownloadManager {
         progress: (Int, String) -> Unit,
     ): TrackResult {
         val trackId = track.trackId
-        require(WebSecurityPolicy.isTrackId(trackId)) { "Invalid track ID" }
         val title = track.title
         val artist = track.artist
         val album = track.album
@@ -617,11 +633,12 @@ object DownloadManager {
 
         val dir = java.io.File(context.filesDir, "downloads").apply { mkdirs() }
         val tmpFile = java.io.File(dir, "$trackId.part")
-        progress(1, "Downloading audio...")
+        progress(1, context.getString(R.string.dl_progress_downloading_audio))
         val downloaded = httpDownloadRanged(
+            context,
             resolved.url,
             tmpFile,
-            { pct -> progress(pct, "Downloading audio...") },
+            { pct -> progress(pct, context.getString(R.string.dl_progress_downloading_audio)) },
             { signal != null },
         )
         if (!downloaded) {
@@ -630,7 +647,7 @@ object DownloadManager {
             if (signal != null) return TrackResult.Aborted
             return TrackResult.Failed(effectiveTitle, effectiveArtist, effectiveAlbum)
         }
-        progress(99, "Saving...")
+        progress(99, context.getString(R.string.dl_progress_saving))
 
         val writeTags = DownloadPrefs.writeTags(context)
 
@@ -646,7 +663,7 @@ object DownloadManager {
         fun m4aFrom(source: File): FinalAudio? {
             val out = File(dir, "$trackId.m4a")
             val ok = M4aEncoder.transcode(source, out, onProgress = { pct ->
-                progress(60 + pct * 39 / 100, "Converting to M4A")
+                progress(60 + pct * 39 / 100, context.getString(R.string.dl_progress_converting, "M4A"))
             })
             if (!ok) return null
             source.delete()
@@ -657,7 +674,7 @@ object DownloadManager {
             if (Mp4Tags.isTaggable(source)) {
                 return FinalAudio(renameToAudio(source, "m4a"), "m4a", DownloadFormat.M4A.mime)
             }
-            progress(60, "Preparing M4A")
+            progress(60, context.getString(R.string.dl_progress_preparing_m4a))
             val out = File(dir, "$trackId.canonical.m4a")
             return if (Mp4Remux.remux(source, out)) {
                 source.delete()
@@ -677,7 +694,7 @@ object DownloadManager {
             DownloadFormat.MP3 -> {
                 val mp3File = File(dir, "$trackId.mp3")
                 val ok = Mp3Encoder.transcode(tmpFile, mp3File) { pct ->
-                    progress(60 + pct * 39 / 100, "Converting to MP3")
+                    progress(60 + pct * 39 / 100, context.getString(R.string.dl_progress_converting, "MP3"))
                 }
                 if (ok) {
                     tmpFile.delete()
@@ -696,7 +713,7 @@ object DownloadManager {
         if (finalAudio == null) {
             Logger.w(TAG, "downloadToFile: could not produce ${format.name} output from $sourceContainer/$sourceMime")
             runCatching { tmpFile.delete() }
-            lastDownloadError = "Audio conversion failed"
+            lastDownloadError = context.getString(R.string.dl_error_conversion_failed)
             return TrackResult.Failed(effectiveTitle, effectiveArtist, effectiveAlbum)
         }
 
@@ -708,15 +725,43 @@ object DownloadManager {
             else -> null
         }
 
+        val lyricsLrc = if (DownloadPrefs.lyrics(context) && signal == null) {
+            progress(99, context.getString(R.string.dl_progress_fetching_lyrics))
+            val result = LyricsFetcher.fetch(
+                videoId = resolved.chosen.id,
+                trackId = trackId,
+                title = effectiveTitle,
+                artist = effectiveArtist,
+                durationSec = resolved.chosen.duration ?: 0,
+                source = DownloadPrefs.lyricsSource(context),
+            )
+            if (result == null) {
+                Logger.i(TAG, "downloadToFile: no lyrics for $trackId")
+                null
+            } else {
+                LyricsStore.write(context, trackId, result.lrc)
+                Logger.i(
+                    TAG,
+                    "downloadToFile: lyrics ${result.source} " +
+                        "${if (result.synced) "synced" else "plain"} ${result.lineCount} lines",
+                )
+                result.lrc
+            }
+        } else null
+
         if (writeTags && tagFormat != null) {
-            progress(99, "Writing tags...")
+            progress(99, context.getString(R.string.dl_progress_writing_tags))
             Tags.writeTags(
                 finalFile,
                 tagFormat,
                 effectiveTitle,
                 effectiveArtist,
                 effectiveAlbum,
-                fetchCoverForTags(context, trackId, track.cover ?: resolved.chosen.thumbnail)
+                fetchCoverForTags(context, trackId, track.cover ?: resolved.chosen.thumbnail),
+                trackNumber = track.trackNumber,
+                discNumber = track.discNumber,
+                year = track.year,
+                lyrics = if (DownloadPrefs.lyricsEmbed(context)) lyricsLrc else null,
             )
         }
 
@@ -731,10 +776,18 @@ object DownloadManager {
         )
         finalFile.delete()
         if (uri != null) {
+            if (lyricsLrc != null && DownloadPrefs.lyricsSidecar(context)) {
+                LyricsStore.writeSidecar(
+                    context,
+                    LyricsStore.sidecarName(effectiveArtist, effectiveTitle, trackId),
+                    lyricsLrc,
+                )
+            }
             return TrackResult.Saved(
                 effectiveTitle,
                 effectiveArtist,
                 effectiveAlbum,
+                year = track.year,
                 yt = YtMeta(
                     videoId = resolved.chosen.id,
                     ytTitle = resolved.chosen.title,
@@ -748,7 +801,7 @@ object DownloadManager {
             )
         }
         Logger.w(TAG, "downloadToFile: MediaStore save failed")
-        lastDownloadError = "Couldn't save file"
+        lastDownloadError = context.getString(R.string.dl_error_could_not_save)
         return TrackResult.Failed(effectiveTitle, effectiveArtist, effectiveAlbum)
     }
 
@@ -765,23 +818,35 @@ object DownloadManager {
             if (artist.isNotBlank()) append(" $artist")
         }
 
-        val searchResult = runCatching {
-            YouTube.search(searchText, YouTube.SearchFilter.FILTER_SONG).getOrNull()
-        }.onFailure { Logger.e(TAG, "resolveStream: search failed: ${it.message}", it) }
-            .getOrNull()
-        if (searchResult == null) {
-            Logger.w(TAG, "resolveStream: search failed for '$searchText'")
-            return ResolveOutcome.Failure("Search failed on YouTube Music")
+        Logger.d(
+            TAG,
+            "resolveStream: search '$searchText' gl=${YouTube.locale.gl} hl=${YouTube.locale.hl} " +
+                "visitor=${YouTube.visitorData != null} loggedIn=${YouTube.cookie != null}"
+        )
+        val searchOutcome = YouTube.search(searchText, YouTube.SearchFilter.FILTER_SONG)
+        val searchResult = searchOutcome.getOrElse { error ->
+            Logger.e(
+                TAG,
+                "resolveStream: search threw for '$searchText' — " +
+                    "${error::class.java.name}: ${error.message ?: "(no message)"}",
+                error,
+            )
+            null
         }
+        if (searchResult == null) {
+            Logger.w(TAG, "resolveStream: search failed for '$searchText' (exception logged above)")
+            return ResolveOutcome.Failure(context.getString(R.string.dl_error_search_failed))
+        }
+        Logger.d(TAG, "resolveStream: '$searchText' -> ${searchResult.items.size} item(s)")
         if (searchResult.items.isEmpty()) {
             Logger.w(TAG, "resolveStream: no results for '$searchText'")
-            return ResolveOutcome.Failure("No results on YouTube Music")
+            return ResolveOutcome.Failure(context.getString(R.string.dl_error_no_results))
         }
 
         val songItems = searchResult.items.filterIsInstance<SongItem>()
         if (songItems.isEmpty()) {
             Logger.w(TAG, "resolveStream: no song items for '$searchText'")
-            return ResolveOutcome.Failure("No song results on YouTube Music")
+            return ResolveOutcome.Failure(context.getString(R.string.dl_error_no_song_results))
         }
 
         val metadata = CandidateScorer.TrackMatchMetadata(
@@ -796,7 +861,7 @@ object DownloadManager {
 
         val chosen = scored.firstOrNull()?.item ?: run {
             Logger.w(TAG, "resolveStream: no acceptable match for '$searchText'")
-            return ResolveOutcome.Failure("No matching track on YouTube Music")
+            return ResolveOutcome.Failure(context.getString(R.string.dl_error_no_match))
         }
 
         val connectivityManager =
@@ -811,9 +876,9 @@ object DownloadManager {
         ).onFailure { Logger.e(TAG, "resolveStream: playback resolve failed: ${it.message}", it) }
 
         val data = playbackResult.getOrNull() ?: run {
-            val detail = playbackResult.exceptionOrNull()?.message?.takeIf { it.isNotBlank() } ?: "unknown error"
+            val detail = playbackResult.exceptionOrNull()?.message?.takeIf { it.isNotBlank() } ?: context.getString(R.string.dl_error_unknown)
             val webViewIssue = WebViewHealth.failureReason(CipherDeobfuscator.contextOrNull)
-            val reason = if (webViewIssue != null) "Stream unavailable: $detail ($webViewIssue)" else "Stream unavailable: $detail"
+            val reason = if (webViewIssue != null) context.getString(R.string.dl_error_stream_unavailable_detail, detail, webViewIssue) else context.getString(R.string.dl_error_stream_unavailable, detail)
             Logger.w(TAG, "resolveStream: no playback data for ${chosen.id}: $reason")
             return ResolveOutcome.Failure(reason)
         }
@@ -821,7 +886,7 @@ object DownloadManager {
         val streamUrl = data.streamUrl
         if (streamUrl.isBlank()) {
             Logger.w(TAG, "resolveStream: empty stream url for ${chosen.id}")
-            return ResolveOutcome.Failure("Empty stream url from YouTube")
+            return ResolveOutcome.Failure(context.getString(R.string.dl_error_empty_stream_url))
         }
 
         val mimeType = data.format.mimeType.substringBefore(';').trim()
@@ -836,7 +901,7 @@ object DownloadManager {
     @Volatile
     private var lastDownloadError: String? = null
 
-    private fun httpDownloadRanged(url: String, tmpFile: java.io.File, onProgress: ((Int) -> Unit)? = null, shouldAbort: (() -> Boolean)? = null): Boolean {
+    private fun httpDownloadRanged(context: Context, url: String, tmpFile: java.io.File, onProgress: ((Int) -> Unit)? = null, shouldAbort: (() -> Boolean)? = null): Boolean {
         val chunk = 8L * 1024 * 1024
         var total = -1L
         var position = 0L
@@ -859,7 +924,7 @@ object DownloadManager {
                             val code = conn.responseCode
                             if (code !in 200..299) {
                                 Logger.e(TAG, "httpDownloadRanged: HTTP $code at $position (attempt $attempt)")
-                                lastDownloadError = "Stream returned HTTP $code"
+                                lastDownloadError = context.getString(R.string.dl_error_http, code)
                                 return false
                             }
                             if (total < 0) {
@@ -890,7 +955,7 @@ object DownloadManager {
                             if (shouldAbort?.invoke() == true) return false
                             Logger.w(TAG, "httpDownloadRanged: chunk @$position failed attempt $attempt: ${e.message}")
                             if (attempt >= 4) {
-                                lastDownloadError = e.message ?: "Connection reset"
+                                lastDownloadError = e.message ?: context.getString(R.string.dl_error_connection_reset)
                                 return false
                             }
                         } finally {
@@ -906,7 +971,7 @@ object DownloadManager {
             ok
         } catch (e: Exception) {
             Logger.e(TAG, "httpDownloadRanged: exception: ${e.message}", e)
-            lastDownloadError = e.message ?: "Download error"
+            lastDownloadError = e.message ?: context.getString(R.string.dl_error_download)
             false
         }
     }
