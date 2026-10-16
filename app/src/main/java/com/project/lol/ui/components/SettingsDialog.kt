@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -71,15 +72,17 @@ fun SettingsDialog(
     onLandscapeModeChange: (Boolean) -> Unit,
     keepScreenOn: Boolean,
     onKeepScreenOnChange: (Boolean) -> Unit,
-    paletteSeed: String?,
-    onPaletteSeedChange: (String?) -> Unit,
-    onConnectionModeChange: (String) -> Unit,
+    themePreset: String,
+    onThemePresetChange: (String) -> Unit,
+    themeSecondary: Color?,
+    onThemeSecondaryChange: (Color?) -> Unit,
     onOfflineModeChange: (Boolean) -> Unit,
     onSaveProfile: (String, String) -> Unit,
     onLoadProfile: (String) -> Unit,
     onDeleteProfile: (String) -> Unit,
     onClearCache: () -> Unit,
     onClearData: () -> Unit,
+    onClearThirdParty: () -> Unit,
     onDebugToggle: (Boolean) -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit,
@@ -156,15 +159,17 @@ fun SettingsDialog(
                                         onLandscapeModeChange = onLandscapeModeChange,
                                         keepScreenOn = keepScreenOn,
                                         onKeepScreenOnChange = onKeepScreenOnChange,
-                                        paletteSeed = paletteSeed,
-                                        onPaletteSeedChange = onPaletteSeedChange,
-                                        onConnectionModeChange = onConnectionModeChange,
+                                        themePreset = themePreset,
+                                        onThemePresetChange = onThemePresetChange,
+                                        themeSecondary = themeSecondary,
+                                        onThemeSecondaryChange = onThemeSecondaryChange,
                                         onOfflineModeChange = onOfflineModeChange,
                                         onSaveProfile = onSaveProfile,
                                         onLoadProfile = onLoadProfile,
                                         onDeleteProfile = onDeleteProfile,
                                         onClearCache = onClearCache,
                                         onClearData = onClearData,
+                                        onClearThirdParty = onClearThirdParty,
                                         onDebugToggle = onDebugToggle,
                                         blockServiceWorker = blockServiceWorker,
                                         onBlockServiceWorkerChange = onBlockServiceWorkerChange
