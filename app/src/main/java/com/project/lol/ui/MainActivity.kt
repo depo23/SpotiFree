@@ -119,6 +119,10 @@ import com.project.lol.util.BatterySaver
 import com.project.lol.util.BuildInfo
 import com.project.lol.util.Logger
 import com.project.lol.util.UpdateChecker
+import com.project.lol.util.UpdateEvent
+import com.project.lol.util.UpdateInstaller
+import com.project.lol.ui.components.UpdateDialog
+import java.io.File
 import com.project.lol.webview.WebViewHost
 import com.project.lol.webview.helpers.DevLogPrelude
 import com.project.lol.webview.helpers.buildAmoledJs
@@ -170,6 +174,9 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     private val materialYouState = mutableStateOf(false)
     private val amoledState = mutableStateOf(false)
     private val hideTopBarState = mutableStateOf(false)
+    private val updateEvent = mutableStateOf<UpdateEvent?>(null)
+    private var updateDismissedFor: String? = null
+    private val updateChecker by lazy { UpdateChecker(this) }
     private val landscapeModeState = mutableStateOf(false)
     private val wideVideoState = mutableStateOf(false)
     private val videoFullscreenState = mutableStateOf(false)
@@ -240,16 +247,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
         if ((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             WebView.setWebContentsDebuggingEnabled(true)
-        }
-
-        val uc = UpdateChecker(this)
-        uc.autoCheck { url ->
-            Toast.makeText(this, getString(R.string.main_update_available), Toast.LENGTH_SHORT).show()
-            Handler(Looper.getMainLooper()).postDelayed({
-                try {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                } catch (_: Exception) {}
-            }, 2000)
         }
 
         val loggedIn = prefs.getBoolean("LoggedIn", false)
@@ -340,9 +337,21 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             }
 
             SpotifyTheme {
+                updateEvent.value?.let { update ->
+                    UpdateDialog(
+                        event = update,
+                        canInstall = UpdateInstaller.canInstall(this@MainActivity),
+                        onInstall = { apk -> installUpdate(apk) },
+                        onAllowInstalls = { startActivity(UpdateInstaller.allowInstallsIntent(this@MainActivity)) },
+                        onLater = { dismissUpdate(snooze = true) },
+                        onDismiss = { dismissUpdate(snooze = false) }
+                    )
+                }
+
                 SettingsDialog(
                     visible = settingsDialogOpen,
                     onClose = { settingsDialogOpen = false },
+                    onCheckForUpdates = { checkForUpdates(manual = true) },
                     prefs = prefs,
                     materialYou = materialYou,
                     onMaterialYouChange = { enabled ->
@@ -719,6 +728,40 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         val host = uri.host ?: return null
         val accepted = host == "spotify.link" || host.endsWith("spotify.com")
         return if (accepted) uri.toString() else null
+    }
+
+    private fun checkForUpdates(manual: Boolean) {
+        updateChecker.check(manual) { event -> onUpdateEvent(event, manual) }
+    }
+
+    private fun onUpdateEvent(event: UpdateEvent, manual: Boolean) {
+        val version = event.version
+        if (version != null && version == updateDismissedFor) return
+        when (event) {
+            UpdateEvent.UpToDate ->
+                if (manual) Toast.makeText(this, R.string.update_up_to_date, Toast.LENGTH_SHORT).show()
+            is UpdateEvent.Failed ->
+                if (manual || updateEvent.value != null) updateEvent.value = event
+            else -> updateEvent.value = event
+        }
+    }
+
+    private fun dismissUpdate(snooze: Boolean) {
+        updateEvent.value?.version?.let { version ->
+            updateDismissedFor = version
+            if (snooze) updateChecker.snooze(version)
+        }
+        updateEvent.value = null
+    }
+
+    private fun installUpdate(apk: File) {
+        try {
+            UpdateInstaller.install(this, apk)
+            updateEvent.value = null
+        } catch (e: Exception) {
+            Logger.e(TAG, "update install failed", e)
+            Toast.makeText(this, getString(R.string.update_install_failed, e.message ?: "error"), Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setServiceEnabled(newValue: Boolean) {
@@ -1381,6 +1424,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
     override fun onResume() {
         super.onResume()
+        checkForUpdates(manual = false)
         Logger.i(TAG, "activity resumed: restoring webview loops")
         WebViewHost.attach(this)
 

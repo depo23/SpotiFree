@@ -240,6 +240,7 @@ fun SettingsContent(
     onClearData: () -> Unit,
     onClearThirdParty: () -> Unit,
     onDebugToggle: (Boolean) -> Unit = {},
+    onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit
 ) {
@@ -1146,6 +1147,15 @@ fun SettingsContent(
                         subtitle = stringResource(R.string.settings_version_format, appVersionName, BuildInfo.id),
                         icon = TablerIcons.DeviceMobile,
                         onClick = { showChangelogDialog = true }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    SettingTile(
+                        title = stringResource(R.string.settings_check_updates),
+                        subtitle = stringResource(R.string.settings_check_updates_subtitle),
+                        icon = TablerIcons.DeviceMobile,
+                        onClick = { onCheckForUpdates() }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))

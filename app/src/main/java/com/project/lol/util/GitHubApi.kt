@@ -2,18 +2,26 @@ package com.project.lol.util
 
 import android.os.Handler
 import android.os.Looper
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+data class ReleaseAsset(
+    val name: String,
+    val url: String,
+    val size: Long
+)
+
 data class GitHubRelease(
     val tagName: String,
     val name: String,
     val body: String,
     val publishedAt: String,
-    val htmlUrl: String
+    val htmlUrl: String,
+    val assets: List<ReleaseAsset> = emptyList()
 )
 
 object GitHubApi {
@@ -45,7 +53,8 @@ object GitHubApi {
                         name = json.optString("name", ""),
                         body = json.optString("body", ""),
                         publishedAt = json.optString("published_at", ""),
-                        htmlUrl = json.optString("html_url", "")
+                        htmlUrl = json.optString("html_url", ""),
+                        assets = parseAssets(json.optJSONArray("assets"))
                     )
                 } else {
                     null
@@ -56,6 +65,18 @@ object GitHubApi {
             } catch (_: Exception) {
                 Handler(Looper.getMainLooper()).post { onResult(null) }
             }
+        }
+    }
+
+    private fun parseAssets(arr: JSONArray?): List<ReleaseAsset> {
+        if (arr == null) return emptyList()
+        return (0 until arr.length()).mapNotNull { i ->
+            val a = arr.optJSONObject(i) ?: return@mapNotNull null
+            ReleaseAsset(
+                name = a.optString("name", ""),
+                url = a.optString("browser_download_url", ""),
+                size = a.optLong("size", 0L)
+            )
         }
     }
 }

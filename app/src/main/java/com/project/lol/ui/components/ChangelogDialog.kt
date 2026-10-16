@@ -51,8 +51,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-private const val REPO_OWNER = "lyssadev"
-private const val REPO_NAME = "Spotilol"
+private val REPO_OWNER = com.project.lol.BuildConfig.UPDATE_REPO.substringBefore('/')
+private val REPO_NAME = com.project.lol.BuildConfig.UPDATE_REPO.substringAfter('/')
 private const val RELEASES_URL = "https://github.com/lyssadev/Spotilol/releases"
 
 @Composable
