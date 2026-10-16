@@ -187,6 +187,11 @@
     <string name="update_download_failed">Could not download the update. It will retry on the next check.</string>
     <string name="update_no_apk">The latest release has no installable APK</string>
     <string name="update_install_failed">Install failed: %1$s</string>
+    <string name="settings_update_frequency">Automatic update checks</string>
+    <string name="update_freq_day">Every day</string>
+    <string name="update_freq_week">Every week</string>
+    <string name="update_freq_month">Every month</string>
+    <string name="update_freq_never">Never</string>
     <string name="settings_version">Spotilol Version</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>

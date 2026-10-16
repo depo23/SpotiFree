@@ -34,7 +34,17 @@ class UpdateChecker(private val context: Context) {
         private const val KEY_LAST_CHECK = "LastUpdateCheck"
         private const val KEY_LATER_VERSION = "UpdateLaterVersion"
         private const val KEY_LATER_AT = "UpdateLaterAt"
-        private const val CHECK_INTERVAL_MS = 60 * 60 * 1000L
+        const val KEY_FREQUENCY = "UpdateCheckFrequency"
+        const val DEFAULT_FREQUENCY = "day"
+        private const val DAY_MS = 24 * 60 * 60 * 1000L
+
+        /** Minimum time between automatic checks for a frequency setting; null = never. */
+        fun intervalMs(frequency: String): Long? = when (frequency) {
+            "week" -> 7 * DAY_MS
+            "month" -> 30 * DAY_MS
+            "never" -> null
+            else -> DAY_MS
+        }
         private const val LATER_SNOOZE_MS = 24 * 60 * 60 * 1000L
         private const val APK_SUFFIX = ".apk"
 
@@ -53,8 +63,9 @@ class UpdateChecker(private val context: Context) {
      */
     fun check(manual: Boolean, onEvent: (UpdateEvent) -> Unit) {
         val now = System.currentTimeMillis()
-        if (!manual && now - prefs.getLong(KEY_LAST_CHECK, 0L) < CHECK_INTERVAL_MS) {
-            Logger.v(TAG, "auto check throttled")
+        val interval = intervalMs(prefs.getString(KEY_FREQUENCY, DEFAULT_FREQUENCY) ?: DEFAULT_FREQUENCY)
+        if (!manual && (interval == null || now - prefs.getLong(KEY_LAST_CHECK, 0L) < interval)) {
+            Logger.v(TAG, "auto check skipped (interval=$interval)")
             return
         }
         prefs.edit().putLong(KEY_LAST_CHECK, now).apply()

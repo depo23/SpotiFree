@@ -128,6 +128,7 @@ import com.project.lol.ui.theme.harmonized
 import com.project.lol.util.AppLocale
 import com.project.lol.util.BatterySaver
 import com.project.lol.util.BuildInfo
+import com.project.lol.util.UpdateChecker
 import com.project.lol.util.DeviceInfo
 import com.project.lol.util.InnertubeCachePrefs
 import com.project.lol.util.LogEntry
@@ -288,6 +289,8 @@ fun SettingsContent(
     var showClearThirdPartyDialog by remember { mutableStateOf(false) }
     var showAutoPlayDialog by remember { mutableStateOf(false) }
     var showPlayerModeDialog by remember { mutableStateOf(false) }
+    var updateFrequency by remember { mutableStateOf(prefs.getString(UpdateChecker.KEY_FREQUENCY, UpdateChecker.DEFAULT_FREQUENCY) ?: UpdateChecker.DEFAULT_FREQUENCY) }
+    var showUpdateFrequencyDialog by remember { mutableStateOf(false) }
     // dead code: the gui mode selector was removed, keep the flag for the wide window refactor
     // var showGuiModeDialog by remember { mutableStateOf(false) }
     var showCustomCssDialog by remember { mutableStateOf(false) }
@@ -1161,6 +1164,22 @@ fun SettingsContent(
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
 
                     SettingTile(
+                        title = stringResource(R.string.settings_update_frequency),
+                        subtitle = stringResource(
+                            when (updateFrequency) {
+                                "week" -> R.string.update_freq_week
+                                "month" -> R.string.update_freq_month
+                                "never" -> R.string.update_freq_never
+                                else -> R.string.update_freq_day
+                            }
+                        ),
+                        icon = TablerIcons.DeviceMobile,
+                        onClick = { showUpdateFrequencyDialog = true }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
+                    SettingTile(
                         title = stringResource(R.string.settings_webview_engine),
                         subtitle = pkg?.versionName ?: stringResource(R.string.settings_webview_system),
                         icon = TablerIcons.Language,
@@ -1314,6 +1333,24 @@ fun SettingsContent(
                 prefs.edit().putString("APlayMode", value).apply()
             },
             onDismiss = { showAutoPlayDialog = false }
+        )
+    }
+
+    if (showUpdateFrequencyDialog) {
+        SingleChoiceDialog(
+            title = stringResource(R.string.settings_update_frequency),
+            options = listOf(
+                "day" to stringResource(R.string.update_freq_day),
+                "week" to stringResource(R.string.update_freq_week),
+                "month" to stringResource(R.string.update_freq_month),
+                "never" to stringResource(R.string.update_freq_never)
+            ),
+            selected = updateFrequency,
+            onSelect = { value ->
+                updateFrequency = value
+                prefs.edit().putString(UpdateChecker.KEY_FREQUENCY, value).apply()
+            },
+            onDismiss = { showUpdateFrequencyDialog = false }
         )
     }
 
