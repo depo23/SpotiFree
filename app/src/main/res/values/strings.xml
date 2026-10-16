@@ -196,6 +196,10 @@
     <string name="update_confirm_title">Confirm Spotilol %1$s</string>
     <string name="update_confirm_text">Android\'s installer is open. Tap Install there to finish.</string>
     <string name="update_close">Close</string>
+    <string name="update_copying_text">Copying the update… %1$d%%</string>
+    <string name="update_finishing_text">Finishing the install…</string>
+    <string name="update_open_installer">Open installer</string>
+    <string name="update_confirm_notification">Tap to finish the update in the Android installer</string>
     <string name="update_install_failed">Install failed: %1$s</string>
     <string name="settings_update_frequency">Automatic update checks</string>
     <string name="update_freq_day">Every day</string>

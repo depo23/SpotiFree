@@ -1,8 +1,13 @@
-# Spotilol - v1.2.5.8 (test build)
+# Spotilol - v1.2.5.9 (test build)
 
 Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
 
 ## Fixes
+- The updater shows the install progress in the app (copying, then finishing).
+- If Android's installer can't open by itself, a notification and an **Open installer** button open it.
+- When the app is replaced by the update, a notification with **Open** appears.
+
+## Fixes (earlier)
 - Update test: a newer build to check the updater from 1.2.5.7.
 - Updates now always show Android's install confirmation (no silent install).
 - Install progress is shown in the app; when it finishes you get **Open** to start the new version.

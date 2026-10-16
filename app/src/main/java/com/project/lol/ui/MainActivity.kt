@@ -348,6 +348,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 UpdateInstaller.state.value = InstallState.Idle
                                 packageManager.getLaunchIntentForPackage(packageName)?.let { startActivity(it) }
                             },
+                            onConfirm = { UpdateInstaller.openConfirm(this@MainActivity) },
                             onClose = { UpdateInstaller.state.value = InstallState.Idle }
                         )
                     }
@@ -772,13 +773,15 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
     private fun installUpdate(apk: File) {
         val version = updateEvent.value?.version ?: return
-        try {
-            updateEvent.value = null
-            UpdateInstaller.install(this, apk, version)
-        } catch (e: Exception) {
-            Logger.e(TAG, "update install failed", e)
-            Toast.makeText(this, getString(R.string.update_install_failed, e.message ?: "error"), Toast.LENGTH_LONG).show()
-        }
+        updateEvent.value = null
+        Thread {
+            try {
+                UpdateInstaller.install(this, apk, version)
+            } catch (e: Exception) {
+                Logger.e(TAG, "update install failed", e)
+                UpdateInstaller.setState(InstallState.Failed(e.message ?: "error"))
+            }
+        }.start()
     }
 
     private fun setServiceEnabled(newValue: Boolean) {
