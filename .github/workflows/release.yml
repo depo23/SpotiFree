@@ -47,12 +47,12 @@ jobs:
             "configuration_version": "1"
           }
           JSON
-      # No real Firebase project for test builds: turn collection off so the
-      # SDKs never try to reach Firebase with the placeholder config.
-      - name: Disable Firebase collection
+      # No real Firebase project for test builds: turn Crashlytics off too. Upstream already
+      # disables Analytics and Performance in its manifest, so only add what is missing.
+      - name: Disable Crashlytics collection
         run: |
-          sed -i 's#</application>#    <meta-data android:name="firebase_performance_collection_deactivated" android:value="true" />\n        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />\n        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />\n    </application>#' app/src/main/AndroidManifest.xml
-          grep -c 'firebase_.*collection' app/src/main/AndroidManifest.xml | grep -qx 3
+          sed -i 's#</application>#        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />\n    </application>#' app/src/main/AndroidManifest.xml
+          grep -c 'firebase_crashlytics_collection_enabled' app/src/main/AndroidManifest.xml | grep -qx 1
       - run: chmod +x gradlew && ./gradlew assembleRelease -PupdateRepo=depo23/Spotilol --stacktrace
       - name: Publish release
         env:
