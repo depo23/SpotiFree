@@ -1,4 +1,13 @@
-# Spotilol - v1.1.8.18
+# Spotilol - v1.2.4.1 (test build)
+
+Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
+
+## New
+- **Automatic updates**: Spotilol checks for a new version when it opens (at most once an hour). If one is found, it downloads in the background and shows a popup. Tap **Install** and confirm in Android's installer; no need to visit GitHub.
+- **Check for updates**: Settings → Spotilol Version → *Check for updates* checks right away.
+- Tapping **Later** hides the popup for a day.
+- The first install asks you to allow installs from Spotilol (Android settings).
+
 
 Fork build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), with the features proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
 

@@ -84,6 +84,7 @@ fun SettingsDialog(
     onClearData: () -> Unit,
     onClearThirdParty: () -> Unit,
     onDebugToggle: (Boolean) -> Unit = {},
+    onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit,
     content: @Composable () -> Unit
@@ -171,6 +172,7 @@ fun SettingsDialog(
                                         onClearData = onClearData,
                                         onClearThirdParty = onClearThirdParty,
                                         onDebugToggle = onDebugToggle,
+                                        onCheckForUpdates = onCheckForUpdates,
                                         blockServiceWorker = blockServiceWorker,
                                         onBlockServiceWorkerChange = onBlockServiceWorkerChange
                                     )
