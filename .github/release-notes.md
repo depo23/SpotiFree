@@ -1,6 +1,9 @@
-# Spotilol - v1.2.4.1 (test build)
+# Spotilol - v1.2.5.1 (test build)
 
 Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
+
+## Fixes
+- Changelog and update checks now find pre-release test builds ("Could not load release notes" is fixed).
 
 ## New
 - **Automatic updates**: Spotilol checks for a new version when it opens (at most once an hour). If one is found, it downloads in the background and shows a popup. Tap **Install** and confirm in Android's installer; no need to visit GitHub.
