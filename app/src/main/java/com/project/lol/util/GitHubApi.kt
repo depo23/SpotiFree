@@ -38,7 +38,9 @@ object GitHubApi {
     ) {
         executor.execute {
             try {
-                val url = URL("https://api.github.com/repos/$owner/$repo/releases/latest")
+                // /releases/latest skips pre-releases, and fork test builds are all pre-releases,
+                // so read the list and take the newest published one.
+                val url = URL("https://api.github.com/repos/$owner/$repo/releases?per_page=10")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
                 conn.setRequestProperty("Accept", "application/vnd.github+json")
@@ -47,15 +49,20 @@ object GitHubApi {
                 conn.readTimeout = 8000
 
                 val release = if (conn.responseCode == 200) {
-                    val json = JSONObject(conn.inputStream.bufferedReader().readText())
-                    GitHubRelease(
-                        tagName = json.optString("tag_name", ""),
-                        name = json.optString("name", ""),
-                        body = json.optString("body", ""),
-                        publishedAt = json.optString("published_at", ""),
-                        htmlUrl = json.optString("html_url", ""),
-                        assets = parseAssets(json.optJSONArray("assets"))
-                    )
+                    val list = JSONArray(conn.inputStream.bufferedReader().readText())
+                    (0 until list.length())
+                        .mapNotNull { list.optJSONObject(it) }
+                        .firstOrNull { !it.optBoolean("draft", false) }
+                        ?.let { json ->
+                            GitHubRelease(
+                                tagName = json.optString("tag_name", ""),
+                                name = json.optString("name", ""),
+                                body = json.optString("body", ""),
+                                publishedAt = json.optString("published_at", ""),
+                                htmlUrl = json.optString("html_url", ""),
+                                assets = parseAssets(json.optJSONArray("assets"))
+                            )
+                        }
                 } else {
                     null
                 }
