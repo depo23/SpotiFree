@@ -13,8 +13,51 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.project.lol.R
+import com.project.lol.util.InstallState
 import com.project.lol.util.UpdateEvent
 import java.io.File
+
+/** Progress and result of the system install: installing, confirm, installed, failed. */
+@Composable
+fun InstallStatusDialog(state: InstallState, onOpen: () -> Unit, onClose: () -> Unit) {
+    when (state) {
+        InstallState.Idle -> Unit
+
+        is InstallState.Installing -> AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(R.string.update_installing_title, state.version)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.update_installing_text))
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(top = 12.dp))
+                }
+            },
+            confirmButton = {}
+        )
+
+        is InstallState.Confirm -> AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(R.string.update_confirm_title, state.version)) },
+            text = { Text(stringResource(R.string.update_confirm_text)) },
+            confirmButton = {}
+        )
+
+        is InstallState.Installed -> AlertDialog(
+            onDismissRequest = onClose,
+            title = { Text(stringResource(R.string.update_installed_title, state.version)) },
+            text = { Text(stringResource(R.string.update_installed_text)) },
+            confirmButton = { TextButton(onClick = onOpen) { Text(stringResource(R.string.update_open)) } },
+            dismissButton = { TextButton(onClick = onClose) { Text(stringResource(R.string.update_close)) } }
+        )
+
+        is InstallState.Failed -> AlertDialog(
+            onDismissRequest = onClose,
+            title = { Text(stringResource(R.string.update_title_failed)) },
+            text = { Text(stringResource(R.string.update_install_failed, state.message)) },
+            confirmButton = { TextButton(onClick = onClose) { Text(stringResource(R.string.update_ok)) } }
+        )
+    }
+}
 
 /** Popup for a new version: progress while downloading, then Install / Later. */
 @Composable

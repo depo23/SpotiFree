@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageInstaller
 import android.net.Uri
+import androidx.compose.runtime.mutableStateOf
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
@@ -23,7 +24,20 @@ import java.io.File
  * confirmation screen, so the user only has to tap Install. The first time, Android also
  * asks to allow installs from Spotilol ([allowInstallsIntent]).
  */
+/** What the in-app install dialog shows. Process-wide; the receiver updates it. */
+sealed interface InstallState {
+    data object Idle : InstallState
+    data class Installing(val version: String) : InstallState
+    data class Confirm(val version: String) : InstallState
+    data class Installed(val version: String) : InstallState
+    data class Failed(val message: String) : InstallState
+}
+
 object UpdateInstaller {
+
+    /** Observed by the UI to show installing / confirm / installed / failed. */
+    val state = mutableStateOf<InstallState>(InstallState.Idle)
+
 
     private const val ACTION_RESULT = "com.project.lol.action.UPDATE_RESULT"
     private const val PREFS_NAME = "spotilol_prefs"
@@ -52,6 +66,12 @@ object UpdateInstaller {
             setAppPackageName(context.packageName)
             setSize(apk.length())
         }
+        // Android may otherwise approve an update silently. Require the user to confirm
+        // in the system installer every time.
+        if (Build.VERSION.SDK_INT >= 31) {
+            params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_REQUIRED)
+        }
+        state.value = InstallState.Installing(version)
         val sessionId = installer.createSession(params)
         installer.openSession(sessionId).use { session ->
             session.openWrite("base.apk", 0, apk.length()).use { out ->
@@ -104,16 +124,19 @@ class UpdateResultReceiver : BroadcastReceiver() {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra(Intent.EXTRA_INTENT)
                 }
+                UpdateInstaller.state.value = InstallState.Confirm(intent.getStringExtra(UpdateInstaller.EXTRA_VERSION) ?: "")
                 confirm?.let { context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             }
             PackageInstaller.STATUS_SUCCESS -> {
                 val version = intent.getStringExtra(UpdateInstaller.EXTRA_VERSION) ?: ""
                 Logger.s("update", "update $version installed")
+                UpdateInstaller.state.value = InstallState.Installed(version)
                 notifyInstalled(context, version)
             }
             else -> {
                 val message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "status $status"
                 Logger.e("update", "install failed: $message")
+                UpdateInstaller.state.value = InstallState.Failed(message)
                 Toast.makeText(
                     context,
                     context.getString(R.string.update_install_failed, message),

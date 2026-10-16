@@ -191,6 +191,11 @@
     <string name="update_installed_text">Tap to open the new version.</string>
     <string name="update_open">Open</string>
     <string name="update_installed_toast">Spotilol updated to %1$s</string>
+    <string name="update_installing_title">Installing Spotilol %1$s</string>
+    <string name="update_installing_text">Preparing the update…</string>
+    <string name="update_confirm_title">Confirm Spotilol %1$s</string>
+    <string name="update_confirm_text">Android's installer is open. Tap Install there to finish.</string>
+    <string name="update_close">Close</string>
     <string name="update_install_failed">Install failed: %1$s</string>
     <string name="settings_update_frequency">Automatic update checks</string>
     <string name="update_freq_day">Every day</string>
