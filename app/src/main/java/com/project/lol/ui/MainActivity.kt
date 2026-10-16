@@ -175,6 +175,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     private val amoledState = mutableStateOf(false)
     private val hideTopBarState = mutableStateOf(false)
     private val updateEvent = mutableStateOf<UpdateEvent?>(null)
+    private val canInstallState = mutableStateOf(false)
     private var updateDismissedFor: String? = null
     private val updateChecker by lazy { UpdateChecker(this) }
     private val landscapeModeState = mutableStateOf(false)
@@ -340,7 +341,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                 updateEvent.value?.let { update ->
                     UpdateDialog(
                         event = update,
-                        canInstall = UpdateInstaller.canInstall(this@MainActivity),
+                        canInstall = canInstallState.value,
                         onInstall = { apk -> installUpdate(apk) },
                         onAllowInstalls = { startActivity(UpdateInstaller.allowInstallsIntent(this@MainActivity)) },
                         onLater = { dismissUpdate(snooze = true) },
@@ -755,8 +756,9 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     }
 
     private fun installUpdate(apk: File) {
+        val version = updateEvent.value?.version ?: return
         try {
-            UpdateInstaller.install(this, apk)
+            UpdateInstaller.install(this, apk, version)
             updateEvent.value = null
         } catch (e: Exception) {
             Logger.e(TAG, "update install failed", e)
@@ -1424,6 +1426,11 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
     override fun onResume() {
         super.onResume()
+        // Re-read on every return: the user may have just allowed installs in Android settings.
+        canInstallState.value = UpdateInstaller.canInstall(this)
+        UpdateInstaller.consumeJustUpdated(this)?.let { version ->
+            Toast.makeText(this, getString(R.string.update_installed_toast, version), Toast.LENGTH_LONG).show()
+        }
         checkForUpdates(manual = false)
         Logger.i(TAG, "activity resumed: restoring webview loops")
         WebViewHost.attach(this)
