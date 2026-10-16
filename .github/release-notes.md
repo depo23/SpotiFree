@@ -1,4 +1,4 @@
-# Spotilol - v1.2.5.6 (test build)
+# Spotilol - v1.2.5.7 (test build)
 
 Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
 
