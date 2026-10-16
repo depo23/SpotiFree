@@ -2,6 +2,11 @@ name: release
 on:
   push:
     tags: ['*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag to create, e.g. 1.2.5'
+        required: true
 permissions:
   contents: write
 jobs:
@@ -52,6 +57,9 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
         run: |
-          gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk \
-            --title "Spotilol - v$GITHUB_REF_NAME (test build)" --notes-file .github/release-notes.md --prerelease
+          TARGET=()
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then TARGET=(--target "$GITHUB_SHA"); fi
+          gh release create "$TAG" app/build/outputs/apk/release/app-release.apk "${TARGET[@]}" \
+            --title "Spotilol - v$TAG (test build)" --notes-file .github/release-notes.md --prerelease
