@@ -93,7 +93,7 @@ class SpotifyWebViewClient(
             view.evaluateJavascript(ClassicLoginButton.CONTENT, null)
         }
 
-        val loggedIn = view.context.getSharedPreferences("spotilol_prefs", 0)
+        val loggedIn = view.context.getSharedPreferences("spotifree_prefs", 0)
             .getBoolean("LoggedIn", false)
 
         if (!loggedIn) {
@@ -112,7 +112,7 @@ class SpotifyWebViewClient(
             Logger.d(TAG, "logout check: $result")
             if (result == "\"out\"") {
                 Logger.w(TAG, "session expired, back to login")
-                view.context.getSharedPreferences("spotilol_prefs", 0)
+                view.context.getSharedPreferences("spotifree_prefs", 0)
                     .edit().putBoolean("LoggedIn", false).apply()
                 view.loadUrl("https://accounts.spotify.com/login")
             }
@@ -152,7 +152,7 @@ class SpotifyWebViewClient(
         cancelPendingPlayerInjection()
         NavToken.bump()
         pageStartedAt = System.currentTimeMillis()
-        val prefs = view?.context?.getSharedPreferences("spotilol_prefs", 0)
+        val prefs = view?.context?.getSharedPreferences("spotifree_prefs", 0)
 
         val powerSave = prefs?.getBoolean("PowerSave", false) ?: false
         val blockSW = prefs?.getBoolean("BlockServiceWorker", true) ?: true
@@ -186,7 +186,7 @@ class SpotifyWebViewClient(
      */
     fun installDocumentStartScripts(view: WebView): Boolean {
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return false
-        val prefs = view.context.getSharedPreferences("spotilol_prefs", 0)
+        val prefs = view.context.getSharedPreferences("spotifree_prefs", 0)
         val js = buildEarlyJs(prefs, isGoogle = false)
         docStartJustRegistered = false
         if (js == docStartJs && docStartView === view) return true
@@ -415,7 +415,7 @@ class SpotifyWebViewClient(
     }
 
     private fun injectPlayerControl(view: WebView) {
-        val prefs = view.context.getSharedPreferences("spotilol_prefs", 0)
+        val prefs = view.context.getSharedPreferences("spotifree_prefs", 0)
         val autoPlayMode = prefs.getString("APlayMode", "disabled") ?: "disabled"
         val closeNowPlay = prefs.getBoolean("CloseNowPlay", false)
         val amoledEnabled = prefs.getBoolean("AmoledTheme", false)
@@ -498,7 +498,7 @@ class SpotifyWebViewClient(
             append(PlaylistLookupSheet.CONTENT)
             // The Full Screen Player is the only player.
             append("window.__splFullPlayer=true;\n")
-            append(SpotilolPlayer.CONTENT)
+            append(SpotiFreePlayer.CONTENT)
             append(VideoFullscreen.CONTENT)
             append(LyricsPip.CONTENT)
         }
@@ -513,7 +513,7 @@ class SpotifyWebViewClient(
     }
 
     private fun registerPrefsListener(view: WebView) {
-        val prefs = view.context.getSharedPreferences("spotilol_prefs", 0)
+        val prefs = view.context.getSharedPreferences("spotifree_prefs", 0)
         // Listener doesn't depend on the WebView instance (it reads currentWebView),
         // so registering once is enough. Re-register only if the prefs instance
         // actually changed (new context after a renderer-crash rebuild).

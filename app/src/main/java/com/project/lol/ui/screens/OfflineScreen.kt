@@ -3448,7 +3448,7 @@ private fun OfflineLyricsView(
 
     val context = LocalContext.current
     val style = remember {
-        val prefs = context.getSharedPreferences("spotilol_prefs", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences("spotifree_prefs", Context.MODE_PRIVATE)
         LyricsTheme.sanitize(LyricsStyle.from(prefs))
     }
     val preview = remember(style) { LyricsTheme.previewStyle(style) }

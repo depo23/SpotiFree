@@ -10,12 +10,12 @@ import java.io.File
 /**
  * Installs a downloaded APK by handing it to Android's own installer, the same way a file
  * manager would. The installer shows the confirmation, the progress, and an Open button
- * when it finishes. The first time, Android also asks to allow installs from Spotilol
+ * when it finishes. The first time, Android also asks to allow installs from SpotiFree
  * ([allowInstallsIntent]).
  */
 object UpdateInstaller {
 
-    private const val PREFS_NAME = "spotilol_prefs"
+    private const val PREFS_NAME = "spotifree_prefs"
     private const val KEY_JUST_UPDATED = "UpdateJustUpdated"
 
     fun canInstall(context: Context): Boolean = context.packageManager.canRequestPackageInstalls()

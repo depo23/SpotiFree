@@ -13,7 +13,7 @@ object CrashReport {
         val locale = Locale.getDefault()
         val zone = TimeZone.getDefault()
 
-        ReportSections.header(sb, "spotilol crash report", zone)
+        ReportSections.header(sb, "spotifree crash report", zone)
         appendCrash(sb, thread, throwable)
         ReportSections.app(sb, context)
         ReportSections.device(sb)

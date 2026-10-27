@@ -68,7 +68,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
 
     companion object {
         private const val TAG = "MediaNotifService"
-        private const val CHANNEL_ID = "spotilol_media_playback"
+        private const val CHANNEL_ID = "spotifree_media_playback"
         private const val NOTIFICATION_ID = 1
         private val mainHandler = Handler(Looper.getMainLooper())
         private const val MEDIA_ID_ROOT = "__ROOT__"
@@ -254,7 +254,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
     private val audioBecomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-                val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+                val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
                 if (prefs.getBoolean("BtAutoPause", false)) autoPauseOnce("audio becoming noisy")
             }
         }
@@ -262,7 +262,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
 
     private val bluetoothReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+            val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             when (intent.action) {
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     if (prefs.getBoolean("BtAutoPause", false)) autoPauseOnce("acl disconnected")
@@ -295,7 +295,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
         override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) {
             val fresh = addedDevices.filter { knownRouteIds.add(it.id) }
             if (fresh.isEmpty()) return
-            val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+            val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             if (!prefs.getBoolean("BtAutoResume", false)) return
             if (fresh.none { isRemoteOutput(it.type) }) return
             autoResumeOnce("route added: " + fresh.joinToString("/") { it.type.toString() })
@@ -304,7 +304,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
         override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) {
             knownRouteIds.removeAll(removedDevices.map { it.id }.toSet())
             if (!isPlaying) return
-            val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+            val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             if (!prefs.getBoolean("BtAutoPause", false)) return
             if (removedDevices.none { isRemoteOutput(it.type) }) return
             val stillRemote = getSystemService(AudioManager::class.java)
@@ -355,7 +355,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
             }
         }
         if (key == "AndAuto") {
-            val andAuto = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+            val andAuto = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
                 .getBoolean("AndAuto", true)
             if (andAuto) {
                 lastMediaStatusJson?.let { updateFromMediaStatus(it) }
@@ -372,7 +372,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
                     return
                 }
                 if (state == 1) {
-                    val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+                    val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
                     if (prefs.getBoolean("HpAutoResume", false)) autoResumeOnce("headset plugged")
                 }
             }
@@ -444,7 +444,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
         } catch (e: Exception) {
             Logger.e(TAG, "Failed to register nav prompt callback", e)
         }
-        getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             .registerOnSharedPreferenceChangeListener(prefsListener)
         Logger.i(TAG, "media service ready: session, notification and receivers up")
     }
@@ -486,7 +486,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
         clientUid: Int,
         rootHints: Bundle?
     ): BrowserRoot? {
-        val andAuto = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        val andAuto = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             .getBoolean("AndAuto", true)
         if (!andAuto) return null
         browserBound = true
@@ -597,7 +597,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
         try { getSystemService(AudioManager::class.java).unregisterAudioDeviceCallback(audioRouteCallback) } catch (_: Exception) {}
         try { getSystemService(AudioManager::class.java).unregisterAudioPlaybackCallback(navPromptCallback) } catch (_: Exception) {}
         mainHandler.removeCallbacks(navUnduckRunnable)
-        getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             .unregisterOnSharedPreferenceChangeListener(prefsListener)
         if (::mediaSession.isInitialized) {
             try { mediaSession.isActive = false } catch (_: Exception) {}
@@ -631,7 +631,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
 
     @Suppress("DEPRECATION")
     private fun setupMediaSession() {
-        mediaSession = MediaSessionCompat(this, "SpotilolSession").apply {
+        mediaSession = MediaSessionCompat(this, "SpotiFreeSession").apply {
             setFlags(
                 MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
@@ -1085,7 +1085,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
             wakeLock = pm.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
-                "spotilol:media_playback"
+                "spotifree:media_playback"
             )
         }
         if (wakeLock?.isHeld != true) {
@@ -1106,7 +1106,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
             super.onTaskRemoved(rootIntent)
             return
         }
-        val stopOnSwipe = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        val stopOnSwipe = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
             .getBoolean("SwipeStop", true)
         if (stopOnSwipe) {
             taskRemoved = true

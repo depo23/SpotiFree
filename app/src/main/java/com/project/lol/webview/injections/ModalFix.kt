@@ -1,7 +1,7 @@
 package com.project.lol.webview.injections
 
 /*
- * CREDIT: Spotilol - Modal Fix.
+ * CREDIT: SpotiFree - Modal Fix.
  * GitHub: https://github.com/AldySan
  */
 

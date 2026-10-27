@@ -37,7 +37,7 @@ object PlayerCore {
                 return document.documentElement.clientHeight||window.innerHeight||0;
             };
             window.splPlayerTop=function(){
-                var p=document.getElementById('spotilolPlayerControls');
+                var p=document.getElementById('spotifreePlayerControls');
                 if(p){var r=p.getBoundingClientRect();if(r.height>2)return r.top;}
                 var o=document.querySelector('aside[data-testid="now-playing-bar"]');
                 if(o){var s=getComputedStyle(o);if(s.display!=='none'&&s.visibility!=='hidden'){var r2=o.getBoundingClientRect();if(r2.height>2)return r2.top;}}

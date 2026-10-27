@@ -1,7 +1,7 @@
 {
   "repo_notes": [
     {
-      "content": "Spotilol is an Android app (package com.project.lol) that wraps the Spotify Web Player in a WebView with built-in ad blocking. It injects custom JS/CSS to block ads/analytics, spoof the browser fingerprint, bypass GDPR dialogs, add a custom player, download tracks offline and expose a library browser. Written in Kotlin with Jetpack Compose (Material3). Clean-Kotlin port of deviato's Spotifuck, maintained by lyssadev. minSdk 28, targetSdk 36, compileSdk 37, versionName 1.2.3 (versionCode 22). Priority areas: webview/ (JS injection engine), service/ (media + offline playback + downloads), offline/ + innertube/ + yt/ (YouTube-backed offline downloads), and bridge/ (JS <-> Kotlin). There is no proxy/MITM layer anymore - only a pref migration stub (migrateProxyEraPrefs) is left in SpotilolApp.",
+      "content": "SpotiFree is an Android app (package com.project.lol) that wraps the Spotify Web Player in a WebView with built-in ad blocking. It injects custom JS/CSS to block ads/analytics, spoof the browser fingerprint, bypass GDPR dialogs, add a custom player, download tracks offline and expose a library browser. Written in Kotlin with Jetpack Compose (Material3). Clean-Kotlin port of deviato's Spotifuck, maintained by lyssadev. minSdk 28, targetSdk 36, compileSdk 37, versionName 1.2.3 (versionCode 22). Priority areas: webview/ (JS injection engine), service/ (media + offline playback + downloads), offline/ + innertube/ + yt/ (YouTube-backed offline downloads), and bridge/ (JS <-> Kotlin). There is no proxy/MITM layer anymore - only a pref migration stub (migrateProxyEraPrefs) is left in SpotiFreeApp.",
       "author": "Maintainer"
     },
     {
@@ -9,7 +9,7 @@
       "author": "Maintainer"
     },
     {
-      "content": "Injection order matters. The early payload (registered as a DOCUMENT_START script for open.spotify.com, and re-injected on onPageStarted as fallback) is: pref flags (showScrollbar/powerSave/hideEmpty/playlistSort + pageshow reload guard), then BrowserSpoof (or GoogleSpoof on google/youtube hosts), FetchOverride, AdStateHook, WorkerNeutralize (only if BlockServiceWorker), GaBlocker, PowerSave, SettingsFix, VideoPark, NavDuck. The player payload (injectPlayerControl, scheduled ~500ms after onPageFinished when logged in) starts with PlayerCore (defines globals first) then TrackObserver, ClassicBridge, MediaUpdater, LibraryFetcher, LibraryParser, PlaybackControls, AndroidAuto, MainLoop, AutoFeatures, AndroidTracker, SearchOverlay, DownloadButton, DownloadProgress, CollectionDownload, ContextMenuDownload, an inline recAccountName poller, CssHack, ContextMenuSheet, WatchFeed, ModalFix, ErrorDialogRestyle, ToastFix, LyricsSyncFix, QueueAutoClose, LibraryAutoClose, PlaylistSort, ColumnsButton, SpicyLyrics, WebPrefs, and finally - only when PlayerMode is spotilol or fullscreen - SpotilolPlayer, VideoFullscreen, LyricsPip. PlayerMode supports three values: spotilol, fullscreen and original.",
+      "content": "Injection order matters. The early payload (registered as a DOCUMENT_START script for open.spotify.com, and re-injected on onPageStarted as fallback) is: pref flags (showScrollbar/powerSave/hideEmpty/playlistSort + pageshow reload guard), then BrowserSpoof (or GoogleSpoof on google/youtube hosts), FetchOverride, AdStateHook, WorkerNeutralize (only if BlockServiceWorker), GaBlocker, PowerSave, SettingsFix, VideoPark, NavDuck. The player payload (injectPlayerControl, scheduled ~500ms after onPageFinished when logged in) starts with PlayerCore (defines globals first) then TrackObserver, ClassicBridge, MediaUpdater, LibraryFetcher, LibraryParser, PlaybackControls, AndroidAuto, MainLoop, AutoFeatures, AndroidTracker, SearchOverlay, DownloadButton, DownloadProgress, CollectionDownload, ContextMenuDownload, an inline recAccountName poller, CssHack, ContextMenuSheet, WatchFeed, ModalFix, ErrorDialogRestyle, ToastFix, LyricsSyncFix, QueueAutoClose, LibraryAutoClose, PlaylistSort, ColumnsButton, SpicyLyrics, WebPrefs, and finally - only when PlayerMode is spotifree or fullscreen - SpotiFreePlayer, VideoFullscreen, LyricsPip. PlayerMode supports three values: spotifree, fullscreen and original.",
       "author": "Maintainer"
     },
     {
@@ -21,14 +21,14 @@
       "author": "Maintainer"
     },
     {
-      "content": "Feature packages: profile/ProfileManager (saved account profiles), timer/SleepTimerManager (sleep timer with COUNTDOWN and END_OF_SONG modes and PAUSE/QUIT actions, surfaced by SleepTimerDialog and the bridge openTimerDialog), spicy/SpicyLyricsClient + SpicyKey (lyrics from api.spicylyrics.org with an lrclib.net fallback and an LRU cache), searchEngine/GenericSearchEngine + SearchableFieldExtractor (fuzzy keyword scorer used for offline/Android Auto search), widget/ (Glance home-screen widgets: SpotilolPlayerWidget + SpotilolArtWidget, with WidgetActions, WidgetCover, WidgetState and WidgetUpdater persisted via DataStore), util/ (Logger + LogFilter, CrashHandler/CrashStore/CrashReport/ReportSections, DeviceInfo, PlaybackDiagnostics, Telemetry, UpdateChecker + GitHubApi, AppLocale, BuildInfo, Markdown). ui/ has SplashActivity, MainActivity, OfflineActivity, CrashActivity and Compose screens/settings/theme.",
+      "content": "Feature packages: profile/ProfileManager (saved account profiles), timer/SleepTimerManager (sleep timer with COUNTDOWN and END_OF_SONG modes and PAUSE/QUIT actions, surfaced by SleepTimerDialog and the bridge openTimerDialog), spicy/SpicyLyricsClient + SpicyKey (lyrics from api.spicylyrics.org with an lrclib.net fallback and an LRU cache), searchEngine/GenericSearchEngine + SearchableFieldExtractor (fuzzy keyword scorer used for offline/Android Auto search), widget/ (Glance home-screen widgets: SpotiFreePlayerWidget + SpotiFreeArtWidget, with WidgetActions, WidgetCover, WidgetState and WidgetUpdater persisted via DataStore), util/ (Logger + LogFilter, CrashHandler/CrashStore/CrashReport/ReportSections, DeviceInfo, PlaybackDiagnostics, Telemetry, UpdateChecker + GitHubApi, AppLocale, BuildInfo, Markdown). ui/ has SplashActivity, MainActivity, OfflineActivity, CrashActivity and Compose screens/settings/theme.",
       "author": "Maintainer"
     }
   ],
   "pages": [
     {
       "title": "Architecture Overview",
-      "purpose": "High-level architecture of Spotilol: how the WebView, JS injection engine, Android services, Android Auto integration, home-screen widgets and the YouTube-backed offline downloader interact to wrap and enhance the Spotify Web Player",
+      "purpose": "High-level architecture of SpotiFree: how the WebView, JS injection engine, Android services, Android Auto integration, home-screen widgets and the YouTube-backed offline downloader interact to wrap and enhance the Spotify Web Player",
       "parent": null
     },
     {
@@ -38,7 +38,7 @@
     },
     {
       "title": "JS Injection Objects Reference",
-      "purpose": "Detailed reference for each of the 49 JS injection objects in webview/injections/ - what each one does, its key exported window functions/variables, and when it is injected. Cover ad-blocking/anti-tracking (AdStateHook, GaBlocker, WorkerNeutralize, FetchOverride, AndroidTracker), spoofing (BrowserSpoof, GoogleSpoof), player core + globals (PlayerCore, TrackObserver, MediaUpdater, PlaybackControls, MainLoop, ClassicBridge), Android Auto JS (AndroidAuto), downloads (DownloadButton, DownloadProgress, CollectionDownload, ContextMenuDownload), lyrics (LyricsSyncFix, SpicyLyrics, LyricsPip), UI/layout (CssHack, SpotilolPlayer, AutoFeatures, PowerSave, SearchOverlay, ContextMenuSheet, WatchFeed, PlaylistSort, ColumnsButton, LibraryAutoClose, QueueAutoClose, VideoPark, VideoFullscreen, WebPrefs, NavDuck, NpHeaderFix, PlaylistLookupSheet, ScrollbarAutoHide) and page helpers (ClassicLoginButton, FbGdprBypass, LoginDetection, LogoutCheck, SettingsFix, ModalFix, ErrorDialogRestyle, ToastFix). Note the exact injection order, since PlayerCore defines the globals the rest rely on",
+      "purpose": "Detailed reference for each of the 49 JS injection objects in webview/injections/ - what each one does, its key exported window functions/variables, and when it is injected. Cover ad-blocking/anti-tracking (AdStateHook, GaBlocker, WorkerNeutralize, FetchOverride, AndroidTracker), spoofing (BrowserSpoof, GoogleSpoof), player core + globals (PlayerCore, TrackObserver, MediaUpdater, PlaybackControls, MainLoop, ClassicBridge), Android Auto JS (AndroidAuto), downloads (DownloadButton, DownloadProgress, CollectionDownload, ContextMenuDownload), lyrics (LyricsSyncFix, SpicyLyrics, LyricsPip), UI/layout (CssHack, SpotiFreePlayer, AutoFeatures, PowerSave, SearchOverlay, ContextMenuSheet, WatchFeed, PlaylistSort, ColumnsButton, LibraryAutoClose, QueueAutoClose, VideoPark, VideoFullscreen, WebPrefs, NavDuck, NpHeaderFix, PlaylistLookupSheet, ScrollbarAutoHide) and page helpers (ClassicLoginButton, FbGdprBypass, LoginDetection, LogoutCheck, SettingsFix, ModalFix, ErrorDialogRestyle, ToastFix). Note the exact injection order, since PlayerCore defines the globals the rest rely on",
       "parent": "WebView & JS Injection System"
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "title": "Lyrics System",
-      "purpose": "How lyrics work end to end: the LyricsStyle setting built by LyricsTheme (default/fullscreen/compact/karaoke/bold, injected as <style id=\"spotilol-lyrics-style\"> so it never clobbers CustomCss), the SpicyLyrics injection backed by SpicyLyricsClient (api.spicylyrics.org with an lrclib.net fallback, LRU cache, bridge method spicyLyrics), LyricsSyncFix, and LyricsPip with the bridge enterLyricsPip",
+      "purpose": "How lyrics work end to end: the LyricsStyle setting built by LyricsTheme (default/fullscreen/compact/karaoke/bold, injected as <style id=\"spotifree-lyrics-style\"> so it never clobbers CustomCss), the SpicyLyrics injection backed by SpicyLyricsClient (api.spicylyrics.org with an lrclib.net fallback, LRU cache, bridge method spicyLyrics), LyricsSyncFix, and LyricsPip with the bridge enterLyricsPip",
       "parent": "WebView & JS Injection System"
     },
     {
@@ -93,7 +93,7 @@
     },
     {
       "title": "Home Screen Widgets",
-      "purpose": "How the Glance home-screen widgets work: SpotilolPlayerWidget (transport + like/shuffle/repeat controls) and SpotilolArtWidget (album art), the WidgetState model and WidgetUpdater (DataStore-backed persistence), WidgetActions (button intents routed back to the services) and WidgetCover (cover loading/cropping), plus their manifest receivers and widget_info XML",
+      "purpose": "How the Glance home-screen widgets work: SpotiFreePlayerWidget (transport + like/shuffle/repeat controls) and SpotiFreeArtWidget (album art), the WidgetState model and WidgetUpdater (DataStore-backed persistence), WidgetActions (button intents routed back to the services) and WidgetCover (cover loading/cropping), plus their manifest receivers and widget_info XML",
       "parent": "Architecture Overview"
     },
     {
@@ -103,7 +103,7 @@
     },
     {
       "title": "UI Layer",
-      "purpose": "Documentation of ui/: MainActivity (Jetpack Compose host for the WebView, custom player overlay, PiP, video fullscreen, service start/stop, deeplinks, widget and sleep-timer wiring), SplashActivity (animated splash), OfflineActivity + screens/OfflineScreen (downloaded/imported tracks), CrashActivity (post-crash report screen), components/ (SettingsDialog edge-to-edge Material 3 dialog, ChangelogDialog, ErrorScreen, SleepTimerDialog), screens/SettingsScreen (all preferences grouped in five tabs - Appearance, Playback, Content, Advanced and About - covering language, GuiHack/CustomCss, MaterialYou/theme presets/AmoledTheme, hide top bar, landscape, keep screen on, scrollbar, APlayMode, PlayerMode spotilol/fullscreen/original, WebCanvas/WebVideos, hide empty player, playlist sort, lyrics style, SpicyLyrics, TakeControl, Android Auto, CloseNowPlay, Bluetooth pause/resume/headphone-plug, offline mode, BlockServiceWorker, download format/folder/tags, profiles and the About links; the DEBUG section is hidden until five taps on the WebView Engine tile in About and is locked again by holding that tile, and it holds Collect Debug, Open Logger, Export Device Info and Crash Test), and theme/ (Raleway font family, AMOLED dark theme, theme presets, Material You accent)",
+      "purpose": "Documentation of ui/: MainActivity (Jetpack Compose host for the WebView, custom player overlay, PiP, video fullscreen, service start/stop, deeplinks, widget and sleep-timer wiring), SplashActivity (animated splash), OfflineActivity + screens/OfflineScreen (downloaded/imported tracks), CrashActivity (post-crash report screen), components/ (SettingsDialog edge-to-edge Material 3 dialog, ChangelogDialog, ErrorScreen, SleepTimerDialog), screens/SettingsScreen (all preferences grouped in five tabs - Appearance, Playback, Content, Advanced and About - covering language, GuiHack/CustomCss, MaterialYou/theme presets/AmoledTheme, hide top bar, landscape, keep screen on, scrollbar, APlayMode, PlayerMode spotifree/fullscreen/original, WebCanvas/WebVideos, hide empty player, playlist sort, lyrics style, SpicyLyrics, TakeControl, Android Auto, CloseNowPlay, Bluetooth pause/resume/headphone-plug, offline mode, BlockServiceWorker, download format/folder/tags, profiles and the About links; the DEBUG section is hidden until five taps on the WebView Engine tile in About and is locked again by holding that tile, and it holds Collect Debug, Open Logger, Export Device Info and Crash Test), and theme/ (Raleway font family, AMOLED dark theme, theme presets, Material You accent)",
       "parent": "Architecture Overview"
     },
     {

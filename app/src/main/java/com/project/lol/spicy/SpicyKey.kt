@@ -11,10 +11,10 @@ object SpicyKey {
     private const val BLOB =
         "OED5YU3iR6/WvqDxH7N1pcDi5CBdqKm6VNFbRL+bIF3ObyDs066y9KhQD3qJKPZlZKCaPWt9023SaEHa8Tnljxc="
 
-    private const val XOR_MASK = "spl.x1|Spotilol|2026"
-    private const val RC4_A = "spl.x2|Spotilol|2026|rc4"
-    private const val AES_PASS = "spl.x3|Spotilol|2026|aesgcm"
-    private const val RC4_B = "spl.x4|Spotilol|2026|rc4b"
+    private const val XOR_MASK = "spl.x1|SpotiFree|2026"
+    private const val RC4_A = "spl.x2|SpotiFree|2026|rc4"
+    private const val AES_PASS = "spl.x3|SpotiFree|2026|aesgcm"
+    private const val RC4_B = "spl.x4|SpotiFree|2026|rc4b"
 
     private val cache: String by lazy { decode() }
 

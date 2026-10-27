@@ -16,7 +16,7 @@ object LocalImportStore {
     private const val MAX_FILE_NAME = 120
     private val HEX = "0123456789abcdef".toCharArray()
 
-    const val ID_PREFIX = "imp-spotilol-"
+    const val ID_PREFIX = "imp-spotifree-"
 
     data class Summary(val imported: Int, val duplicates: Int, val failed: Int)
 

@@ -1,7 +1,7 @@
 package com.project.lol.webview.injections
 
 /*
- * CREDIT: Spotilol - Watch Feed (mobile)
+ * CREDIT: SpotiFree - Watch Feed (mobile)
  * Spotify's vertical video feed renders its desktop 3-column layout inside a
  * small floating card on a phone viewport. This makes the overlay and the feed
  * full-screen and stacks it: video as the base layer, info/actions as overlays.

@@ -8,7 +8,7 @@ import java.util.Locale
 
 object AppLocale {
 
-    private const val PREFS_NAME = "spotilol_prefs"
+    private const val PREFS_NAME = "spotifree_prefs"
     private const val KEY_LANGUAGE = "AppLanguage"
 
     const val SYSTEM = "system"

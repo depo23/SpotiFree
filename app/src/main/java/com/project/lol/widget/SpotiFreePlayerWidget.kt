@@ -51,7 +51,7 @@ import com.project.lol.ui.OfflineActivity
 
 private const val RADIUS = 18
 
-class SpotilolPlayerWidget : GlanceAppWidget() {
+class SpotiFreePlayerWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
         setOf(
@@ -72,8 +72,8 @@ class SpotilolPlayerWidget : GlanceAppWidget() {
     }
 }
 
-class SpotilolPlayerWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = SpotilolPlayerWidget()
+class SpotiFreePlayerWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = SpotiFreePlayerWidget()
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)

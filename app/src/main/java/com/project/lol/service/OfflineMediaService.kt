@@ -41,7 +41,7 @@ class OfflineMediaService : Service() {
 
     companion object {
         private const val TAG = "OfflineMediaSvc"
-        private const val CHANNEL_ID = "spotilol_offline_playback"
+        private const val CHANNEL_ID = "spotifree_offline_playback"
         private const val NOTIFICATION_ID = 2
 
         const val ACTION_PLAY_PAUSE = "com.project.lol.offline.ACTION_PLAY_PAUSE"
@@ -104,7 +104,7 @@ class OfflineMediaService : Service() {
     private val audioBecomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-                val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+                val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
                 if (prefs.getBoolean("BtAutoPause", false)) {
                     if (isPlaying) controller?.onPlayPause()
                 }
@@ -212,7 +212,7 @@ class OfflineMediaService : Service() {
     }
 
     private fun setupMediaSession() {
-        mediaSession = MediaSessionCompat(this, "SpotilolOfflineSession").apply {
+        mediaSession = MediaSessionCompat(this, "SpotiFreeOfflineSession").apply {
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlayFromSearch(query: String?, extras: Bundle?) {
                     OfflineMediaService.controller?.onPlayFromSearch(query)

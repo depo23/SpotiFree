@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory
 import java.io.File
 
 internal fun coverFile(context: Context): File =
-    File(context.cacheDir, "spotilol_widget_cover.png")
+    File(context.cacheDir, "spotifree_widget_cover.png")
 
 internal object CoverCache {
 

@@ -1,6 +1,6 @@
 package com.project.lol.webview.injections
 /*
- * CREDIT: Spotilol - Custom Search Overlay.
+ * CREDIT: SpotiFree - Custom Search Overlay.
  *
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⠙⠻⢶⣄⡀⠀⠀⠀⢀⣤⠶⠛⠛⡇⠀⠀⠀

@@ -62,7 +62,7 @@ class LogEntry internal constructor(
 }
 
 object Logger {
-    const val PREFS = "spotilol_prefs"
+    const val PREFS = "spotifree_prefs"
 
     private const val PREF_KEY = "Logging"
     private const val LEGACY_PREF_KEY = "DebugOverlay"

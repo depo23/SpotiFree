@@ -189,7 +189,7 @@ fun ChangelogDialog(onDismiss: () -> Unit) {
                         if (!body.isNullOrBlank()) {
                             scope.launch {
                                 clipboard.setClipEntry(
-                                    ClipData.newPlainText("spotilol_changelog", body).toClipEntry()
+                                    ClipData.newPlainText("spotifree_changelog", body).toClipEntry()
                                 )
                             }
                         }

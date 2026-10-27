@@ -30,7 +30,7 @@ class UpdateChecker(private val context: Context) {
 
     companion object {
         private const val TAG = "update"
-        private const val PREFS_NAME = "spotilol_prefs"
+        private const val PREFS_NAME = "spotifree_prefs"
         private const val KEY_LAST_CHECK = "LastUpdateCheck"
         private const val KEY_LATER_VERSION = "UpdateLaterVersion"
         private const val KEY_LATER_AT = "UpdateLaterAt"

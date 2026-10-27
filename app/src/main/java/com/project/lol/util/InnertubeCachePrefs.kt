@@ -7,7 +7,7 @@ import androidx.core.content.edit
 
 object InnertubeCachePrefs {
 
-    private const val PREFS = "spotilol_prefs"
+    private const val PREFS = "spotifree_prefs"
     private const val KEY = "InnertubeCacheMb"
 
     const val UNLIMITED = 0

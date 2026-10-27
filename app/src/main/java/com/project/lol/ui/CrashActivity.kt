@@ -201,7 +201,7 @@ private fun CrashScreen(summary: String, report: String, onRestart: () -> Unit) 
 
 private fun copyReport(context: Context, scope: CoroutineScope, clipboard: Clipboard, report: String) {
     scope.launch {
-        clipboard.setClipEntry(ClipData.newPlainText("spotilol_crash", report).toClipEntry())
+        clipboard.setClipEntry(ClipData.newPlainText("spotifree_crash", report).toClipEntry())
         Toast.makeText(context, context.getString(R.string.crash_copied), Toast.LENGTH_SHORT).show()
     }
 }

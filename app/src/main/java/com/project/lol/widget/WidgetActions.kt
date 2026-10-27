@@ -18,7 +18,7 @@ internal enum class WidgetCommand { PLAY_PAUSE, NEXT, PREV, SHUFFLE, REPEAT, FAV
 
 internal object WidgetSource {
 
-    private const val PREFS = "spotilol_widget_prefs"
+    private const val PREFS = "spotifree_widget_prefs"
     private const val KEY = "active_source"
 
     fun set(context: Context, source: String) {
@@ -57,8 +57,8 @@ internal object WidgetActions {
         val app = context.applicationContext
         refreshScope.launch {
             val manager = GlanceAppWidgetManager(app)
-            redraw(app, manager, SpotilolPlayerWidget::class.java) { SpotilolPlayerWidget() }
-            redraw(app, manager, SpotilolArtWidget::class.java) { SpotilolArtWidget() }
+            redraw(app, manager, SpotiFreePlayerWidget::class.java) { SpotiFreePlayerWidget() }
+            redraw(app, manager, SpotiFreeArtWidget::class.java) { SpotiFreeArtWidget() }
         }
     }
 

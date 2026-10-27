@@ -49,7 +49,7 @@ internal data class ThemeFilePack(
 
 object ThemeShare {
 
-    const val FORMAT = "spotilol.theme"
+    const val FORMAT = "spotifree.theme"
     const val VERSION = 1
     const val MIME_TYPE = "application/json"
     const val APP_NAME = "SpotiFree"
@@ -87,8 +87,8 @@ object ThemeShare {
             .split('-')
             .filter { it.isNotBlank() }
             .joinToString("-")
-            .ifBlank { "spotilol-theme" }
-        return "$slug.spotilol.json"
+            .ifBlank { "spotifree-theme" }
+        return "$slug.spotifree.json"
     }
 
     fun write(context: Context, uri: Uri, payload: String) {
@@ -162,7 +162,7 @@ private fun requiredColor(value: String): Color =
 
 object CustomThemes {
 
-    private const val PREFS_NAME = "spotilol_prefs"
+    private const val PREFS_NAME = "spotifree_prefs"
     private const val KEY = "CustomThemePresets"
     private const val PREFIX = "custom_"
 

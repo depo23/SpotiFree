@@ -58,7 +58,7 @@ class OfflineActivity : ComponentActivity() {
         }
         super.onCreate(savedInstanceState)
 
-        prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
 
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)

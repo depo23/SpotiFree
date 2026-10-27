@@ -13,7 +13,7 @@ import com.project.lol.util.PlaybackDiagnostics
 import com.project.lol.yt.cipher.CipherDeobfuscator
 import java.io.File
 
-class SpotilolApp : Application() {
+class SpotiFreeApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -24,12 +24,12 @@ class SpotilolApp : Application() {
         CrashHandler.install(this)
         CipherDeobfuscator.initialize(this)
         YouTube.setCacheDir(File(cacheDir, "innertube_http"), InnertubeCachePrefs.maxBytes(this))
-        Thread { runCatching { PlaybackDiagnostics.log(this@SpotilolApp) } }.start()
+        Thread { runCatching { PlaybackDiagnostics.log(this@SpotiFreeApp) } }.start()
         Logger.s("app", "started")
     }
 
     private fun migrateProxyEraPrefs() {
-        val prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
         if (prefs.getBoolean("ProxyEraMigrated", false)) return
         val fromProxyEra = prefs.contains("ConnectionMode")
         val edit = prefs.edit()

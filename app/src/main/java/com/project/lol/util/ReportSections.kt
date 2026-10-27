@@ -166,7 +166,7 @@ object ReportSections {
     }
 
     fun session(sb: StringBuilder, context: Context) {
-        val prefs = context.getSharedPreferences("spotilol_prefs", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences("spotifree_prefs", Context.MODE_PRIVATE)
         sb.appendLine("[ session ]")
         sb.appendLine("keys: ${prefs.all.size}")
         sb.appendLine("loggedIn: ${prefs.getBoolean("LoggedIn", false)}")

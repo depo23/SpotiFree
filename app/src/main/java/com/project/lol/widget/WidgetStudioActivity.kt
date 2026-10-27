@@ -120,7 +120,7 @@ class WidgetStudioActivity : ComponentActivity() {
         targets = if (provided != AppWidgetManager.INVALID_APPWIDGET_ID) {
             listOf(provided)
         } else {
-            val component = ComponentName(this, SpotilolPlayerWidgetReceiver::class.java)
+            val component = ComponentName(this, SpotiFreePlayerWidgetReceiver::class.java)
             runCatching { manager.getAppWidgetIds(component).toList() }.getOrDefault(emptyList())
         }
         isNew = provided != AppWidgetManager.INVALID_APPWIDGET_ID && !isPlaced(provided)
@@ -164,7 +164,7 @@ class WidgetStudioActivity : ComponentActivity() {
             val manager = GlanceAppWidgetManager(context)
             val prefs = runCatching {
                 val glanceId = manager.getGlanceIdBy(appWidgetId)
-                SpotilolPlayerWidget().getAppWidgetState<Preferences>(context, glanceId)
+                SpotiFreePlayerWidget().getAppWidgetState<Preferences>(context, glanceId)
             }.getOrNull()
             val state = prefs?.let { WidgetState.from(it) } ?: WidgetState()
             val version = prefs?.let { WidgetState.coverVersionOf(it) } ?: 0L
@@ -175,7 +175,7 @@ class WidgetStudioActivity : ComponentActivity() {
 
     private suspend fun applyConfig(context: Context, ids: List<Int>, config: WidgetConfig) {
         val manager = GlanceAppWidgetManager(context)
-        val widget = SpotilolPlayerWidget()
+        val widget = SpotiFreePlayerWidget()
         for (id in ids) {
             runCatching {
                 val glanceId = manager.getGlanceIdBy(id)

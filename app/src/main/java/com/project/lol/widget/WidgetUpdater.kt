@@ -16,8 +16,8 @@ object WidgetUpdater {
         val version = if (state.cover != null) System.currentTimeMillis() else 0L
         state.cover?.let { writeCover(context, it) }
         val manager = GlanceAppWidgetManager(context)
-        pushTo(context, manager, SpotilolPlayerWidget::class.java, state, version) { SpotilolPlayerWidget() }
-        pushTo(context, manager, SpotilolArtWidget::class.java, state, version) { SpotilolArtWidget() }
+        pushTo(context, manager, SpotiFreePlayerWidget::class.java, state, version) { SpotiFreePlayerWidget() }
+        pushTo(context, manager, SpotiFreeArtWidget::class.java, state, version) { SpotiFreeArtWidget() }
     }
 
     private suspend fun pushTo(

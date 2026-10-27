@@ -6,10 +6,10 @@ import java.util.Locale
 import org.json.JSONObject
 
 /**
- * Spotilol - Lyrics Style Engine.
+ * SpotiFree - Lyrics Style Engine.
  *
- * Emits a dedicated <style id="spotilol-lyrics-style"> element. It never
- * touches 'spotilol-custom-css' (owned by the CustomCss setting).
+ * Emits a dedicated <style id="spotifree-lyrics-style"> element. It never
+ * touches 'spotifree-custom-css' (owned by the CustomCss setting).
  *
  * The engine no longer relies on Spotify's obfuscated class hashes - those
  * rotate every build. It anchors only on stable hooks:
@@ -63,7 +63,7 @@ object LyricsTheme {
     )
 
     const val DEFAULT_STYLE = "fullscreen"
-    private const val STYLE_ID = "spotilol-lyrics-style"
+    private const val STYLE_ID = "spotifree-lyrics-style"
 
     const val ALIGN_START = "start"
     const val ALIGN_CENTER = "center"
@@ -195,7 +195,7 @@ object LyricsTheme {
         val line = "[data-testid=\"lyrics-line\"]"
 
         return buildString {
-            append("/* --- Spotilol Lyrics Engine --- */\n")
+            append("/* --- SpotiFree Lyrics Engine --- */\n")
             append(":root{")
             append("--spl-lyr-scale:").append(num(scale)).append(";")
             append("--spl-lyr-space:").append(num(spacing)).append(";")

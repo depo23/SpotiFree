@@ -16,7 +16,7 @@ enum class DownloadFormat(val ext: String, val mime: String) {
 }
 
 object DownloadPrefs {
-    const val PREFS_NAME = "spotilol_prefs"
+    const val PREFS_NAME = "spotifree_prefs"
     private const val KEY_FORMAT = "DlFormat"
     private const val KEY_SUBFOLDER = "DlSubfolder"
     private const val KEY_FOLDER = "DlFolderUri"

@@ -47,7 +47,7 @@ internal data class LyricsFilePack(
 
 object LyricsPresetShare {
 
-    const val FORMAT = "spotilol.lyrics"
+    const val FORMAT = "spotifree.lyrics"
     const val VERSION = 1
     const val MIME_TYPE = "application/json"
     const val APP_NAME = "SpotiFree"
@@ -78,7 +78,7 @@ object LyricsPresetShare {
     }
 
     fun fileName(): String =
-        "spotilol-lyrics_" + SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.US).format(Date()) + ".spotilol.json"
+        "spotifree-lyrics_" + SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.US).format(Date()) + ".spotifree.json"
 
     fun write(context: Context, uri: Uri, payload: String) {
         val stream = context.contentResolver.openOutputStream(uri, "wt")
@@ -121,7 +121,7 @@ private fun LyricsPresetPack.toPreset(): LyricsPreset = LyricsPreset(
 
 object CustomLyricsPresets {
 
-    private const val PREFS_NAME = "spotilol_prefs"
+    private const val PREFS_NAME = "spotifree_prefs"
     private const val KEY = "CustomLyricsPresets"
     private const val PREFIX = "custom_"
 

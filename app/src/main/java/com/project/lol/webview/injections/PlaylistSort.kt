@@ -5,11 +5,11 @@ object PlaylistSort {
         (function(){
             if (window.splPlaylistSort) return;
 
-            var LS_KEY = 'spotilol_playlist_sort';
-            var RELOAD_KEY = 'spotilol_sort_reload';
+            var LS_KEY = 'spotifree_playlist_sort';
+            var RELOAD_KEY = 'spotifree_sort_reload';
             var MAX_LIMIT = 1000;
             var TTL = 30000;
-            var STYLE_ID = 'spotilol-sort-style';
+            var STYLE_ID = 'spotifree-sort-style';
             var TICK_MS = 2000;
             var DECOR_DELAY = 250;
             var HELD_MAX = 4;

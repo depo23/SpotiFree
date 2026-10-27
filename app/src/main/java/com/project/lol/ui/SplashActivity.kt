@@ -97,7 +97,7 @@ class SplashActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         requestedOrientation = if (
-            getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+            getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
                 .getBoolean("LandscapeMode", false)
         ) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -118,7 +118,7 @@ class SplashActivity : ComponentActivity() {
         }
 
         setContent {
-            val prefs = remember { getSharedPreferences("spotilol_prefs", MODE_PRIVATE) }
+            val prefs = remember { getSharedPreferences("spotifree_prefs", MODE_PRIVATE) }
             var intro by remember { mutableStateOf(true) }
             var onboarding by remember { mutableStateOf(false) }
             var checkDone by remember { mutableStateOf(false) }

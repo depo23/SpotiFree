@@ -13,7 +13,7 @@ object DownloadProgress {
             var dlFixed = false;
         
             function expandedPlayer() {
-                var p = document.getElementById('spotilolPlayerControls');
+                var p = document.getElementById('spotifreePlayerControls');
                 return (p && !p.classList.contains('spl-mini')) ? p : null;
             }
         

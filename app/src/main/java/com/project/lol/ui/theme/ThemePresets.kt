@@ -87,11 +87,11 @@ private fun pal(
 
 object ThemePresets {
 
-    const val DEFAULT_ID = "spotilol"
+    const val DEFAULT_ID = "spotifree"
 
     private val builtIn = listOf(
         ThemePreset(
-            "spotilol", "SpotiFree", "Dark",
+            "spotifree", "SpotiFree", "Dark",
             pal(0xFF7FC79A, 0xFF2E6B45, 0xFFB6CCBB, 0xFF121411, 0xFF1C1E1A, 0xFF45473F, 0xFFE3E2DC, 0xFFC6C5BE, 0xFF909189),
         ),
         ThemePreset(

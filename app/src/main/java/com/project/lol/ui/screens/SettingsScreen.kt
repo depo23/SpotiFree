@@ -1573,7 +1573,7 @@ private fun DeviceInfoExportTile() {
                 }
                 if (report != null) {
                     clipboard.setClipEntry(
-                        ClipData.newPlainText("spotilol_device_info", report).toClipEntry()
+                        ClipData.newPlainText("spotifree_device_info", report).toClipEntry()
                     )
                     Toast.makeText(
                         context,
@@ -3772,7 +3772,7 @@ private fun LogRow(entry: LogEntry, expanded: Boolean, onToggle: () -> Unit) {
 
     fun copyEntry() {
         scope.launch {
-            clipboard.setClipEntry(ClipData.newPlainText("spotilol_log", entry.line()).toClipEntry())
+            clipboard.setClipEntry(ClipData.newPlainText("spotifree_log", entry.line()).toClipEntry())
             Toast.makeText(context, context.getString(R.string.logger_entry_copied), Toast.LENGTH_SHORT).show()
         }
     }

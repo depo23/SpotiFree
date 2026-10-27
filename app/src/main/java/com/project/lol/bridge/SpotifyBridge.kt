@@ -68,7 +68,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
     fun loginDetected() {
         val activity = activityRef.get() ?: return
         Logger.i(TAG, "login detected")
-        activity.getSharedPreferences("spotilol_prefs", Activity.MODE_PRIVATE)
+        activity.getSharedPreferences("spotifree_prefs", Activity.MODE_PRIVATE)
             .edit()
             .putBoolean("LoggedIn", true)
             .apply()
@@ -200,7 +200,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
         val trimmed = name.trim()
         if (trimmed.isNotEmpty()) {
             Logger.i(TAG, "account name: $trimmed")
-            activity.getSharedPreferences("spotilol_prefs", Activity.MODE_PRIVATE)
+            activity.getSharedPreferences("spotifree_prefs", Activity.MODE_PRIVATE)
                 .edit()
                 .putString("CurrentAccountName", trimmed)
                 .apply()

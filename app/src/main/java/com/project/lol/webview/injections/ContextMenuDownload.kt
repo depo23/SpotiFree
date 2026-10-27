@@ -1,7 +1,7 @@
 package com.project.lol.webview.injections
 
 /*
- * CREDIT: Spotilol - Context Menu Download
+ * CREDIT: SpotiFree - Context Menu Download
  *
  * Adds a "Download" item to Spotify's track context menu (the "..."
  * button on a tracklist row, or right-click / long-press on the row).

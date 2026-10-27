@@ -7,7 +7,7 @@ import com.google.firebase.perf.FirebasePerformance
 object Telemetry {
 
     const val KEY = "TelemetryEnabled"
-    private const val FILE = "spotilol_prefs"
+    private const val FILE = "spotifree_prefs"
 
     fun isEnabled(context: Context): Boolean =
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE).getBoolean(KEY, false)

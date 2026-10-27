@@ -17,7 +17,7 @@ object ProfileManager {
         val savedAt: Long
     )
 
-    private const val PREFS = "spotilol_profiles"
+    private const val PREFS = "spotifree_profiles"
     private const val KEY_PROFILES = "profiles"
     private const val TAG = "profiles"
 
@@ -150,7 +150,7 @@ object ProfileManager {
                 }
             }
             CookieManager.getInstance().flush()
-            context.getSharedPreferences("spotilol_prefs", Context.MODE_PRIVATE)
+            context.getSharedPreferences("spotifree_prefs", Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean("LoggedIn", true)
                 .apply()

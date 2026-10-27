@@ -41,7 +41,7 @@ object DownloadFolder {
             DocumentsContract.getTreeDocumentId(treeUri),
         )
 
-    /** Full path for display, e.g. /storage/emulated/0/Music/Spotilol. */
+    /** Full path for display, e.g. /storage/emulated/0/Music/SpotiFree. */
     fun displayPath(treeUri: Uri): String {
         val id = treeDocumentId(treeUri)
         val volume = id.substringBefore(':')
@@ -54,7 +54,7 @@ object DownloadFolder {
         return if (relative.isBlank()) root else "$root/$relative"
     }
 
-    /** Short label for status messages, e.g. Music/Spotilol. */
+    /** Short label for status messages, e.g. Music/SpotiFree. */
     fun label(treeUri: Uri): String {
         val id = treeDocumentId(treeUri)
         val relative = id.substringAfter(':', "")

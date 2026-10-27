@@ -239,7 +239,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             putString(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity")
         })
 
-        prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
 
         contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, volumeObserver)
 
@@ -1439,7 +1439,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             putString(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity")
         })
 
-        prefs = getSharedPreferences("spotilol_prefs", MODE_PRIVATE)
+        prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
         serviceEnabledState.value = prefs.getBoolean("ServiceOn", true)
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)

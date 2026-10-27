@@ -35,7 +35,7 @@ data class SleepTimerState(
 
 object SleepTimerManager {
     private const val TAG = "SleepTimer"
-    private const val PREFS = "spotilol_prefs"
+    private const val PREFS = "spotifree_prefs"
     private const val KEY_ACTION = "SleepTimerAction"
     private const val TICK_MS = 1000L
 

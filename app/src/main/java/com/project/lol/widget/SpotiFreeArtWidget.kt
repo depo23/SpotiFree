@@ -41,7 +41,7 @@ import com.project.lol.ui.OfflineActivity
 
 private const val FLOATING_ALPHA = 0.70f
 
-class SpotilolArtWidget : GlanceAppWidget() {
+class SpotiFreeArtWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Exact
 
@@ -55,8 +55,8 @@ class SpotilolArtWidget : GlanceAppWidget() {
     }
 }
 
-class SpotilolArtWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = SpotilolArtWidget()
+class SpotiFreeArtWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = SpotiFreeArtWidget()
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)

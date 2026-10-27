@@ -1,7 +1,7 @@
 package com.project.lol.webview.injections
 
 /*
- * CREDIT: Spotilol - Settings Page Fix
+ * CREDIT: SpotiFree - Settings Page Fix
  */
 
 object SettingsFix {

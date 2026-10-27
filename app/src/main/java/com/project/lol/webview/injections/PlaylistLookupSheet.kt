@@ -74,7 +74,7 @@ object PlaylistLookupSheet {
                     '#spl-plsheet .spl-pl-row.spl-in .spl-pl-mark{color:var(--spl-accent,#1DB954)}',
                     '#spl-plsheet .spl-pl-row.spl-busy .spl-pl-mark{opacity:.4}',
                     '#spl-plsheet .spl-pl-empty{padding:26px 16px;text-align:center;font-size:13px;color:rgba(255,255,255,.5)}',
-                    '#spotilolPlayerControls .spl-liked-btn.spl-has-pl::after{content:"";position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--spl-accent,#1DB954);box-shadow:0 0 0 2px rgba(0,0,0,.55)}',
+                    '#spotifreePlayerControls .spl-liked-btn.spl-has-pl::after{content:"";position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--spl-accent,#1DB954);box-shadow:0 0 0 2px rgba(0,0,0,.55)}',
                     'div[data-testid=now-playing-widget]>div:last-child>button.spl-has-pl{position:relative}',
                     'div[data-testid=now-playing-widget]>div:last-child>button.spl-has-pl::after{content:"";position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--spl-accent,#1DB954);box-shadow:0 0 0 2px rgba(0,0,0,.55)}'
                 ].join('\n');

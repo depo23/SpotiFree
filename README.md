@@ -31,7 +31,7 @@
 </p>
 
 <p align="center">
-  based on <strong>lyssadev</strong>'s <strong>Spotilol</strong> (a Kotlin port of deviato's <strong>Spotifuck</strong>), with a Spotify-style full-screen player, Canvas and video podcasts.
+  based on <strong>lyssadev</strong>'s original Kotlin app (a port of deviato's <strong>Spotifuck</strong>), with a Spotify-style full-screen player, Canvas and video podcasts.
 </p>
 
 ---
@@ -119,6 +119,6 @@ contributions are welcome. open issues, throw PRs, suggest stuff. free for all.
 
 ## Credits
 
-**deviato** reverse-engineered the original Spotifuck. **lyssadev** ported the core logic from smali to Kotlin as Spotilol. **depo23** maintains SpotiFree, built on Spotilol.
+**deviato** reverse-engineered the original Spotifuck. **lyssadev** ported the core logic from smali to Kotlin as the original app. **depo23** maintains SpotiFree, built on it.
 
 all rights reserved. lyssadev and deviato.

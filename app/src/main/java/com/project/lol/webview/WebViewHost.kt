@@ -100,7 +100,7 @@ object WebViewHost {
         client.installDocumentStartScripts(view)
         bridge = bridgeRef
         webView = view
-        val loggedIn = app.getSharedPreferences("spotilol_prefs", Context.MODE_PRIVATE)
+        val loggedIn = app.getSharedPreferences("spotifree_prefs", Context.MODE_PRIVATE)
             .getBoolean("LoggedIn", false)
         val target = if (loggedIn) PLAYER_URL else LOGIN_URL
         Logger.i(TAG, "webview created: target=$target")

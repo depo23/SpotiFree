@@ -12,7 +12,7 @@ import java.util.TimeZone
 object LogExport {
 
     const val MIME_TYPE = "text/plain"
-    private const val PREFIX = "spotilol-log"
+    private const val PREFIX = "spotifree-log"
 
     private val fileStamp = SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.US)
     private val humanStamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
@@ -27,7 +27,7 @@ object LogExport {
         val zone = TimeZone.getDefault()
         val level = minLevel ?: LogLevel.VERBOSE
         val builder = StringBuilder()
-        builder.appendLine("# spotilol log export")
+        builder.appendLine("# spotifree log export")
         builder.appendLine("# app: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${BuildConfig.BUILD_TYPE}")
         builder.appendLine("# build: ${BuildInfo.id}")
         builder.appendLine(

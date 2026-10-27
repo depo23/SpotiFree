@@ -12,7 +12,7 @@ object DeviceInfo {
         val locale = Locale.getDefault()
         val zone = TimeZone.getDefault()
 
-        ReportSections.header(sb, "spotilol device report", zone)
+        ReportSections.header(sb, "spotifree device report", zone)
         ReportSections.app(sb, app)
         ReportSections.device(sb)
         ReportSections.display(sb, context)

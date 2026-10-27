@@ -25,7 +25,7 @@ jobs:
           KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
         run: |
           mkdir -p keystore
-          echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotilol-release.p12
+          echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotifree-release.p12
           echo "$KEYSTORE_PROPERTIES" > keystore/keystore.properties
       - name: Placeholder google-services.json
         run: |

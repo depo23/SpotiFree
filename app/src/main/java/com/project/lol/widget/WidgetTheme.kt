@@ -22,7 +22,7 @@ internal const val WIDGET_DISABLED_ALPHA = 0.38f
 
 object WidgetTheme {
 
-    private const val PREFS_NAME = "spotilol_prefs"
+    private const val PREFS_NAME = "spotifree_prefs"
     private const val KEY_PRESET = "ThemePreset"
     private const val KEY_DYNAMIC = "MaterialYou"
     private const val KEY_AMOLED = "AmoledTheme"

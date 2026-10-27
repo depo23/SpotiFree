@@ -25,7 +25,7 @@ import java.io.File
 class DownloadService : Service() {
 
     companion object {
-        private const val CHANNEL_ID = "spotilol_downloads"
+        private const val CHANNEL_ID = "spotifree_downloads"
         private const val NOTIF_ID = 3
 
         const val ACTION_SKIP = "com.project.lol.download.ACTION_SKIP"
