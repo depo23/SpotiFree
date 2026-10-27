@@ -122,7 +122,7 @@ object FetchOverride {
                                             var splPlayingId = (typeof window.splPlayingTrackId === 'function')
                                                 ? window.splPlayingTrackId()
                                                 : (window.splTrackId || null);
-                                            if(!splPlayingId || tid === splPlayingId) {
+                                            if(splPlayingId && tid === splPlayingId) {
                                                 window.__curTrackUri = j.canonical_uri;
                                                 window.__curTrackId = tid;
                                                 window.__curTrackName = j.name || null;

@@ -103,7 +103,7 @@ class SpotifyWebViewClient(
         }
 
         if (isWebPlayerUrl(url)) {
-            Logger.s(TAG, "logged in, injecting player control in 500ms")
+            Logger.s(TAG, "logged in, injecting player control")
             schedulePlayerInjection(view, token)
         }
 
@@ -144,7 +144,7 @@ class SpotifyWebViewClient(
             injectPlayerControl(view)
         }
         pendingPlayerInjection = task
-        mainHandler.postDelayed(task, 500)
+        mainHandler.post(task)
     }
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -205,7 +205,7 @@ class SpotifyWebViewClient(
         val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", false)
         val playlistSort = prefs.getBoolean("PlaylistSortEnabled", true)
         val showScrollbar = prefs.getBoolean("ShowScrollbar", true)
-        val hideTopBar = prefs.getBoolean("HideTopBar", false)
+        val hideTopBar = prefs.getBoolean("HideTopBar", true)
         // Each payload runs in its own try/catch, matching the old behaviour where each
         // was a separate evaluateJavascript call and one failure didn't stop the rest.
         val parts = buildList {
@@ -429,7 +429,7 @@ class SpotifyWebViewClient(
         val lyricsStyle = LyricsStyle.from(prefs)
         val webCanvas = prefs.getBoolean("WebCanvas", true)
         val webVideos = prefs.getBoolean("WebVideos", true)
-        val hideTopBar = prefs.getBoolean("HideTopBar", false)
+        val hideTopBar = prefs.getBoolean("HideTopBar", true)
 
         Logger.s(
             TAG,
@@ -572,7 +572,7 @@ class SpotifyWebViewClient(
                     wv.evaluateJavascript("window.__splHideEmpty=$hideEmpty; if(window.splApplyEmpty) window.splApplyEmpty();", null)
                 }
                 "HideTopBar" -> {
-                    val hideTopBar = prefs.getBoolean("HideTopBar", false)
+                    val hideTopBar = prefs.getBoolean("HideTopBar", true)
                     wv.evaluateJavascript("window.__splHideTopBar=$hideTopBar; if(window.splApplyHideTopBar) window.splApplyHideTopBar();", null)
                 }
                 "WebCanvas", "WebVideos" -> {

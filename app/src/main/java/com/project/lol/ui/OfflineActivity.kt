@@ -62,7 +62,7 @@ class OfflineActivity : ComponentActivity() {
 
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)
-        hideTopBarState.value = prefs.getBoolean("HideTopBar", false)
+        hideTopBarState.value = prefs.getBoolean("HideTopBar", true)
         landscapeState.value = prefs.getBoolean("LandscapeMode", false)
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID

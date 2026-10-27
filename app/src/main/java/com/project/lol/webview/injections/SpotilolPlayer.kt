@@ -618,12 +618,14 @@ object SpotilolPlayer {
 
                         var npb=window.splQ('[data-testid="now-playing-widget"]');
                         var imgEl=npb?npb.querySelector('img[data-testid="cover-art-image"]'):null;
-                        if(ci&&imgEl&&imgEl.src&&ci.getAttribute('data-src')!==imgEl.src){
-                            var lo=imgEl.src;
+                        var spmC=(window.splTrackId&&window.__splTrackMeta&&window.__splTrackMeta[window.splTrackId])||null;
+                        var spSrc=(imgEl&&imgEl.src)||(spmC&&spmC.cover)||'';
+                        if(ci&&spSrc&&ci.getAttribute('data-src')!==spSrc){
+                            var lo=spSrc;
                             ci.setAttribute('data-src',lo);
                             if(window.__splFullPlayer){
                                 ci.onerror=function(){ ci.onerror=null; if(ci.getAttribute('data-src')===lo) ci.src=lo; };
-                                ci.src=splHiRes(imgEl);
+                                ci.src=imgEl?splHiRes(imgEl):lo;
                                 splTint(lo);
                             } else {
                                 ci.src=lo;
@@ -631,11 +633,13 @@ object SpotilolPlayer {
                         }
 
                         var trackEl=window.splQ('a[data-testid=context-item-link]');
-                        if(tk&&trackEl&&trackEl.textContent&&tk.textContent!==trackEl.textContent) tk.textContent=trackEl.textContent;
+                        var spm0=(window.splTrackId&&window.__splTrackMeta&&window.__splTrackMeta[window.splTrackId])||null;
+                        var spName=trackEl&&trackEl.textContent?trackEl.textContent:(spm0&&spm0.name)||'';
+                        if(tk&&spName&&tk.textContent!==spName) tk.textContent=spName;
 
                         var artistEl=window.splQ('a[data-testid=context-item-info-artist]');
                         if(!artistEl) artistEl=window.splQ('a[data-testid=context-item-info-show]');
-                        if(ar&&artistEl&&tk.textContent!=='No track') ar.textContent=artistEl.textContent||'';
+                        if(ar&&tk.textContent!=='No track'){ var spAr=artistEl?(artistEl.textContent||''):(spm0&&spm0.artist)||''; if(spAr||artistEl) ar.textContent=spAr; }
 
                         var rg=window.splQ('[data-testid="playback-progressbar"] input[type=range]');
                         if(pp||ppm){
@@ -829,11 +833,7 @@ object SpotilolPlayer {
                         if(cvEl.getAttribute('src')!==splCanvasUrl){ cvEl.setAttribute('src',splCanvasUrl); }
                     }
                     function splCurTrackId(){
-                        var t=document.querySelector('a[data-testid=context-item-link]');
-                        var title=t?(t.textContent||'').trim():'';
-                        var meta=window.__splTrackMeta||{};
-                        for(var k in meta){ if(meta[k]&&meta[k].name===title) return k; }
-                        return window.__curTrackId||null;
+                        return window.splTrackId||(typeof window.splPlayingTrackId==='function'?window.splPlayingTrackId():null)||null;
                     }
                     function splCanvasUrlFrom(text){
                         var m=(text||'').match(/https:\/\/canvaz\.scdn\.co\/[^"\s\u0000-\u001f]+?\.mp4/);

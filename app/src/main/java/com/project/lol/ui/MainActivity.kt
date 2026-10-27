@@ -255,7 +255,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         serviceEnabledState.value = prefs.getBoolean("ServiceOn", true)
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)
-        hideTopBarState.value = prefs.getBoolean("HideTopBar", false)
+        hideTopBarState.value = prefs.getBoolean("HideTopBar", true)
         landscapeModeState.value = prefs.getBoolean("LandscapeMode", false)
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
@@ -1443,7 +1443,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         serviceEnabledState.value = prefs.getBoolean("ServiceOn", true)
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)
-        hideTopBarState.value = prefs.getBoolean("HideTopBar", false)
+        hideTopBarState.value = prefs.getBoolean("HideTopBar", true)
         landscapeModeState.value = prefs.getBoolean("LandscapeMode", false)
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
