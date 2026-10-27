@@ -100,7 +100,6 @@ object TrackObserver {
             }
 
             function check() {
-                if (window.__splBusy) return;
                 const id = currentId();
                 if (id) return emit(id, 'href');
 
