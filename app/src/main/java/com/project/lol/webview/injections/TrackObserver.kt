@@ -17,7 +17,18 @@ object TrackObserver {
         (function(){
             window.__npStop && window.__npStop();
 
-            const SEL   = '[data-testid="now-playing-widget"]';
+            const ROOTS = [
+                '[data-testid="now-playing-widget"]',
+                'aside[data-testid="now-playing-bar"]',
+                '[data-testid="now-playing-bar"]'
+            ];
+            function findRoot() {
+                for (const sel of ROOTS) {
+                    const el = document.querySelector(sel);
+                    if (el) return el;
+                }
+                return null;
+            }
             const LINK  = 'a[href*="/track/"]';
             const ID_RE = /\/track\/([a-zA-Z0-9]{22})/;
             const FIBER = '__reactFiber$';
@@ -131,6 +142,15 @@ object TrackObserver {
 
             function attach(el) {
                 root = el; anchor = null; fiberKey = null;
+                if (!window.__splNpDumped) {
+                    window.__splNpDumped = true;
+                    try {
+                        const links = Array.from(el.querySelectorAll('a')).slice(0, 8)
+                            .map(a => (a.getAttribute('data-testid') || '') + ' ' + (a.getAttribute('href') || ''));
+                        const html = el.outerHTML.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<img[^>]*>/g, '<img>');
+                        AndBridge.dbg('d', 'np-root ' + el.tagName + ' ' + (el.getAttribute('data-testid') || '') + ' links=' + links.join(' | ') + ' html=' + html.slice(0, 900));
+                    } catch(e){}
+                }
                 obs.disconnect();
                 obs.observe(el, {
                     subtree: true,
@@ -157,14 +177,14 @@ object TrackObserver {
             }
 
             watchdog = setInterval(function(){
-                const el = document.querySelector(SEL);
+                const el = findRoot();
                 if (el && el !== root) attach(el);
                 else if (!el && root) detach();
             }, 2000);
 
             window.__npStop = stop;
 
-            const el0 = document.querySelector(SEL);
+            const el0 = findRoot();
             if (el0) {
                 attach(el0);
                 try{ AndBridge.dbg('s','np-observer active'); }catch(e){}
