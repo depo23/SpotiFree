@@ -50,16 +50,6 @@ download the `.apk` and install it on your device. you may need to toggle **"Ins
 
 ---
 
-## Preview
-
-<div align="center">
-  <img src="art/spotilol_ss1.jpg" alt="screenshot 1" width="30%" style="max-width: 250px; margin: 4px; border-radius: 12px;" />
-  <img src="art/spotilol_ss2.jpg" alt="screenshot 2" width="30%" style="max-width: 250px; margin: 4px; border-radius: 12px;" />
-  <img src="art/spotilol_ss3.jpg" alt="screenshot 3" width="30%" style="max-width: 250px; margin: 4px; border-radius: 12px;" />
-</div>
-
----
-
 ## Features
 
 - blocks audio ads, trackers and telemetry
