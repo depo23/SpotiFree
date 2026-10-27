@@ -7,6 +7,34 @@ object MediaUpdater {
                 return url.replace(/ab67616d0000[0-9a-f]{4}/i, 'ab67616d0000b273');
             };
 
+            window.splMS = function(){
+                try{
+                    var m = navigator.mediaSession && navigator.mediaSession.metadata;
+                    if(!m || !m.title) return null;
+                    var best = null, bw = -1;
+                    (m.artwork || []).forEach(function(a){
+                        var w = parseInt((a.sizes || '').split('x')[0], 10) || 0;
+                        if(w > bw){ bw = w; best = a.src; }
+                    });
+                    return { name: m.title, artist: m.artist || '', album: m.album || '', cover: best };
+                }catch(e){ return null; }
+            };
+
+            window.splResolveTrackId = function(){
+                if(window.splTrackId) return window.splTrackId;
+                var ms = window.splMS();
+                var meta = window.__splTrackMeta;
+                if(!ms || !meta) return null;
+                for(var k in meta){
+                    var m = meta[k];
+                    if(!m || m.name !== ms.name) continue;
+                    if(ms.artist && m.artist && ms.artist.indexOf(m.artist) === -1) continue;
+                    if(ms.album && m.album && m.album !== ms.album) continue;
+                    return k;
+                }
+                return null;
+            };
+
             window.splPlayingTrackId = function(){
                 try{
                     var a = document.querySelector('[data-testid="now-playing-widget"] a[href*="/track/"]');
@@ -15,7 +43,7 @@ object MediaUpdater {
                         if(m) return m[1];
                     }
                     if(document.querySelector('a[data-testid="context-item-info-show"]')) return null;
-                    return window.splTrackId || window.__curTrackId || null;
+                    return window.splResolveTrackId() || window.__curTrackId || null;
                 }catch(e){ return null; }
             };
 

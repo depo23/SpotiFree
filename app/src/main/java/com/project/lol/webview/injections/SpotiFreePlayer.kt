@@ -618,8 +618,9 @@ object SpotiFreePlayer {
 
                         var npb=window.splQ('[data-testid="now-playing-widget"]');
                         var imgEl=npb?npb.querySelector('img[data-testid="cover-art-image"]'):null;
+                        var spMS0=(typeof window.splMS==='function')?window.splMS():null;
                         var spmC=(window.splTrackId&&window.__splTrackMeta&&window.__splTrackMeta[window.splTrackId])||null;
-                        var spSrc=(imgEl&&imgEl.src)||(spmC&&spmC.cover)||'';
+                        var spSrc=(imgEl&&imgEl.src)||(spmC&&spmC.cover)||(spMS0&&spMS0.cover)||'';
                         if(ci&&spSrc&&ci.getAttribute('data-src')!==spSrc){
                             var lo=spSrc;
                             ci.setAttribute('data-src',lo);
@@ -634,12 +635,12 @@ object SpotiFreePlayer {
 
                         var trackEl=window.splQ('a[data-testid=context-item-link]');
                         var spm0=(window.splTrackId&&window.__splTrackMeta&&window.__splTrackMeta[window.splTrackId])||null;
-                        var spName=trackEl&&trackEl.textContent?trackEl.textContent:(spm0&&spm0.name)||'';
+                        var spName=trackEl&&trackEl.textContent?trackEl.textContent:(spm0&&spm0.name)||(spMS0&&spMS0.name)||'';
                         if(tk&&spName&&tk.textContent!==spName) tk.textContent=spName;
 
                         var artistEl=window.splQ('a[data-testid=context-item-info-artist]');
                         if(!artistEl) artistEl=window.splQ('a[data-testid=context-item-info-show]');
-                        if(ar&&tk.textContent!=='No track'){ var spAr=artistEl?(artistEl.textContent||''):(spm0&&spm0.artist)||''; if(spAr||artistEl) ar.textContent=spAr; }
+                        if(ar&&tk.textContent!=='No track'){ var spAr=artistEl?(artistEl.textContent||''):(spm0&&spm0.artist)||(spMS0&&spMS0.artist)||''; if(spAr||artistEl) ar.textContent=spAr; }
 
                         var rg=window.splQ('[data-testid="playback-progressbar"] input[type=range]');
                         if(pp||ppm){
@@ -833,7 +834,7 @@ object SpotiFreePlayer {
                         if(cvEl.getAttribute('src')!==splCanvasUrl){ cvEl.setAttribute('src',splCanvasUrl); }
                     }
                     function splCurTrackId(){
-                        return window.splTrackId||(typeof window.splPlayingTrackId==='function'?window.splPlayingTrackId():null)||null;
+                        return window.splTrackId||(typeof window.splResolveTrackId==='function'?window.splResolveTrackId():null)||(typeof window.splPlayingTrackId==='function'?window.splPlayingTrackId():null)||null;
                     }
                     function splCanvasUrlFrom(text){
                         var m=(text||'').match(/https:\/\/canvaz\.scdn\.co\/[^"\s\u0000-\u001f]+?\.mp4/);

@@ -10,10 +10,11 @@ object AndroidTracker {
                 function readTrackState(){
                     var ta = document.querySelector('a[data-testid=context-item-link]');
                     var spM = (window.splTrackId && window.__splTrackMeta && window.__splTrackMeta[window.splTrackId]) || null;
-                    if(ta) track=ta.text; else track=(spM && spM.name) || null;
+                    var spMS = (typeof window.splMS === 'function') ? window.splMS() : null;
+                    if(ta) track=ta.text; else track=(spM && spM.name) || (spMS && spMS.name) || null;
                     var aa = document.querySelector('a[data-testid=context-item-info-artist]');
                     if(!aa) aa = document.querySelector('a[data-testid=context-item-info-show]');
-                    if(aa) artist=aa.text; else artist=(spM && spM.artist) || '';
+                    if(aa) artist=aa.text; else artist=(spM && spM.artist) || (spMS && spMS.artist) || '';
                     var rr = document.querySelector('button[data-testid=control-button-repeat]');
                     if(rr) repmode=rr.getAttribute('aria-checked'); else repmode='false';
                     shuffle = (typeof window.splShuffleState === 'function') ? window.splShuffleState() : 'off';
@@ -31,7 +32,7 @@ object AndroidTracker {
                             s=s.replace(/ab6761670000[0-9a-f]{4}/,'ab676167000082e8');
                         }
                         cover=s;
-                    } else cover=(spM && spM.cover) || null;
+                    } else cover=(spM && spM.cover) || (spMS && spMS.cover) || null;
                     updMedia();
                 }
                 try {
