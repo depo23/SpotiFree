@@ -50,7 +50,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.project.lol.R
 import com.project.lol.ui.screens.SettingsContent
-import com.project.lol.ui.screens.SettingsTab
 import com.project.lol.util.BuildInfo
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Settings
@@ -88,7 +87,6 @@ fun SettingsDialog(
     onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit,
-    initialTab: SettingsTab = SettingsTab.Appearance,
     serviceEnabled: Boolean = false,
     onServiceToggle: ((Boolean) -> Unit)? = null,
     content: @Composable () -> Unit
@@ -179,7 +177,6 @@ fun SettingsDialog(
                                         onCheckForUpdates = onCheckForUpdates,
                                         blockServiceWorker = blockServiceWorker,
                                         onBlockServiceWorkerChange = onBlockServiceWorkerChange,
-                                        initialTab = initialTab,
                                         serviceEnabled = serviceEnabled,
                                         onServiceToggle = onServiceToggle
                                     )

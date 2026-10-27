@@ -203,7 +203,7 @@ private const val DEBUG_UNLOCK_TAPS = 5
 private const val LOGGER_WIDE_BREAKPOINT = 600
 private const val LYRICS_WIDE_BREAKPOINT = 600
 
-enum class SettingsTab(@StringRes val labelRes: Int) {
+private enum class SettingsTab(@StringRes val labelRes: Int) {
     Appearance(R.string.settings_tab_appearance),
     Playback(R.string.settings_tab_playback),
     Content(R.string.settings_tab_content),
@@ -243,7 +243,6 @@ fun SettingsContent(
     onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit,
-    initialTab: SettingsTab = SettingsTab.Appearance,
     serviceEnabled: Boolean = false,
     onServiceToggle: ((Boolean) -> Unit)? = null
 ) {
@@ -394,7 +393,7 @@ fun SettingsContent(
         }
     }
 
-    var settingsTab by remember(initialTab) { mutableStateOf(initialTab) }
+    var settingsTab by remember { mutableStateOf(SettingsTab.Appearance) }
     val tabScrollStates = SettingsTab.entries.map { rememberScrollState() }
     val scrollState = tabScrollStates[settingsTab.ordinal]
     var batteryExempt by remember(settingsTab) { mutableStateOf(BatterySaver.isExempt(context)) }
