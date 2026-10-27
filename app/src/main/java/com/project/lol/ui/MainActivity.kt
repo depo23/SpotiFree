@@ -189,7 +189,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     }
 
     private val loadingProgress = mutableIntStateOf(100)
-    private val blockServiceWorkerState = mutableStateOf(true)
+    private val blockServiceWorkerState = mutableStateOf(false)
     private val webViewError = mutableStateOf<Pair<Int, String>?>(null)
     private var pendingLink: String? = null
     private var pendingMediaSearch: String? = null
@@ -242,7 +242,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
         themeSecondaryState.value = ThemeHarmony.parseHex(prefs.getString("ThemeSecondary", null))
-        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", true)
+        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", false)
         applyOrientation()
         applyKeepScreenOn()
 
@@ -332,8 +332,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                 SettingsDialog(
                     visible = settingsDialogOpen,
                     onClose = { settingsDialogOpen = false },
-                    serviceEnabled = serviceEnabled,
-                    onServiceToggle = { newValue -> setServiceEnabled(newValue) },
                     onCheckForUpdates = { checkForUpdates(manual = true) },
                     prefs = prefs,
                     materialYou = materialYou,
@@ -1322,7 +1320,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
         themeSecondaryState.value = ThemeHarmony.parseHex(prefs.getString("ThemeSecondary", null))
-        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", true)
+        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", false)
         applyOrientation()
         applyKeepScreenOn()
 

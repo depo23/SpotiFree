@@ -146,8 +146,6 @@
     <string name="settings_profile_saved">Saved %1$s</string>
     <string name="settings_delete">Delete</string>
 
-    <string name="settings_service_enabled">Enabled</string>
-    <string name="settings_service_subtitle">Background playback service and floating player</string>
     <string name="settings_swipe_to_stop">Swipe to Stop Service</string>
     <string name="settings_swipe_to_stop_subtitle">Kill background service from recents</string>
     <string name="settings_empty_cache">Empty Cache</string>
@@ -622,8 +620,6 @@
     <string name="dl_error_connection_reset">Connection reset</string>
     <string name="dl_error_download">Download error</string>
 
-    <string name="settings_fast_startup">Fast Startup</string>
-    <string name="settings_fast_startup_subtitle">Start instantly instead of waiting for the splash animation</string>
 
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_dynamic">Dynamic (system colors)</string>

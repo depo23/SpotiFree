@@ -87,8 +87,6 @@ fun SettingsDialog(
     onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
     onBlockServiceWorkerChange: (Boolean) -> Unit,
-    serviceEnabled: Boolean = false,
-    onServiceToggle: ((Boolean) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -177,8 +175,6 @@ fun SettingsDialog(
                                         onCheckForUpdates = onCheckForUpdates,
                                         blockServiceWorker = blockServiceWorker,
                                         onBlockServiceWorkerChange = onBlockServiceWorkerChange,
-                                        serviceEnabled = serviceEnabled,
-                                        onServiceToggle = onServiceToggle
                                     )
                                 }
                             }

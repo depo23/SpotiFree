@@ -153,7 +153,6 @@ object MediaUpdater {
                     if(m && m.artist) window.__curTrackArtist = m.artist;
                     if(m && m.album) window.__curTrackAlbum = m.album;
                     if(m && m.cover) window.__curTrackCover = m.cover;
-                    window.lastState = null;
                     if(window.updMedia && typeof track !== 'undefined'){ try{ window.updMedia(); }catch(e){} }
                 };
 
@@ -227,7 +226,6 @@ object MediaUpdater {
                         window.__curTrackArtist = m ? m.artist : null;
                         window.__curTrackAlbum = m ? m.album : null;
                         window.__curTrackCover = m ? m.cover : null;
-                        window.lastState = null;
                         window.__splEnsureTrackMetaSafe(id);
                         if(typeof track !== 'undefined'){ try{ window.updMedia(); }catch(e){} }
                     });

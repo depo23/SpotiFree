@@ -543,8 +543,6 @@
     <string name="dl_error_connection_reset">Connexion réinitialisée</string>
     <string name="dl_error_download">Erreur de téléchargement</string>
 
-    <string name="settings_fast_startup">Démarrage rapide</string>
-    <string name="settings_fast_startup_subtitle">Démarrer instantanément sans attendre l\'animation de démarrage</string>
 
     <string name="settings_theme">Thème</string>
     <string name="settings_theme_dynamic">Dynamique (couleurs du système)</string>

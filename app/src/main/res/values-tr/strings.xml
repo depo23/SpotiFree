@@ -542,8 +542,6 @@
     <string name="dl_error_connection_reset">Bağlantı sıfırlandı</string>
     <string name="dl_error_download">İndirme hatası</string>
 
-    <string name="settings_fast_startup">Hızlı Başlatma</string>
-    <string name="settings_fast_startup_subtitle">Splash animasyonunu beklemeden anında başlat</string>
 
     <string name="settings_theme">Tema</string>
     <string name="settings_theme_dynamic">Dinamik (sistem renkleri)</string>

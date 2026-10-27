@@ -530,8 +530,6 @@
     <string name="dl_error_connection_reset">Conexión restablecida</string>
     <string name="dl_error_download">Error de descarga</string>
 
-    <string name="settings_fast_startup">Inicio rápido</string>
-    <string name="settings_fast_startup_subtitle">Iniciar al instante sin esperar la animación del splash</string>
 
     <string name="settings_theme">Tema</string>
     <string name="settings_theme_dynamic">Dinámico (colores del sistema)</string>

@@ -155,7 +155,7 @@ class SpotifyWebViewClient(
         val prefs = view?.context?.getSharedPreferences("spotifree_prefs", 0)
 
         val powerSave = prefs?.getBoolean("PowerSave", false) ?: false
-        val blockSW = prefs?.getBoolean("BlockServiceWorker", true) ?: true
+        val blockSW = prefs?.getBoolean("BlockServiceWorker", false) ?: false
         val hideEmptyPlayer = prefs?.getBoolean("HideEmptyPlayer", true) ?: true
         val playlistSort = prefs?.getBoolean("PlaylistSortEnabled", true) ?: true
         val showScrollbar = prefs?.getBoolean("ShowScrollbar", true) ?: true
@@ -201,7 +201,7 @@ class SpotifyWebViewClient(
 
     private fun buildEarlyJs(prefs: android.content.SharedPreferences, isGoogle: Boolean): String {
         val powerSave = prefs.getBoolean("PowerSave", false)
-        val blockSW = prefs.getBoolean("BlockServiceWorker", true)
+        val blockSW = prefs.getBoolean("BlockServiceWorker", false)
         val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", true)
         val playlistSort = prefs.getBoolean("PlaylistSortEnabled", true)
         val showScrollbar = prefs.getBoolean("ShowScrollbar", true)
@@ -210,7 +210,7 @@ class SpotifyWebViewClient(
         // was a separate evaluateJavascript call and one failure didn't stop the rest.
         val parts = buildList {
             add("window.__splShowScrollbar=$showScrollbar;")
-            add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{visibility:hidden!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,4000);})();")
+            add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{visibility:hidden!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")
             add("window.__splHideTopBar=$hideTopBar;")
             add("window.__splPowerSavePref=$powerSave;")
             add("window.__splHideEmpty=$hideEmptyPlayer;")
@@ -562,7 +562,7 @@ class SpotifyWebViewClient(
                     wv.evaluateJavascript("window.__splTakeControl=$on;", null)
                 }
                 "BlockServiceWorker" -> {
-                    if (prefs.getBoolean("BlockServiceWorker", true)) {
+                    if (prefs.getBoolean("BlockServiceWorker", false)) {
                         wv.evaluateJavascript(WorkerNeutralize.CONTENT + ";\n" + SW_UNREGISTER_JS, null)
                     } else {
                         wv.reload()

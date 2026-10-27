@@ -179,7 +179,6 @@ import compose.icons.tablericons.PlayerPlay
 import compose.icons.tablericons.Playlist
 import compose.icons.tablericons.Plus
 import compose.icons.tablericons.Power
-import compose.icons.tablericons.Rocket
 import compose.icons.tablericons.RotateClockwise2
 import compose.icons.tablericons.Search
 import compose.icons.tablericons.Shield
@@ -242,9 +241,7 @@ fun SettingsContent(
     onDebugToggle: (Boolean) -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
-    onBlockServiceWorkerChange: (Boolean) -> Unit,
-    serviceEnabled: Boolean = false,
-    onServiceToggle: ((Boolean) -> Unit)? = null
+    onBlockServiceWorkerChange: (Boolean) -> Unit
 ) {
     var autoplayMode by remember { mutableStateOf(prefs.getString("APlayMode", "disabled") ?: "disabled") }
     var closeNowPlay by remember { mutableStateOf(prefs.getBoolean("CloseNowPlay", false)) }
@@ -269,7 +266,6 @@ fun SettingsContent(
     var lyricsAlign by remember { mutableStateOf(prefs.getString("LyricsAlign", LyricsTheme.ALIGN_START) ?: LyricsTheme.ALIGN_START) }
     var lyricsAnimate by remember { mutableStateOf(prefs.getBoolean("LyricsAnimate", true)) }
     var spicyLyricsEnabled by remember { mutableStateOf(prefs.getBoolean("SpicyLyrics", true)) }
-    var fastStartup by remember { mutableStateOf(prefs.getBoolean("FastStartup", false)) }
 
     val context = LocalContext.current
     val resources = LocalResources.current
@@ -890,21 +886,6 @@ fun SettingsContent(
             }
 
             if (settingsTab == SettingsTab.Advanced) {
-                onServiceToggle?.let { toggle ->
-                    SettingSectionCard(
-                        title = stringResource(R.string.main_service),
-                        icon = TablerIcons.Power
-                    ) {
-                        SettingSwitchTile(
-                            title = stringResource(R.string.settings_service_enabled),
-                            subtitle = stringResource(R.string.settings_service_subtitle),
-                            icon = TablerIcons.Power,
-                            checked = serviceEnabled,
-                            onCheckedChange = toggle
-                        )
-                    }
-                }
-
                 SettingSectionCard(
                     title = stringResource(R.string.settings_section_system),
                     icon = TablerIcons.Power
@@ -917,19 +898,6 @@ fun SettingsContent(
                         onCheckedChange = {
                             swipeStop = it
                             prefs.edit().putBoolean("SwipeStop", it).apply()
-                        }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingSwitchTile(
-                        title = stringResource(R.string.settings_fast_startup),
-                        subtitle = stringResource(R.string.settings_fast_startup_subtitle),
-                        icon = TablerIcons.Rocket,
-                        checked = fastStartup,
-                        onCheckedChange = {
-                            fastStartup = it
-                            prefs.edit().putBoolean("FastStartup", it).apply()
                         }
                     )
 

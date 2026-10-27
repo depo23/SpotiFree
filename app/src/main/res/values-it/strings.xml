@@ -530,8 +530,6 @@
     <string name="dl_error_connection_reset">Connessione reimpostata</string>
     <string name="dl_error_download">Errore di download</string>
 
-    <string name="settings_fast_startup">Avvio rapido</string>
-    <string name="settings_fast_startup_subtitle">Avvia subito senza attendere l\'animazione di avvio</string>
 
     <string name="settings_theme">Tema</string>
     <string name="settings_theme_dynamic">Dinamico (colori di sistema)</string>

@@ -530,8 +530,6 @@
     <string name="dl_error_connection_reset">Verbindung zurückgesetzt</string>
     <string name="dl_error_download">Downloadfehler</string>
 
-    <string name="settings_fast_startup">Schnellstart</string>
-    <string name="settings_fast_startup_subtitle">Sofort starten, ohne auf die Startanimation zu warten</string>
 
     <string name="settings_theme">Design</string>
     <string name="settings_theme_dynamic">Dynamisch (Systemfarben)</string>

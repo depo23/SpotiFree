@@ -541,8 +541,6 @@
     <string name="dl_error_connection_reset">连接重置</string>
     <string name="dl_error_download">下载错误</string>
 
-    <string name="settings_fast_startup">快速启动</string>
-    <string name="settings_fast_startup_subtitle">立即启动，无需等待启动动画</string>
 
     <string name="settings_theme">主题</string>
     <string name="settings_theme_dynamic">动态（系统颜色）</string>

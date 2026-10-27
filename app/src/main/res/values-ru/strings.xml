@@ -530,8 +530,6 @@
     <string name="dl_error_connection_reset">Соединение сброшено</string>
     <string name="dl_error_download">Ошибка загрузки</string>
 
-    <string name="settings_fast_startup">Быстрый запуск</string>
-    <string name="settings_fast_startup_subtitle">Запускать сразу, не дожидаясь анимации заставки</string>
 
     <string name="settings_theme">Тема</string>
     <string name="settings_theme_dynamic">Динамическая (системные цвета)</string>
