@@ -58,8 +58,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -160,7 +158,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     private var pipLyricsRequested = false
     private val pipVideoActive = mutableStateOf(false)
 
-    private val serviceEnabledState = mutableStateOf(true)
     private val materialYouState = mutableStateOf(false)
     private val amoledState = mutableStateOf(false)
     private val hideTopBarState = mutableStateOf(false)
@@ -234,7 +231,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
         val loggedIn = prefs.getBoolean("LoggedIn", false)
 
-        serviceEnabledState.value = prefs.getBoolean("ServiceOn", true)
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)
         hideTopBarState.value = prefs.getBoolean("HideTopBar", true)
@@ -248,18 +244,14 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
         captureMediaSearch(intent)
         pendingLink = extractSpotifyLink(intent)
-        if (pendingLink != null && !serviceEnabledState.value) {
-            setServiceEnabled(true)
-        }
 
         Logger.s(
             TAG,
-            "session: loggedIn=$loggedIn service=${serviceEnabledState.value} " +
+            "session: loggedIn=$loggedIn " +
                 "deeplink=${pendingLink ?: "none"} logging=${com.project.lol.util.Logger.isEnabled()}"
         )
 
         setContent {
-            val serviceEnabled = serviceEnabledState.value
             val materialYou = materialYouState.value
             val amoled = amoledState.value
             val hideTopBar = hideTopBarState.value
@@ -422,16 +414,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                     }
                                 },
                                 actions = {
-                                Switch(
-                                    checked = serviceEnabled,
-                                    onCheckedChange = { newValue -> setServiceEnabled(newValue) },
-                                    modifier = Modifier.scale(0.75f),
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primary,
-                                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
                                 )
                                 Spacer(Modifier.width(8.dp))
                             },
@@ -451,7 +433,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 .fillMaxSize()
                                 .padding(if (videoFullscreen) PaddingValues(0.dp) else innerPadding)
                         ) {
-                            if (serviceEnabled) {
                             val bridge = WebViewHost.bridgeFor(this@MainActivity)
                             bridge.rebind(WeakReference(this@MainActivity))
 
@@ -460,7 +441,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 if (!SleepTimerManager.isActive) {
                                     sleepTimerInputText.value = ""
                                 }
-                            }
 
                                 bridge.onVolumeDialogRequest = {
                                     publishVolumeIcon(syncVolumeState())
@@ -726,17 +706,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         } catch (e: Exception) {
             Logger.e(TAG, "update install failed", e)
             Toast.makeText(this, getString(R.string.update_install_failed, e.message ?: "error"), Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun setServiceEnabled(newValue: Boolean) {
-        Logger.i(TAG, "service toggle: $newValue")
-        serviceEnabledState.value = newValue
-        prefs.edit().putBoolean("ServiceOn", newValue).apply()
-        if (!newValue) {
-            stopService(Intent(this, MediaNotificationService::class.java))
-            serviceStarted = false
-            destroyWebView()
         }
     }
 
@@ -1312,7 +1281,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         WebViewHost.attach(this)
 
         prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
-        serviceEnabledState.value = prefs.getBoolean("ServiceOn", true)
         materialYouState.value = prefs.getBoolean("MaterialYou", false)
         amoledState.value = prefs.getBoolean("AmoledTheme", false)
         hideTopBarState.value = prefs.getBoolean("HideTopBar", true)
@@ -1324,7 +1292,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         applyOrientation()
         applyKeepScreenOn()
 
-        if (serviceEnabledState.value && WebViewHost.webView == null) {
+        if (WebViewHost.webView == null) {
             Logger.i(TAG, "resuming without a live webview, rebuilding")
             webViewGeneration.intValue++
         }
@@ -1393,17 +1361,12 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             }
             return
         }
-        if (!prefs.getBoolean("ServiceOn", true)) {
-            pendingLink = link
-            setServiceEnabled(true)
+        val wv = webView
+        if (wv != null) {
+            navigateSpotifyLink(link)
         } else {
-            val wv = webView
-            if (wv != null) {
-                navigateSpotifyLink(link)
-            } else {
-                pendingLink = link
+            pendingLink = link
             }
-        }
     }
 
     private fun navigateSpotifyLink(link: String) {

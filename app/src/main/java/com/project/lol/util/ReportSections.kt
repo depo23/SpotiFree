@@ -170,7 +170,6 @@ object ReportSections {
         sb.appendLine("[ session ]")
         sb.appendLine("keys: ${prefs.all.size}")
         sb.appendLine("loggedIn: ${prefs.getBoolean("LoggedIn", false)}")
-        sb.appendLine("serviceOn: ${prefs.getBoolean("ServiceOn", true)}")
         sb.appendLine("aPlayMode: ${prefs.getString("APlayMode", "disabled")}")
         sb.appendLine("amoled: ${prefs.getBoolean("AmoledTheme", false)}")
         sb.appendLine("powerSave: ${prefs.getBoolean("PowerSave", false)}")

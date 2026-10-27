@@ -35,7 +35,6 @@ class SpotiFreeApp : Application() {
         val fromProxyEra = prefs.contains("ConnectionMode")
         val edit = prefs.edit()
         edit.remove("ConnectionMode")
-        if (fromProxyEra) edit.putBoolean("ServiceOn", true)
         edit.putBoolean("ProxyEraMigrated", true)
         edit.apply()
         if (fromProxyEra) Logger.i("app", "proxy era prefs migrated")
