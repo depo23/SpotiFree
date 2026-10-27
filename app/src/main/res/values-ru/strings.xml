@@ -46,10 +46,6 @@
     <string name="settings_autoplay_disabled">Отключено</string>
     <string name="settings_autoplay_onetime">Один раз при запуске</string>
     <string name="settings_autoplay_permanent">Постоянно</string>
-    <string name="settings_player_mode">Режим плеера</string>
-    <string name="settings_player_spotilol">Плеер Spotilol</string>
-    <string name="settings_player_original">Оригинальный Spotify</string>
-    <string name="settings_player_fullscreen">Плеер Spotilol на весь экран</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Зацикленные видео за песнями (настройка Canvas в Spotify)</string>
     <string name="settings_web_videos">Видеоподкасты</string>

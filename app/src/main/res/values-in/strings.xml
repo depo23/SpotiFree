@@ -46,10 +46,6 @@
     <string name="settings_autoplay_disabled">Dinonaktifkan</string>
     <string name="settings_autoplay_onetime">Sekali saat mulai</string>
     <string name="settings_autoplay_permanent">Permanen</string>
-    <string name="settings_player_mode">Mode pemutar</string>
-    <string name="settings_player_spotilol">Pemutar Spotilol</string>
-    <string name="settings_player_original">Spotify asli</string>
-    <string name="settings_player_fullscreen">Pemutar Spotilol layar penuh</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Video berulang di belakang lagu (pengaturan Canvas Spotify)</string>
     <string name="settings_web_videos">Podcast video</string>

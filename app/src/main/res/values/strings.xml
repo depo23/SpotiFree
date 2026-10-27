@@ -48,10 +48,6 @@
     <string name="settings_autoplay_disabled">Disabled</string>
     <string name="settings_autoplay_onetime">One time at start</string>
     <string name="settings_autoplay_permanent">Permanent</string>
-    <string name="settings_player_mode">Player Mode</string>
-    <string name="settings_player_spotilol">Spotilol Player</string>
-    <string name="settings_player_original">Spotify Original</string>
-    <string name="settings_player_fullscreen">Spotilol Player FullScreen</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Looping videos behind songs (Spotify\'s Canvas setting)</string>
     <string name="settings_web_videos">Video Podcasts</string>

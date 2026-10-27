@@ -420,7 +420,6 @@ class SpotifyWebViewClient(
         val closeNowPlay = prefs.getBoolean("CloseNowPlay", false)
         val amoledEnabled = prefs.getBoolean("AmoledTheme", false)
         val customCss = prefs.getString("CustomCss", "") ?: ""
-        val playerMode = prefs.getString("PlayerMode", "spotilol") ?: "spotilol"
         val debugOverlay = Logger.isEnabled()
         val takeControl = prefs.getBoolean("TakeControl", true)
         val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", false)
@@ -434,7 +433,7 @@ class SpotifyWebViewClient(
 
         Logger.s(
             TAG,
-            "inject: engine=$playerMode autoPlay=$autoPlayMode closeNp=$closeNowPlay amoled=$amoledEnabled " +
+            "inject: autoPlay=$autoPlayMode closeNp=$closeNowPlay amoled=$amoledEnabled " +
                 "logging=$debugOverlay takeControl=$takeControl sort=$playlistSortEnabled " +
                 "spicy=$spicyLyricsEnabled scrollbar=$showScrollbar css=${customCss.length}chars " +
                 "lyrics=${lyricsStyle.preset}/${lyricsStyle.align}/${lyricsStyle.scale}x${lyricsStyle.spacing}"
@@ -497,25 +496,20 @@ class SpotifyWebViewClient(
             append(SpicyLyrics.CONTENT)
             append(WebPrefs.CONTENT)
             append(PlaylistLookupSheet.CONTENT)
-            if (playerMode == "spotilol" || playerMode == "fullscreen") {
-                append("window.__splFullPlayer=${playerMode == "fullscreen"};\n")
-                append(SpotilolPlayer.CONTENT)
-                append(VideoFullscreen.CONTENT)
-                append(LyricsPip.CONTENT)
-            }
+            // The Full Screen Player is the only player.
+            append("window.__splFullPlayer=true;\n")
+            append(SpotilolPlayer.CONTENT)
+            append(VideoFullscreen.CONTENT)
+            append(LyricsPip.CONTENT)
         }
         val cleanJs = JsUtils.stripConsoleLogs(js) + "\n" +
                 buildAmoledJs(amoledEnabled) + "\n" +
                 ThemeController.buildAccentJs(view.context) + "\n" +
                 buildCustomCssJs(customCss) + "\n" +
                 LyricsTheme.buildLyricsStyleJs(lyricsStyle)
-        if (playerMode == "original") {
-            view.evaluateJavascript(cleanJs + "\n(function(){var s=document.createElement('style');s.id='spl-np-show';s.textContent='aside[data-testid=\"now-playing-bar\"]{display:flex!important}';document.head.appendChild(s);})();", null)
-        } else {
-            view.evaluateJavascript(cleanJs, null)
-        }
+        view.evaluateJavascript(cleanJs, null)
         onPlayerReady?.invoke(view)
-        Logger.d(TAG, "injected ${cleanJs.length} bytes (engine=$playerMode)")
+        Logger.d(TAG, "injected ${cleanJs.length} bytes")
     }
 
     private fun registerPrefsListener(view: WebView) {
@@ -531,8 +525,6 @@ class SpotifyWebViewClient(
             val wv = currentWebView ?: return@OnSharedPreferenceChangeListener
             Logger.d(TAG, "pref changed: $key")
             when (key) {
-                "PlayerMode" ->
-                    switchPlayerMode(wv, prefs.getString("PlayerMode", "spotilol") ?: "spotilol")
                 "PowerSave" -> {
                     val on = prefs.getBoolean("PowerSave", false)
                     wv.evaluateJavascript("if(window.__splApplyPowerSave) window.__splApplyPowerSave($on);", null)
@@ -599,39 +591,6 @@ class SpotifyWebViewClient(
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(prefsListener)
-    }
-
-    private fun switchPlayerMode(view: WebView, mode: String) {
-        Logger.i(TAG, "switch player engine: $mode")
-        if (mode == "original") {
-            val js = """
-                (function(){
-                    if(window.splSetMini) splSetMini(true);
-                    var pl=document.getElementById('spotilolPlayerControls');
-                    if(pl) pl.style.display='none';
-                    var s=document.createElement('style');
-                    s.id='spl-np-show';
-                    s.textContent='aside[data-testid="now-playing-bar"]{display:flex!important}';
-                    document.head.appendChild(s);
-                })();
-            """.trimIndent()
-            view.evaluateJavascript(js, null)
-        } else {
-            view.evaluateJavascript("window.__splFullPlayer=${mode == "fullscreen"};", null)
-            view.evaluateJavascript("if(typeof initSpotilolPlayer!=='function'){" + SpotilolPlayer.CONTENT + "}", null)
-            val js = """
-                (function(){
-                    var s=document.getElementById('spl-np-show');
-                    if(s) s.remove();
-                    var npb=document.querySelector('aside[data-testid="now-playing-bar"]');
-                    if(npb) npb.style.display='none';
-                    var pl=document.getElementById('spotilolPlayerControls');
-                    if(pl){pl.style.display='flex';if(window.splRefreshMode)splRefreshMode();}
-                    else if(typeof initSpotilolPlayer==='function'){initSpotilolPlayer();}
-                })();
-            """.trimIndent()
-            view.evaluateJavascript(js, null)
-        }
     }
 
     private fun onPageFinishedClean(view: WebView, js: String) {

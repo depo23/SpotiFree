@@ -49,10 +49,6 @@
     <string name="settings_autoplay_disabled">Désactivé</string>
     <string name="settings_autoplay_onetime">Une fois au démarrage</string>
     <string name="settings_autoplay_permanent">Permanent</string>
-    <string name="settings_player_mode">Mode lecteur</string>
-    <string name="settings_player_spotilol">Lecteur Spotilol</string>
-    <string name="settings_player_original">Spotify d\'origine</string>
-    <string name="settings_player_fullscreen">Lecteur Spotilol plein écran</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Vidéos en boucle derrière les chansons (paramètre Canvas de Spotify)</string>
     <string name="settings_web_videos">Podcasts vidéo</string>
