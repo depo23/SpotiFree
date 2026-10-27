@@ -33,6 +33,10 @@ object ClassicBridge {
                 if(!data || data.status === 0) {
                     throw new Error('network error: ' + (data ? data.body : 'unknown'));
                 }
+                if (data.status === 200 && window.splFromState &&
+                    (url.indexOf('/track-playback/v1/devices/') !== -1 || url.indexOf('/connect-state/v1/cluster') !== -1)) {
+                    window.splFromState(data.body);
+                }
                 return {
                     status: data.status,
                     ok: data.status >= 200 && data.status < 300,

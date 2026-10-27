@@ -112,6 +112,16 @@ object TrackObserver {
                 if (uri) emit(uri.split(':').pop(), 'fiber');
             }
 
+            window.splSetTrackUri = function(uri){
+                const m = /spotify:track:([A-Za-z0-9]{22})/.exec(uri || '');
+                if (m) emit(m[1], 'state');
+            };
+
+            window.splFromState = function(body){
+                const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body || '');
+                if (m) window.splSetTrackUri(m[1]);
+            };
+
             const obs = new MutationObserver(check);
 
             function attach(el) {
