@@ -121,7 +121,7 @@ object SpotiFreePlayer {
                     
                     window.splApplyEmpty=function(){
                         var t=document.getElementById('spl-track');
-                        var empty=!t||!t.textContent||t.textContent==='No track';
+                        var empty=(!t||!t.textContent||t.textContent==='No track')&&!window.splIsPlayingSticky();
                         if(window.__splHideEmpty&&empty) pl.classList.add('spl-empty');
                         else pl.classList.remove('spl-empty');
                     };
@@ -619,6 +619,7 @@ object SpotiFreePlayer {
                         var npb=window.splQ('[data-testid="now-playing-widget"]');
                         var imgEl=npb?npb.querySelector('img[data-testid="cover-art-image"]'):null;
                         var spMS0=(typeof window.splMS==='function')?window.splMS():null;
+                        var spWT0=(typeof window.splWidgetText==='function')?window.splWidgetText():null;
                         var spmC=(window.splTrackId&&window.__splTrackMeta&&window.__splTrackMeta[window.splTrackId])||null;
                         var spSrc=(imgEl&&imgEl.src)||(spmC&&spmC.cover)||(spMS0&&spMS0.cover)||'';
                         if(ci&&spSrc&&ci.getAttribute('data-src')!==spSrc){
@@ -635,12 +636,12 @@ object SpotiFreePlayer {
 
                         var trackEl=window.splQ('a[data-testid=context-item-link]');
                         var spm0=(window.splTrackId&&window.__splTrackMeta&&window.__splTrackMeta[window.splTrackId])||null;
-                        var spName=trackEl&&trackEl.textContent?trackEl.textContent:(spm0&&spm0.name)||(spMS0&&spMS0.name)||'';
+                        var spName=trackEl&&trackEl.textContent?trackEl.textContent:(spm0&&spm0.name)||(spMS0&&spMS0.name)||(spWT0&&spWT0.name)||'';
                         if(tk&&spName&&tk.textContent!==spName) tk.textContent=spName;
 
                         var artistEl=window.splQ('a[data-testid=context-item-info-artist]');
                         if(!artistEl) artistEl=window.splQ('a[data-testid=context-item-info-show]');
-                        if(ar&&tk.textContent!=='No track'){ var spAr=artistEl?(artistEl.textContent||''):(spm0&&spm0.artist)||(spMS0&&spMS0.artist)||''; if(spAr||artistEl) ar.textContent=spAr; }
+                        if(ar&&tk.textContent!=='No track'){ var spAr=artistEl?(artistEl.textContent||''):(spm0&&spm0.artist)||(spMS0&&spMS0.artist)||(spWT0&&spWT0.artist)||''; if(spAr||artistEl) ar.textContent=spAr; }
 
                         var rg=window.splQ('[data-testid="playback-progressbar"] input[type=range]');
                         if(pp||ppm){

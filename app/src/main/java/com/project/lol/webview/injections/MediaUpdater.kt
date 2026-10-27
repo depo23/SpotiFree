@@ -20,6 +20,28 @@ object MediaUpdater {
                 }catch(e){ return null; }
             };
 
+            window.splWidgetText = function(){
+                try{
+                    var w = document.querySelector('[data-testid="now-playing-widget"]');
+                    if(!w) return null;
+                    var out = [];
+                    var els = w.querySelectorAll('*');
+                    for(var i = 0; i < els.length && out.length < 2; i++){
+                        var e = els[i];
+                        if(e.children.length || e.closest('button')) continue;
+                        var t = (e.textContent || '').trim();
+                        if(!t || /^[0-9]+:[0-9]{2}$/.test(t) || out.indexOf(t) !== -1) continue;
+                        out.push(t);
+                    }
+                    if(!out.length) return null;
+                    if(!window.__splNpDumped){
+                        window.__splNpDumped = true;
+                        try{ AndBridge.dbg('d', 'np-text ' + JSON.stringify(out) + ' ' + w.outerHTML.replace(/<img[^>]*>/g, '<img>').slice(0, 2500)); }catch(e){}
+                    }
+                    return { name: out[0], artist: out[1] || '' };
+                }catch(e){ return null; }
+            };
+
             window.splResolveTrackId = function(){
                 if(window.splTrackId) return window.splTrackId;
                 var ms = window.splMS();
