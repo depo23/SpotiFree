@@ -113,7 +113,7 @@ class SplashActivity : ComponentActivity() {
                 Telemetry.apply(this@SplashActivity, true)
                 FirebaseAnalytics.getInstance(this@SplashActivity)
                     .logEvent(FirebaseAnalytics.Event.APP_OPEN, Bundle().apply {
-                        putString(FirebaseAnalytics.Param.SCREEN_NAME, "Spotilol")
+                        putString(FirebaseAnalytics.Param.SCREEN_NAME, "SpotiFree")
                         putString(FirebaseAnalytics.Param.SCREEN_CLASS, "SplashActivity")
                     })
             }

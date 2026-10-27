@@ -117,7 +117,7 @@ class UpdateChecker(private val context: Context) {
     private fun download(version: String, asset: ReleaseAsset, notes: String, show: (UpdateEvent) -> Unit) {
         worker.execute {
             val dir = File(context.cacheDir, "updates").apply { mkdirs() }
-            val target = File(dir, "Spotilol-$version.apk")
+            val target = File(dir, "SpotiFree-$version.apk")
             dir.listFiles()?.forEach { if (it != target) it.delete() }
 
             if (target.isFile && (asset.size <= 0 || target.length() == asset.size)) {

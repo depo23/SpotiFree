@@ -12,7 +12,7 @@ object SpicyLyricsClient {
     private const val SPICY_ENDPOINT = "https://api.spicylyrics.org/v1/lyrics/"
     private const val LRCLIB_GET = "https://lrclib.net/api/get"
     private const val LRCLIB_SEARCH = "https://lrclib.net/api/search"
-    private const val USER_AGENT = "Spotilol/1.1.8 (https://github.com/lyssadev/Spotilol)"
+    private val USER_AGENT = "SpotiFree/${com.project.lol.BuildConfig.VERSION_NAME} (https://github.com/depo23/SpotiFree)"
     private const val CACHE_MAX = 64
     private const val MIN_SCALE = 0.5
     private const val MAX_SCALE = 2.5

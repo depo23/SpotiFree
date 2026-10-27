@@ -91,7 +91,7 @@ object ThemePresets {
 
     private val builtIn = listOf(
         ThemePreset(
-            "spotilol", "Spotilol", "Dark",
+            "spotilol", "SpotiFree", "Dark",
             pal(0xFF7FC79A, 0xFF2E6B45, 0xFFB6CCBB, 0xFF121411, 0xFF1C1E1A, 0xFF45473F, 0xFFE3E2DC, 0xFFC6C5BE, 0xFF909189),
         ),
         ThemePreset(

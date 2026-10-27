@@ -27,7 +27,7 @@ object DownloadPrefs {
     private const val KEY_LYRICS_EMBED = "DlLyricsEmbed"
     private const val KEY_LYRICS_SIDECAR = "DlLyricsSidecar"
 
-    const val DEFAULT_SUBFOLDER = "Spotilol"
+    const val DEFAULT_SUBFOLDER = "SpotiFree"
 
     fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

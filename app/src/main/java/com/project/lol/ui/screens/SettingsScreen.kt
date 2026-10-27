@@ -1109,7 +1109,7 @@ fun SettingsContent(
                         subtitle = stringResource(R.string.settings_github_subtitle),
                         painter = painterResource(id = R.drawable.ic_github),
                         onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/lyssadev/Spotilol"))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/depo23/SpotiFree"))
                             context.startActivity(intent)
                         }
                     )

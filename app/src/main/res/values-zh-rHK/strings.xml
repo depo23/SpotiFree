@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Spotilol</string>
+    <string name="app_name">SpotiFree</string>
     <string name="aa_playlists">歌單</string>
     <string name="aa_albums">專輯</string>
     <string name="aa_artists">藝人</string>
@@ -162,10 +162,10 @@
     <string name="settings_open_links_always_hint">開啟 Spotify 連結時選擇「一律」</string>
     <string name="settings_open_links_unsupported">此裝置不支援</string>
     <string name="settings_github_repository">GitHub 儲存庫</string>
-    <string name="settings_github_subtitle">github.com/lyssadev/Spotilol</string>
+    <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Discord 伺服器</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
-    <string name="settings_version">Spotilol 版本</string>
+    <string name="settings_version">SpotiFree 版本</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>
     <string name="settings_webview_engine">WebView 引擎</string>
@@ -215,7 +215,7 @@
     <string name="logger_export_failed">無法匯出記錄</string>
     <string name="logger_copy_entry">複製項目</string>
     <string name="logger_scroll_latest">跳到最新</string>
-    <string name="offline_app_name">Spotilol</string>
+    <string name="offline_app_name">SpotiFree</string>
     <string name="offline_version">v%1$s · %2$s</string>
     <string name="offline_desc_settings">設定</string>
     <string name="offline_desc_exit_offline_mode">結束離線模式</string>
@@ -313,7 +313,7 @@
     <string name="offline_import_skipped">%1$d 首已匯入</string>
     <string name="offline_import_failed">%1$d 首無法匯入</string>
     <string name="offline_empty_import_cta">匯入檔案</string>
-    <string name="offline_dialog_delete_import_message">從 Spotilol 中移除 %2$s 的「%1$s」？裝置上的原始檔案會保留。</string>
+    <string name="offline_dialog_delete_import_message">從 SpotiFree 中移除 %2$s 的「%1$s」？裝置上的原始檔案會保留。</string>
     <string name="offline_desc_new_playlist">新增歌單</string>
     <string name="offline_playlists_status_none">尚無歌單</string>
     <string name="offline_playlists_status_one">1 個歌單</string>
@@ -393,33 +393,33 @@
     <string name="timer_desc_open">睡眠計時器</string>
 
     <string name="battery_dialog_title">讓音樂繼續播放</string>
-    <string name="battery_dialog_intro">Android 可能會為了節省電量而停止在背景執行的 Spotilol，因此螢幕關閉時，音樂有時會自動暫停。只需調整一項簡單設定即可解決此問題。</string>
+    <string name="battery_dialog_intro">Android 可能會為了節省電量而停止在背景執行的 SpotiFree，因此螢幕關閉時，音樂有時會自動暫停。只需調整一項簡單設定即可解決此問題。</string>
     <string name="battery_dialog_benefit_playback">螢幕關閉後，音樂仍會繼續播放</string>
     <string name="battery_dialog_benefit_controls">通知中的媒體控制仍可正常回應</string>
     <string name="battery_dialog_benefit_downloads">下載工作不會中斷，並能順利完成</string>
     <string name="battery_dialog_benefit_timer">睡眠定時器會準時觸發</string>
-    <string name="battery_dialog_reassure">Spotilol 依然省電——只有在你真正聽音樂時才會運作。</string>
+    <string name="battery_dialog_reassure">SpotiFree 依然省電——只有在你真正聽音樂時才會運作。</string>
     <string name="battery_dialog_hint">接下來 Android 會開啟系統電池設定頁面，只需選擇「允許」即可。</string>
     <string name="battery_dialog_confirm">允許背景播放</string>
     <string name="battery_dialog_dismiss">暫時不要</string>
     <string name="settings_battery_background">背景播放</string>
     <string name="settings_battery_background_on">已允許 — 音樂會在背景繼續播放</string>
     <string name="settings_battery_background_off">已受限制 — Android 可能會暫停背景播放</string>
-    <string name="settings_battery_info">Android 的電池最佳化功能可能會在 Spotilol 於背景執行時將其停止。此選項會開啟系統電池設定頁面，你可以在其中允許應用程式於背景執行。</string>
+    <string name="settings_battery_info">Android 的電池最佳化功能可能會在 SpotiFree 於背景執行時將其停止。此選項會開啟系統電池設定頁面，你可以在其中允許應用程式於背景執行。</string>
     <string name="settings_battery_already_allowed">已允許背景播放</string>
     <string name="settings_battery_prompt_unavailable">無法開啟電池設定對話框，改為開啟應用程式設定。</string>
 
-    <string name="splash_title">Spotilol</string>
+    <string name="splash_title">SpotiFree</string>
     <string name="splash_version_label">v%1$s · %2$s</string>
     <string name="splash_onboarding_welcome">歡迎</string>
-    <string name="splash_onboarding_permissions_subtitle">Spotilol 需要這些權限才能正常運作</string>
+    <string name="splash_onboarding_permissions_subtitle">SpotiFree 需要這些權限才能正常運作</string>
     <string name="splash_onboarding_notifications_title">通知</string>
     <string name="splash_onboarding_notifications_desc">通知欄與鎖定畫面中的播放控制</string>
     <string name="splash_onboarding_bluetooth_title">附近的裝置</string>
     <string name="splash_onboarding_bluetooth_desc">讓 Spotify Connect 在您的藍牙裝置上正常運作</string>
     <string name="splash_onboarding_accept">接受</string>
     <string name="settings_dialog_title">設定</string>
-    <string name="settings_dialog_version">Spotilol v%1$s · %2$s</string>
+    <string name="settings_dialog_version">SpotiFree v%1$s · %2$s</string>
     <string name="settings_dialog_close">關閉</string>
     <string name="error_title_no_internet">您已離線</string>
     <string name="error_message_no_internet">未偵測到網路連線\n請檢查您的網路並重試</string>
@@ -436,7 +436,7 @@
     <string name="error_retry">重試</string>
     <string name="error_detail">錯誤 %1$d - %2$s</string>
 
-    <string name="crash_title">Spotilol 已當機</string>
+    <string name="crash_title">SpotiFree 已當機</string>
     <string name="crash_unknown">未知當機</string>
     <string name="crash_no_report">未擷取到當機報告</string>
     <string name="crash_report_header">報告</string>
@@ -446,9 +446,9 @@
     <string name="crash_restart">重新啟動</string>
 
     <string name="notif_channel_media_name">媒體播放</string>
-    <string name="notif_channel_media_description">Spotilol 媒體播放控制</string>
+    <string name="notif_channel_media_description">SpotiFree 媒體播放控制</string>
     <string name="notif_channel_offline_name">離線播放</string>
-    <string name="notif_channel_offline_description">Spotilol 離線播放控制</string>
+    <string name="notif_channel_offline_description">SpotiFree 離線播放控制</string>
     <string name="notif_action_previous">上一首</string>
     <string name="notif_action_next">下一首</string>
     <string name="notif_action_play">播放</string>
@@ -462,13 +462,13 @@
     <string name="notif_unknown_name">未知</string>
     <string name="notif_by_artist">演出者：%1$s</string>
     <string name="notif_channel_downloads_name">下載</string>
-    <string name="notif_channel_downloads_description">Spotilol 曲目下載</string>
+    <string name="notif_channel_downloads_description">SpotiFree 曲目下載</string>
     <string name="notif_repeat_disable">停用循環</string>
     <string name="notif_repeat_disable_one">停用單曲循環</string>
     <string name="notif_repeat_enable">啟用循環</string>
 
     <string name="dl_notif_downloading_playlist">正在下載歌單</string>
-    <string name="dl_notif_downloading_title">Spotilol 下載</string>
+    <string name="dl_notif_downloading_title">SpotiFree 下載</string>
     <string name="dl_notif_track_of">第 %1$d 首，共 %2$d 首</string>
     <string name="dl_notif_stage_percent">%1$s · %2$d%%</string>
     <string name="dl_notif_saved">已儲存 %1$d 首</string>
@@ -484,13 +484,13 @@
 
     <string name="service_disabled_message">服務未啟用</string>
 
-    <string name="widget_player_name">Spotilol 播放器</string>
-    <string name="widget_player_description">Spotilol 的播放控制項</string>
-    <string name="widget_art_name">Spotilol 專輯封面</string>
+    <string name="widget_player_name">SpotiFree 播放器</string>
+    <string name="widget_player_description">SpotiFree 的播放控制項</string>
+    <string name="widget_art_name">SpotiFree 專輯封面</string>
     <string name="widget_art_description">目前曲目的專輯封面</string>
     <string name="widget_action_shuffle">隨機播放</string>
     <string name="widget_action_repeat">循環</string>
-    <string name="widget_empty_title">Spotilol</string>
+    <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">開啟應用程式開始播放</string>
     <string name="settings_section_privacy">隱私</string>
     <string name="settings_telemetry">使用情形與效能資料</string>
@@ -569,7 +569,7 @@
     <string name="theme_delete">刪除主題</string>
     <string name="widget_badge_offline">離線</string>
     <string name="widget_studio_title">小工具工作室</string>
-    <string name="widget_studio_subtitle">自訂 Spotilol 小工具</string>
+    <string name="widget_studio_subtitle">自訂 SpotiFree 小工具</string>
     <string name="widget_studio_preview">預覽</string>
     <string name="widget_studio_preview_sample_title">歌曲標題</string>
     <string name="widget_studio_preview_sample_artist">歌手名稱</string>
@@ -604,7 +604,7 @@
     <string name="widget_studio_add">新增小工具</string>
     <string name="widget_studio_close">關閉</string>
     <string name="widget_studio_no_widget">尚無小工具</string>
-    <string name="widget_studio_no_widget_desc">在主畫面新增 Spotilol 播放器小工具，然後回到這裡進行自訂。</string>
+    <string name="widget_studio_no_widget_desc">在主畫面新增 SpotiFree 播放器小工具，然後回到這裡進行自訂。</string>
     <string name="settings_widget_studio">小工具工作室</string>
     <string name="settings_widget_studio_subtitle">自訂大小、資訊與控制</string>
 </resources>
