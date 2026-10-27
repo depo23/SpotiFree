@@ -1,0 +1,7 @@
+# YouTube web client API key: public (shipped in YouTube's own JS), not a secret.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "public YouTube web API key in PoToken WebView"
+paths = ['''app/src/main/java/com/project/lol/yt/potoken/PoTokenWebView\.kt''']
