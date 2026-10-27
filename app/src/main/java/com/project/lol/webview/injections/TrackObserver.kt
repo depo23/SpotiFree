@@ -117,8 +117,14 @@ object TrackObserver {
             };
 
             window.splFromState = function(body){
-                const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body || '');
-                if (m) window.splSetTrackUri(m[1]);
+                body = body || '';
+                const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body)
+                    || /spotify:track:[A-Za-z0-9]{22}/.exec(body);
+                if (m) window.splSetTrackUri(m[1] || m[0]);
+                if (!window.__splStateDumped && body.length) {
+                    window.__splStateDumped = true;
+                    try { AndBridge.dbg('d', 'state-sample ' + body.slice(0, 600)); } catch(e){}
+                }
             };
 
             const obs = new MutationObserver(check);
