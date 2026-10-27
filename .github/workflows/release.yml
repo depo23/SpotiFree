@@ -27,33 +27,25 @@ jobs:
           mkdir -p keystore
           echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotilol-release.p12
           echo "$KEYSTORE_PROPERTIES" > keystore/keystore.properties
-      # Test builds install next to the original app: own package id and name.
-      # Source keeps com.project.lol; this only changes the CI build.
-      - name: Test package id and app name
-        run: |
-          sed -i 's/applicationId = "com.project.lol"/applicationId = "com.project.lol.test"/' app/build.gradle.kts
-          sed -i 's#<string name="app_name">Spotilol</string>#<string name="app_name">Spotilol Test</string>#' app/src/main/res/values/strings.xml
-          grep -q 'applicationId = "com.project.lol.test"' app/build.gradle.kts
-          grep -q '>Spotilol Test<' app/src/main/res/values/strings.xml
       - name: Placeholder google-services.json
         run: |
           cat > app/google-services.json <<'JSON'
           {
             "project_info": {"project_number": "000000000000", "project_id": "ci-placeholder", "storage_bucket": "ci-placeholder.appspot.com"},
             "client": [{
-              "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.project.lol.test"}},
+              "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.spotifree.app"}},
               "api_key": [{"current_key": "AIzaSyA-ci-placeholder-0000000000000000"}]
             }],
             "configuration_version": "1"
           }
           JSON
-      # No real Firebase project for test builds: turn Crashlytics off too. Upstream already
+      # No real Firebase project: turn Crashlytics off too. Upstream already
       # disables Analytics and Performance in its manifest, so only add what is missing.
       - name: Disable Crashlytics collection
         run: |
           sed -i 's#</application>#        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />\n    </application>#' app/src/main/AndroidManifest.xml
           grep -c 'firebase_crashlytics_collection_enabled' app/src/main/AndroidManifest.xml | grep -qx 1
-      - run: chmod +x gradlew && ./gradlew assembleRelease -PupdateRepo=depo23/Spotilol --stacktrace
+      - run: chmod +x gradlew && ./gradlew assembleRelease --stacktrace
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -61,5 +53,5 @@ jobs:
         run: |
           TARGET=()
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then TARGET=(--target "$GITHUB_SHA"); fi
-          gh release create "$TAG" app/build/outputs/apk/release/app-release.apk "${TARGET[@]}" \
-            --title "Spotilol - v$TAG (test build)" --notes-file .github/release-notes.md --prerelease
+          gh release create "$TAG" "app/build/outputs/apk/release/app-release.apk#SpotiFree-$TAG.apk" "${TARGET[@]}" \
+            --title "SpotiFree v$TAG" --notes-file .github/release-notes.md

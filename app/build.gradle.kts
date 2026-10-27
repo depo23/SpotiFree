@@ -21,14 +21,14 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.project.lol"
+        applicationId = "com.spotifree.app"
         minSdk = 28
         targetSdk = 36
-        versionCode = 50
-        versionName = "1.2.8"
+        versionCode = 51
+        versionName = "0.1"
         // Where automatic and manual update checks look. Each build must update from the
-        // releases signed with its own key: fork test builds set -PupdateRepo=depo23/Spotilol.
-        buildConfigField("String", "UPDATE_REPO", "\"${project.findProperty("updateRepo") ?: "lyssadev/Spotilol"}\"")
+        // releases signed with its own key.
+        buildConfigField("String", "UPDATE_REPO", "\"${project.findProperty("updateRepo") ?: "depo23/SpotiFree"}\"")
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a")
         }

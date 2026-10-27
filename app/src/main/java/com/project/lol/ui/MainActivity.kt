@@ -273,7 +273,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         Logger.s(
             TAG,
             "session: loggedIn=$loggedIn service=${serviceEnabledState.value} " +
-                "engine=${prefs.getString("PlayerMode", "spotilol")} " +
                 "deeplink=${pendingLink ?: "none"} logging=${com.project.lol.util.Logger.isEnabled()}"
         )
 

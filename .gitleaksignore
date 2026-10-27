@@ -1,0 +1,3 @@
+# Public YouTube web-client API key used for PoToken generation (downloads), not a secret.
+3f33992353e33a7edeeed4ace6773bc946b30ae2:app/src/main/java/com/project/lol/yt/potoken/PoTokenWebView.kt:gcp-api-key:325
+3f33992353e33a7edeeed4ace6773bc946b30ae2:app/src/main/java/com/project/lol/yt/potoken/PoTokenWebView.kt:generic-api-key:326

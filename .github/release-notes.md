@@ -1,48 +1,9 @@
-# Spotilol - v1.2.8 (test build)
+# SpotiFree v0.1
 
-Based on upstream v1.2.4, with the Full Screen Player features and automatic updates.
+SpotiFree is the new name of this app, now its own project. It installs as a new app called **SpotiFree**, next to any Spotilol you already have: sign in once, then you can remove the old one.
 
-## Fixes
-- Update test: a newer build to check the new installer flow from 1.2.7.
-- Updates now open Android's own installer directly (confirm, progress, and an Open button when it finishes), like OpenWispr. The background installer and its custom dialogs were removed.
+## What's different
+- **One player**: the full-screen Now Playing screen (like the Spotify app) is now the only player, so the Player Mode setting is gone.
+- **New name and icon label**: SpotiFree everywhere in the app; updates now come from this repository.
 
-## Fixes (earlier)
-- Update test: a newer build to check the updater from 1.2.5.9.
-- The updater shows the install progress in the app (copying, then finishing).
-- If Android's installer can't open by itself, a notification and an **Open installer** button open it.
-- When the app is replaced by the update, a notification with **Open** appears.
-
-## Fixes (earlier)
-- Update test: a newer build to check the updater from 1.2.5.7.
-- Updates now always show Android's install confirmation (no silent install).
-- Install progress is shown in the app; when it finishes you get **Open** to start the new version.
-
-## Fixes (earlier)
-- Update test: this build exists so you can check the updater from 1.2.5.3 to 1.2.5.4.
-- After allowing installs from Spotilol, the update popup now enables Install straight away (no restart).
-- When an update finishes installing you get a notification with **Open**, and a message the next time the app starts.
-
-## New
-- **Automatic update checks** can be set to every day, every week, every month, or never (Settings → About).
-
-## Fixes (earlier)
-- Update test: this build exists to check that the updater finds and installs a newer version.
-- Changelog and update checks now find pre-release test builds ("Could not load release notes" is fixed).
-
-## New
-- **Automatic updates**: Spotilol checks for a new version when it opens (at most once an hour). If one is found, it downloads in the background and shows a popup. Tap **Install** and confirm in Android's installer; no need to visit GitHub.
-- **Check for updates**: Settings → Spotilol Version → *Check for updates* checks right away.
-- Tapping **Later** hides the popup for a day.
-- The first install asks you to allow installs from Spotilol (Android settings).
-
-
-Fork build based on [upstream v1.1.8](https://github.com/lyssadev/Spotilol/releases/tag/1.1.8), with the features proposed in [lyssadev/Spotilol#110](https://github.com/lyssadev/Spotilol/pull/110).
-
-## New
-- **Full Screen Player**: Settings → Playback → Player Mode → Full Screen Player. A big Now Playing screen like the Spotify app: tap the mini player to open it, swipe down (or press Back) to close it. It stays expanded or minimized the way you leave it.
-- **Canvas**: songs with a Canvas loop their video behind the player. Switch it with Settings → Playback → Canvas, or the film button in the player.
-- **Video podcasts**: video episodes play their video in the expanded player. Turn the phone sideways for widescreen videos to watch full screen, with controls across the bottom; tap the video to hide or show them.
-- **Podcast controls**: skip 15 seconds back or forward, and playback speed.
-- **Canvas / Video Podcasts settings** keep Spotify's own *Videos and Canvas* settings in sync (both on by default).
-- **Slimmer top bar** with a smaller toggle, leaving more room for Spotify.
-- A short **What's new** card on first launch explains all of the above.
+Everything else carries on as before: Canvas, video podcasts, podcast controls, lyrics, downloads and automatic updates.

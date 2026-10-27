@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Spotilol</string>
+    <string name="app_name">SpotiFree</string>
     <string name="aa_playlists">Playlist</string>
     <string name="aa_albums">Album</string>
     <string name="aa_artists">Artis</string>
@@ -46,10 +46,6 @@
     <string name="settings_autoplay_disabled">Dinonaktifkan</string>
     <string name="settings_autoplay_onetime">Sekali saat mulai</string>
     <string name="settings_autoplay_permanent">Permanen</string>
-    <string name="settings_player_mode">Mode pemutar</string>
-    <string name="settings_player_spotilol">Pemutar Spotilol</string>
-    <string name="settings_player_original">Spotify asli</string>
-    <string name="settings_player_fullscreen">Pemutar Spotilol layar penuh</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Video berulang di belakang lagu (pengaturan Canvas Spotify)</string>
     <string name="settings_web_videos">Podcast video</string>
@@ -161,10 +157,10 @@
     <string name="settings_open_links_always_hint">Gunakan \'Selalu\' saat membuka tautan Spotify</string>
     <string name="settings_open_links_unsupported">Tidak didukung di perangkat ini</string>
     <string name="settings_github_repository">Repositori GitHub</string>
-    <string name="settings_github_subtitle">github.com/lyssadev/Spotilol</string>
+    <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Server Discord</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
-    <string name="settings_version">Versi Spotilol</string>
+    <string name="settings_version">Versi SpotiFree</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>
     <string name="settings_webview_engine">Mesin WebView</string>
@@ -214,7 +210,7 @@
     <string name="logger_export_failed">Gagal mengekspor log</string>
     <string name="logger_copy_entry">Salin entri</string>
     <string name="logger_scroll_latest">Lompat ke terbaru</string>
-    <string name="offline_app_name">Spotilol</string>
+    <string name="offline_app_name">SpotiFree</string>
     <string name="offline_version">v%1$s · %2$s</string>
     <string name="offline_desc_settings">Pengaturan</string>
     <string name="offline_desc_exit_offline_mode">Keluar dari mode offline</string>
@@ -312,7 +308,7 @@
     <string name="offline_import_skipped">%1$d lagu sudah diimpor</string>
     <string name="offline_import_failed">%1$d lagu gagal diimpor</string>
     <string name="offline_empty_import_cta">Impor file</string>
-    <string name="offline_dialog_delete_import_message">Hapus "%1$s" oleh %2$s dari Spotilol? File asli di perangkatmu tetap tersimpan.</string>
+    <string name="offline_dialog_delete_import_message">Hapus "%1$s" oleh %2$s dari SpotiFree? File asli di perangkatmu tetap tersimpan.</string>
     <string name="offline_desc_new_playlist">Buat playlist</string>
     <string name="offline_playlists_status_none">Belum ada playlist</string>
     <string name="offline_playlists_status_one">1 playlist</string>
@@ -392,33 +388,33 @@
     <string name="timer_desc_open">Timer tidur</string>
 
     <string name="battery_dialog_title">Musik tetap diputar</string>
-    <string name="battery_dialog_intro">Android dapat menghentikan Spotilol saat berjalan di latar belakang untuk menghemat baterai. Itulah sebabnya musik terkadang berhenti sendiri saat layar mati. Cukup ubah satu pengaturan untuk mengatasinya.</string>
+    <string name="battery_dialog_intro">Android dapat menghentikan SpotiFree saat berjalan di latar belakang untuk menghemat baterai. Itulah sebabnya musik terkadang berhenti sendiri saat layar mati. Cukup ubah satu pengaturan untuk mengatasinya.</string>
     <string name="battery_dialog_benefit_playback">Musik tetap diputar saat layar mati</string>
     <string name="battery_dialog_benefit_controls">Kontrol media di notifikasi tetap responsif</string>
     <string name="battery_dialog_benefit_downloads">Download selesai tanpa gangguan</string>
     <string name="battery_dialog_benefit_timer">Timer tidur berjalan tepat pada waktunya</string>
-    <string name="battery_dialog_reassure">Spotilol tetap hemat baterai — aplikasi hanya bekerja saat kamu benar-benar mendengarkan musik.</string>
+    <string name="battery_dialog_reassure">SpotiFree tetap hemat baterai — aplikasi hanya bekerja saat kamu benar-benar mendengarkan musik.</string>
     <string name="battery_dialog_hint">Android akan membuka layar pengaturan baterai. Cukup pilih "Izinkan".</string>
     <string name="battery_dialog_confirm">Izinkan pemutaran di latar belakang</string>
     <string name="battery_dialog_dismiss">Nanti saja</string>
     <string name="settings_battery_background">Pemutaran di Latar Belakang</string>
     <string name="settings_battery_background_on">Diizinkan — musik tetap diputar di latar belakang</string>
     <string name="settings_battery_background_off">Dibatasi — Android dapat menghentikan pemutaran di latar belakang</string>
-    <string name="settings_battery_info">Pengoptimalan baterai Android dapat menghentikan Spotilol saat berjalan di latar belakang. Ini akan membuka layar pengaturan baterai sistem agar kamu dapat mengizinkan aplikasi berjalan di latar belakang.</string>
+    <string name="settings_battery_info">Pengoptimalan baterai Android dapat menghentikan SpotiFree saat berjalan di latar belakang. Ini akan membuka layar pengaturan baterai sistem agar kamu dapat mengizinkan aplikasi berjalan di latar belakang.</string>
     <string name="settings_battery_already_allowed">Pemutaran di latar belakang sudah diizinkan</string>
     <string name="settings_battery_prompt_unavailable">Dialog baterai tidak dapat dibuka. Membuka pengaturan aplikasi sebagai gantinya.</string>
 
-    <string name="splash_title">Spotilol</string>
+    <string name="splash_title">SpotiFree</string>
     <string name="splash_version_label">v%1$s · %2$s</string>
     <string name="splash_onboarding_welcome">Selamat datang</string>
-    <string name="splash_onboarding_permissions_subtitle">Spotilol membutuhkan izin berikut agar dapat berfungsi dengan baik.</string>
+    <string name="splash_onboarding_permissions_subtitle">SpotiFree membutuhkan izin berikut agar dapat berfungsi dengan baik.</string>
     <string name="splash_onboarding_notifications_title">Notifikasi</string>
     <string name="splash_onboarding_notifications_desc">Kontrol pemutaran di panel notifikasi dan layar kunci.</string>
     <string name="splash_onboarding_bluetooth_title">Perangkat terdekat</string>
     <string name="splash_onboarding_bluetooth_desc">Menjaga Spotify Connect tetap berfungsi di perangkat Bluetooth Anda.</string>
     <string name="splash_onboarding_accept">Terima</string>
     <string name="settings_dialog_title">Pengaturan</string>
-    <string name="settings_dialog_version">Spotilol v%1$s · %2$s</string>
+    <string name="settings_dialog_version">SpotiFree v%1$s · %2$s</string>
     <string name="settings_dialog_close">Tutup</string>
     <string name="error_title_no_internet">Anda sedang offline</string>
     <string name="error_message_no_internet">Tidak ada koneksi internet terdeteksi.\nPeriksa jaringan Anda dan coba lagi.</string>
@@ -434,7 +430,7 @@
     <string name="error_message_generic">Terjadi galat tak terduga\nsaat memuat Spotify.</string>
     <string name="error_retry">Coba lagi</string>
     <string name="error_detail">Galat %1$d - %2$s</string>
-    <string name="crash_title">Spotilol mengalami crash</string>
+    <string name="crash_title">SpotiFree mengalami crash</string>
     <string name="crash_unknown">Crash tidak dikenal</string>
     <string name="crash_no_report">tidak ada laporan crash yang ditangkap</string>
     <string name="crash_report_header">Laporan</string>
@@ -443,9 +439,9 @@
     <string name="crash_copied">Laporan crash disalin</string>
     <string name="crash_restart">Mulai ulang</string>
     <string name="notif_channel_media_name">Pemutaran media</string>
-    <string name="notif_channel_media_description">Kontrol pemutaran media Spotilol</string>
+    <string name="notif_channel_media_description">Kontrol pemutaran media SpotiFree</string>
     <string name="notif_channel_offline_name">Pemutaran offline</string>
-    <string name="notif_channel_offline_description">Kontrol pemutaran offline Spotilol</string>
+    <string name="notif_channel_offline_description">Kontrol pemutaran offline SpotiFree</string>
     <string name="notif_action_previous">Sebelumnya</string>
     <string name="notif_action_next">Berikutnya</string>
     <string name="notif_action_play">Putar</string>
@@ -459,12 +455,12 @@
     <string name="notif_unknown_name">Tidak dikenal</string>
     <string name="notif_by_artist">oleh %1$s</string>
     <string name="notif_channel_downloads_name">Unduhan</string>
-    <string name="notif_channel_downloads_description">Unduhan trek Spotilol</string>
+    <string name="notif_channel_downloads_description">Unduhan trek SpotiFree</string>
     <string name="notif_repeat_disable">Nonaktifkan pengulangan</string>
     <string name="notif_repeat_disable_one">Nonaktifkan ulangi satu lagu</string>
     <string name="notif_repeat_enable">Aktifkan pengulangan</string>
     <string name="dl_notif_downloading_playlist">Mengunduh playlist</string>
-    <string name="dl_notif_downloading_title">Unduhan Spotilol</string>
+    <string name="dl_notif_downloading_title">Unduhan SpotiFree</string>
     <string name="dl_notif_track_of">Trek %1$d dari %2$d</string>
     <string name="dl_notif_stage_percent">%1$s · %2$d%%</string>
     <string name="dl_notif_saved">%1$d tersimpan</string>
@@ -477,13 +473,13 @@
     <string name="bridge_player_unlocked">Pemutar tidak terkunci</string>
     <string name="bridge_reloading">Memuat ulang...</string>
     <string name="service_disabled_message">Layanan tidak aktif</string>
-    <string name="widget_player_name">Pemutar Spotilol</string>
-    <string name="widget_player_description">Kontrol pemutaran untuk Spotilol</string>
-    <string name="widget_art_name">Sampul Spotilol</string>
+    <string name="widget_player_name">Pemutar SpotiFree</string>
+    <string name="widget_player_description">Kontrol pemutaran untuk SpotiFree</string>
+    <string name="widget_art_name">Sampul SpotiFree</string>
     <string name="widget_art_description">Sampul album trek saat ini</string>
     <string name="widget_action_shuffle">Acak</string>
     <string name="widget_action_repeat">Ulangi</string>
-    <string name="widget_empty_title">Spotilol</string>
+    <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Buka aplikasi untuk mulai memutar</string>
     <string name="settings_section_privacy">PRIVASI</string>
     <string name="settings_telemetry">Data penggunaan dan performa</string>
@@ -562,7 +558,7 @@
     <string name="theme_delete">Hapus tema</string>
     <string name="widget_badge_offline">Luring</string>
     <string name="widget_studio_title">Widget Studio</string>
-    <string name="widget_studio_subtitle">Sesuaikan widget Spotilol</string>
+    <string name="widget_studio_subtitle">Sesuaikan widget SpotiFree</string>
     <string name="widget_studio_preview">Pratinjau</string>
     <string name="widget_studio_preview_sample_title">Judul lagu</string>
     <string name="widget_studio_preview_sample_artist">Nama artis</string>
@@ -597,7 +593,7 @@
     <string name="widget_studio_add">Tambah widget</string>
     <string name="widget_studio_close">Tutup</string>
     <string name="widget_studio_no_widget">Belum ada widget</string>
-    <string name="widget_studio_no_widget_desc">Tambahkan widget pemutar Spotilol dari layar utama, lalu kembali ke sini untuk menyesuaikannya.</string>
+    <string name="widget_studio_no_widget_desc">Tambahkan widget pemutar SpotiFree dari layar utama, lalu kembali ke sini untuk menyesuaikannya.</string>
     <string name="settings_widget_studio">Widget Studio</string>
     <string name="settings_widget_studio_subtitle">Sesuaikan ukuran, info, dan kontrol</string>
 </resources>

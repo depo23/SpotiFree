@@ -257,7 +257,6 @@ fun SettingsContent(
     var btAutoPause by remember { mutableStateOf(prefs.getBoolean("BtAutoPause", false)) }
     var btAutoResume by remember { mutableStateOf(prefs.getBoolean("BtAutoResume", false)) }
     var hpAutoResume by remember { mutableStateOf(prefs.getBoolean("HpAutoResume", false)) }
-    var playerMode by remember { mutableStateOf(prefs.getString("PlayerMode", "spotilol") ?: "spotilol") }
     var offlineMode by remember { mutableStateOf(prefs.getBoolean("OfflineMode", false)) }
     var blockSW by remember { mutableStateOf(blockServiceWorker) }
     var hideEmptyPlayer by remember { mutableStateOf(prefs.getBoolean("HideEmptyPlayer", false)) }
@@ -288,7 +287,6 @@ fun SettingsContent(
     var showClearDataDialog by remember { mutableStateOf(false) }
     var showClearThirdPartyDialog by remember { mutableStateOf(false) }
     var showAutoPlayDialog by remember { mutableStateOf(false) }
-    var showPlayerModeDialog by remember { mutableStateOf(false) }
     var updateFrequency by remember { mutableStateOf(prefs.getString(UpdateChecker.KEY_FREQUENCY, UpdateChecker.DEFAULT_FREQUENCY) ?: UpdateChecker.DEFAULT_FREQUENCY) }
     var showUpdateFrequencyDialog by remember { mutableStateOf(false) }
     // dead code: the gui mode selector was removed, keep the flag for the wide window refactor
@@ -622,21 +620,6 @@ fun SettingsContent(
                         subtitle = autoplayLabel,
                         icon = TablerIcons.PlayerPlay,
                         onClick = { showAutoPlayDialog = true }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    val playerModeLabel = when (playerMode) {
-                        "spotilol" -> stringResource(R.string.settings_player_spotilol)
-                        "original" -> stringResource(R.string.settings_player_original)
-                        "fullscreen" -> stringResource(R.string.settings_player_fullscreen)
-                        else -> stringResource(R.string.settings_player_spotilol)
-                    }
-                    SettingTile(
-                        title = stringResource(R.string.settings_player_mode),
-                        subtitle = playerModeLabel,
-                        icon = TablerIcons.PlayerPlay,
-                        onClick = { showPlayerModeDialog = true }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
@@ -1126,7 +1109,7 @@ fun SettingsContent(
                         subtitle = stringResource(R.string.settings_github_subtitle),
                         painter = painterResource(id = R.drawable.ic_github),
                         onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/lyssadev/Spotilol"))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/depo23/SpotiFree"))
                             context.startActivity(intent)
                         }
                     )
@@ -1351,23 +1334,6 @@ fun SettingsContent(
                 prefs.edit().putString(UpdateChecker.KEY_FREQUENCY, value).apply()
             },
             onDismiss = { showUpdateFrequencyDialog = false }
-        )
-    }
-
-    if (showPlayerModeDialog) {
-        SingleChoiceDialog(
-            title = stringResource(R.string.settings_player_mode),
-            options = listOf(
-                "spotilol" to stringResource(R.string.settings_player_spotilol),
-                "fullscreen" to stringResource(R.string.settings_player_fullscreen),
-                "original" to stringResource(R.string.settings_player_original)
-            ),
-            selected = playerMode,
-            onSelect = { value ->
-                playerMode = value
-                prefs.edit().putString("PlayerMode", value).apply()
-            },
-            onDismiss = { showPlayerModeDialog = false }
         )
     }
 

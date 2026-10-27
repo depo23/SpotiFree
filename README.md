@@ -1,36 +1,28 @@
 <div align="center">
-  <img src="art/bgwelcome.png" alt="Spotilol" style="width: 100%; max-width: 900px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+  <img src="art/bgwelcome.png" alt="SpotiFree" style="width: 100%; max-width: 900px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
 </div>
 
-<h1 align="center">Spotilol</h1>
+<h1 align="center">SpotiFree</h1>
 
 <p align="center">
-  <a href="https://github.com/lyssadev/Spotilol/stargazers">
-    <img src="https://img.shields.io/github/stars/lyssadev/Spotilol?style=for-the-badge&logo=starship&labelColor=0d0d0d&color=1DB954" alt="stars"/>
+  <a href="https://github.com/depo23/SpotiFree/stargazers">
+    <img src="https://img.shields.io/github/stars/depo23/SpotiFree?style=for-the-badge&logo=starship&labelColor=0d0d0d&color=1DB954" alt="stars"/>
   </a>
   &nbsp;
-  <a href="https://github.com/lyssadev/Spotilol/releases">
-    <img src="https://img.shields.io/github/downloads/lyssadev/Spotilol/total?style=for-the-badge&logo=download&labelColor=0d0d0d&color=1DB954" alt="downloads"/>
+  <a href="https://github.com/depo23/SpotiFree/releases">
+    <img src="https://img.shields.io/github/downloads/depo23/SpotiFree/total?style=for-the-badge&logo=download&labelColor=0d0d0d&color=1DB954" alt="downloads"/>
   </a>
   &nbsp;
-  <a href="https://github.com/lyssadev/Spotilol/releases/latest">
-    <img src="https://img.shields.io/github/v/release/lyssadev/Spotilol?style=for-the-badge&logo=github&labelColor=0d0d0d&color=1DB954" alt="version"/>
+  <a href="https://github.com/depo23/SpotiFree/releases/latest">
+    <img src="https://img.shields.io/github/v/release/depo23/SpotiFree?style=for-the-badge&logo=github&labelColor=0d0d0d&color=1DB954" alt="version"/>
   </a>
   &nbsp;
-  <a href="https://github.com/lyssadev/Spotilol/forks">
-    <img src="https://img.shields.io/github/forks/lyssadev/Spotilol?style=for-the-badge&logo=git&labelColor=0d0d0d&color=1DB954" alt="forks"/>
+  <a href="https://github.com/depo23/SpotiFree/forks">
+    <img src="https://img.shields.io/github/forks/depo23/SpotiFree?style=for-the-badge&logo=git&labelColor=0d0d0d&color=1DB954" alt="forks"/>
   </a>
   &nbsp;
-  <a href="https://github.com/lyssadev/Spotilol/commits/main">
-    <img src="https://img.shields.io/github/last-commit/lyssadev/Spotilol?style=for-the-badge&logo=git&labelColor=0d0d0d&color=1DB954" alt="last commit"/>
-  </a>
-  &nbsp;
-  <a href="https://deepwiki.com/lyssadev/Spotilol">
-    <img src="https://deepwiki.com/badge.svg" alt="DeepWiki" style="height: 28px;"/>
-  </a>
-  &nbsp;
-  <a href="https://discord.gg/95dAE2UkqP">
-    <img src="https://img.shields.io/badge/Discord-join-1DB954?style=for-the-badge&logo=discord&logoColor=white&labelColor=0d0d0d" alt="discord"/>
+  <a href="https://github.com/depo23/SpotiFree/commits/main">
+    <img src="https://img.shields.io/github/last-commit/depo23/SpotiFree?style=for-the-badge&logo=git&labelColor=0d0d0d&color=1DB954" alt="last commit"/>
   </a>
 </p>
 
@@ -39,7 +31,7 @@
 </p>
 
 <p align="center">
-  ported from smali to clean Kotlin by <strong>lyssadev</strong>, based on deviato's <strong>Spotifuck</strong>. free, open-source, and it just works.
+  based on <strong>lyssadev</strong>'s <strong>Spotilol</strong> (a Kotlin port of deviato's <strong>Spotifuck</strong>), with a Spotify-style full-screen player, Canvas and video podcasts.
 </p>
 
 ---
@@ -49,8 +41,8 @@
 ## Download
 
 <div align="center">
-  <a href="https://github.com/lyssadev/Spotilol/releases/latest">
-    <img src="https://img.shields.io/github/v/release/lyssadev/Spotilol?style=for-the-badge&logo=github&labelColor=0d0d0d&color=1DB954" alt="Download APK"/>
+  <a href="https://github.com/depo23/SpotiFree/releases/latest">
+    <img src="https://img.shields.io/github/v/release/depo23/SpotiFree?style=for-the-badge&logo=github&labelColor=0d0d0d&color=1DB954" alt="Download APK"/>
   </a>
 </div>
 
@@ -103,8 +95,8 @@ install the APK, open it, done. no setup, no certificates, no fuss. it just work
 ## Build It Yourself
 
 ```bash
-git clone https://github.com/lyssadev/Spotilol
-cd Spotilol
+git clone https://github.com/depo23/SpotiFree
+cd SpotiFree
 ./gradlew assembleDebug
 ```
 
@@ -115,7 +107,7 @@ APK lands at `app/build/outputs/apk/debug/app-debug.apk`.
 this project uses Firebase (analytics, crash reporting, performance). to build, you need:
 
 1. create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. register an Android app with package name `com.project.lol`
+2. register an Android app with package name `com.spotifree.app`
 3. download the `google-services.json` and place it in `app/`
 
 ---
@@ -128,6 +120,6 @@ contributions are welcome. open issues, throw PRs, suggest stuff. free for all.
 
 ## Credits
 
-**deviato** reverse-engineered the original Spotifuck. **lyssadev** ported the core logic from smali to Kotlin and maintains this project.
+**deviato** reverse-engineered the original Spotifuck. **lyssadev** ported the core logic from smali to Kotlin as Spotilol. **depo23** maintains SpotiFree, built on Spotilol.
 
 all rights reserved. lyssadev and deviato.
