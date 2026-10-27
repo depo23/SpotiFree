@@ -7,6 +7,23 @@ object MediaUpdater {
                 return url.replace(/ab67616d0000[0-9a-f]{4}/i, 'ab67616d0000b273');
             };
 
+            window.splFavBtn = function(){
+                try{
+                    var w = document.querySelector('div[data-testid=now-playing-widget]>div:last-child>button');
+                    if(w) return w;
+                    var bar = document.querySelector('aside[data-testid="now-playing-bar"]') || document;
+                    var cs = bar.querySelectorAll('button[aria-checked]');
+                    for(var i = 0; i < cs.length; i++){
+                        if(!/control-button/.test(cs[i].getAttribute('data-testid') || '')) return cs[i];
+                    }
+                    var ls = bar.querySelectorAll('button[aria-label]');
+                    for(var j = 0; j < ls.length; j++){
+                        if(/liked songs|add to|remove from|save to|\bsave\b|\blike\b/i.test(ls[j].getAttribute('aria-label') || '')) return ls[j];
+                    }
+                    return null;
+                }catch(e){ return null; }
+            };
+
             window.splMS = function(){
                 try{
                     var m = navigator.mediaSession && navigator.mediaSession.metadata;

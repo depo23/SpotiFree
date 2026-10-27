@@ -694,7 +694,7 @@ object SpotiFreePlayer {
                             if(spt.textContent!==spv) spt.textContent=spv;
                         }
                         if(lk){
-                            var fb=window.splQ('div[data-testid=now-playing-widget]>div:last-child>button');
+                            var fb=(typeof window.splFavBtn==='function'&&window.splFavBtn())||window.splQ('div[data-testid=now-playing-widget]>div:last-child>button');
                             var liked=fb&&fb.getAttribute('aria-checked')==='true';
                             lk.classList.toggle('spl-active',liked===true);
                             var lkKind=isEp?(liked?'c':'p'):'h';

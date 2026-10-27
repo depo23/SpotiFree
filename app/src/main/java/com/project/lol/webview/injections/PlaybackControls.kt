@@ -238,7 +238,7 @@ object PlaybackControls {
             };
             window.actAddToFav = function() {
                 if(window.__splFavBusy) return;
-                var fb = document.querySelector('div[data-testid=now-playing-widget]>div:last-child>button');
+                var fb = (typeof window.splFavBtn === 'function') ? window.splFavBtn() : document.querySelector('div[data-testid=now-playing-widget]>div:last-child>button');
                 if(fb) {
                     if(fb.getAttribute('aria-checked')==='false') {
                         fb.click();
