@@ -25,7 +25,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 51
-        versionName = "1.3.0"
+        versionName = "0.1"
         // Where automatic and manual update checks look. Each build must update from the
         // releases signed with its own key.
         buildConfigField("String", "UPDATE_REPO", "\"${project.findProperty("updateRepo") ?: "depo23/SpotiFree"}\"")
