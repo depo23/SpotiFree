@@ -156,7 +156,7 @@ class SpotifyWebViewClient(
 
         val powerSave = prefs?.getBoolean("PowerSave", false) ?: false
         val blockSW = prefs?.getBoolean("BlockServiceWorker", true) ?: true
-        val hideEmptyPlayer = prefs?.getBoolean("HideEmptyPlayer", false) ?: false
+        val hideEmptyPlayer = prefs?.getBoolean("HideEmptyPlayer", true) ?: true
         val playlistSort = prefs?.getBoolean("PlaylistSortEnabled", true) ?: true
         val showScrollbar = prefs?.getBoolean("ShowScrollbar", true) ?: true
 
@@ -202,7 +202,7 @@ class SpotifyWebViewClient(
     private fun buildEarlyJs(prefs: android.content.SharedPreferences, isGoogle: Boolean): String {
         val powerSave = prefs.getBoolean("PowerSave", false)
         val blockSW = prefs.getBoolean("BlockServiceWorker", true)
-        val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", false)
+        val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", true)
         val playlistSort = prefs.getBoolean("PlaylistSortEnabled", true)
         val showScrollbar = prefs.getBoolean("ShowScrollbar", true)
         val hideTopBar = prefs.getBoolean("HideTopBar", true)
@@ -422,7 +422,7 @@ class SpotifyWebViewClient(
         val customCss = prefs.getString("CustomCss", "") ?: ""
         val debugOverlay = Logger.isEnabled()
         val takeControl = prefs.getBoolean("TakeControl", true)
-        val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", false)
+        val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", true)
         val playlistSortEnabled = prefs.getBoolean("PlaylistSortEnabled", true)
         val spicyLyricsEnabled = prefs.getBoolean("SpicyLyrics", true)
         val showScrollbar = prefs.getBoolean("ShowScrollbar", true)
@@ -568,7 +568,7 @@ class SpotifyWebViewClient(
                     }
                 }
                 "HideEmptyPlayer" -> {
-                    val hideEmpty = prefs.getBoolean("HideEmptyPlayer", false)
+                    val hideEmpty = prefs.getBoolean("HideEmptyPlayer", true)
                     wv.evaluateJavascript("window.__splHideEmpty=$hideEmpty; if(window.splApplyEmpty) window.splApplyEmpty();", null)
                 }
                 "HideTopBar" -> {

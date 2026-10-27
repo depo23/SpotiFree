@@ -102,7 +102,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.webkit.WebViewCompat
 import com.project.lol.R
 import com.project.lol.innertube.YouTube
 import com.project.lol.offline.DownloadFolder
@@ -143,6 +142,7 @@ import com.project.lol.webview.helpers.LyricsTheme
 import com.project.lol.widget.WidgetStudioActivity
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
+import compose.icons.tablericons.Clock
 import compose.icons.tablericons.ArrowsMinimize
 import compose.icons.tablericons.ArrowsSort
 import compose.icons.tablericons.ArrowsUpDown
@@ -246,8 +246,6 @@ fun SettingsContent(
     onBlockServiceWorkerChange: (Boolean) -> Unit
 ) {
     var autoplayMode by remember { mutableStateOf(prefs.getString("APlayMode", "disabled") ?: "disabled") }
-    var takeControl by remember { mutableStateOf(prefs.getBoolean("TakeControl", true)) }
-    var andAuto by remember { mutableStateOf(prefs.getBoolean("AndAuto", true)) }
     var closeNowPlay by remember { mutableStateOf(prefs.getBoolean("CloseNowPlay", false)) }
     // dead code: gui mode is fixed to mobile css and js, see the appearance section
     // var guiMode by remember { mutableStateOf(prefs.getString("GuiMode", "csshack") ?: "csshack") }
@@ -259,7 +257,6 @@ fun SettingsContent(
     var hpAutoResume by remember { mutableStateOf(prefs.getBoolean("HpAutoResume", false)) }
     var offlineMode by remember { mutableStateOf(prefs.getBoolean("OfflineMode", false)) }
     var blockSW by remember { mutableStateOf(blockServiceWorker) }
-    var hideEmptyPlayer by remember { mutableStateOf(prefs.getBoolean("HideEmptyPlayer", false)) }
     var webCanvas by remember { mutableStateOf(prefs.getBoolean("WebCanvas", true)) }
     var webVideos by remember { mutableStateOf(prefs.getBoolean("WebVideos", true)) }
     var playlistSortEnabled by remember { mutableStateOf(prefs.getBoolean("PlaylistSortEnabled", true)) }
@@ -401,7 +398,6 @@ fun SettingsContent(
     val scrollState = tabScrollStates[settingsTab.ordinal]
     var batteryExempt by remember(settingsTab) { mutableStateOf(BatterySaver.isExempt(context)) }
 
-    val pkg = remember { WebViewCompat.getCurrentWebViewPackage(context) }
     val packageInfo = remember {
         runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0)
@@ -651,19 +647,6 @@ fun SettingsContent(
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
 
                     SettingSwitchTile(
-                        title = stringResource(R.string.settings_hide_empty_player),
-                        subtitle = stringResource(R.string.settings_hide_empty_player_subtitle),
-                        icon = TablerIcons.EyeOff,
-                        checked = hideEmptyPlayer,
-                        onCheckedChange = {
-                            hideEmptyPlayer = it
-                            prefs.edit().putBoolean("HideEmptyPlayer", it).apply()
-                        }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingSwitchTile(
                         title = stringResource(R.string.settings_playlist_sort),
                         subtitle = stringResource(R.string.settings_playlist_sort_subtitle),
                         icon = TablerIcons.ArrowsSort,
@@ -704,32 +687,6 @@ fun SettingsContent(
                         onCheckedChange = {
                             spicyLyricsEnabled = it
                             prefs.edit().putBoolean("SpicyLyrics", it).apply()
-                        }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingSwitchTile(
-                        title = stringResource(R.string.settings_take_control),
-                        subtitle = stringResource(R.string.settings_take_control_subtitle),
-                        icon = TablerIcons.Click,
-                        checked = takeControl,
-                        onCheckedChange = {
-                            takeControl = it
-                            prefs.edit().putBoolean("TakeControl", it).apply()
-                        }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingSwitchTile(
-                        title = stringResource(R.string.settings_android_auto),
-                        subtitle = stringResource(R.string.settings_android_auto_subtitle),
-                        icon = TablerIcons.Car,
-                        checked = andAuto,
-                        onCheckedChange = {
-                            andAuto = it
-                            prefs.edit().putBoolean("AndAuto", it).apply()
                         }
                     )
 
@@ -930,44 +887,6 @@ fun SettingsContent(
                         onClick = { showInnertubeCacheDialog = true }
                     )
                 }
-
-                SettingSectionCard(
-                    title = stringResource(R.string.settings_section_accounts),
-                    icon = TablerIcons.UserPlus
-                ) {
-                    SettingTile(
-                        title = stringResource(R.string.settings_save_account),
-                        subtitle = stringResource(R.string.settings_save_account_subtitle),
-                        icon = TablerIcons.UserPlus,
-                        onClick = {
-                            val cookies = ProfileManager.captureSession(context)
-                            if (cookies == null) {
-                                Toast.makeText(context, resources.getString(R.string.settings_login_first), Toast.LENGTH_SHORT).show()
-                            } else {
-                                pendingCookies = cookies
-                                accountNameInput = prefs.getString("CurrentAccountName", "") ?: ""
-                                showSaveAccountDialog = true
-                            }
-                        }
-                    )
-                    if (profiles.isNotEmpty()) {
-                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-                        profiles.forEachIndexed { index, profile ->
-                            ProfileRow(
-                                name = profile.name,
-                                subtitle = stringResource(R.string.settings_profile_saved, SimpleDateFormat("MMM d, yyyy", resources.configuration.locales[0]).format(Date(profile.savedAt))),
-                                onLoad = { onLoadProfile(profile.cookies) },
-                                onDelete = {
-                                    onDeleteProfile(profile.name)
-                                    profiles = ProfileManager.getProfiles(context)
-                                }
-                            )
-                            if (index < profiles.lastIndex) {
-                                HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-                            }
-                        }
-                    }
-                }
             }
 
             if (settingsTab == SettingsTab.Advanced) {
@@ -1117,31 +1036,14 @@ fun SettingsContent(
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
 
                     SettingTile(
-                        title = stringResource(R.string.settings_discord_server),
-                        subtitle = stringResource(R.string.settings_discord_subtitle),
-                        icon = TablerIcons.BrandDiscord,
-                        onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/95dAE2UkqP"))
-                            context.startActivity(intent)
-                        }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingTile(
                         title = stringResource(R.string.settings_version),
                         subtitle = stringResource(R.string.settings_version_format, appVersionName, BuildInfo.id),
                         icon = TablerIcons.DeviceMobile,
-                        onClick = { showChangelogDialog = true }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingTile(
-                        title = stringResource(R.string.settings_check_updates),
-                        subtitle = stringResource(R.string.settings_check_updates_subtitle),
-                        icon = TablerIcons.DeviceMobile,
-                        onClick = { onCheckForUpdates() }
+                        onClick = {
+                            onDebugSecretTap()
+                            onCheckForUpdates()
+                        },
+                        onLongClick = { onDebugSecretHold() }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
@@ -1156,19 +1058,44 @@ fun SettingsContent(
                                 else -> R.string.update_freq_day
                             }
                         ),
-                        icon = TablerIcons.DeviceMobile,
+                        icon = TablerIcons.Clock,
                         onClick = { showUpdateFrequencyDialog = true }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
 
                     SettingTile(
-                        title = stringResource(R.string.settings_webview_engine),
-                        subtitle = pkg?.versionName ?: stringResource(R.string.settings_webview_system),
-                        icon = TablerIcons.Language,
-                        onClick = { onDebugSecretTap() },
-                        onLongClick = { onDebugSecretHold() }
+                        title = stringResource(R.string.settings_save_account),
+                        subtitle = stringResource(R.string.settings_save_account_subtitle),
+                        icon = TablerIcons.UserPlus,
+                        onClick = {
+                            val cookies = ProfileManager.captureSession(context)
+                            if (cookies == null) {
+                                Toast.makeText(context, resources.getString(R.string.settings_login_first), Toast.LENGTH_SHORT).show()
+                            } else {
+                                pendingCookies = cookies
+                                accountNameInput = prefs.getString("CurrentAccountName", "") ?: ""
+                                showSaveAccountDialog = true
+                            }
+                        }
                     )
+                    if (profiles.isNotEmpty()) {
+                        HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+                        profiles.forEachIndexed { index, profile ->
+                            ProfileRow(
+                                name = profile.name,
+                                subtitle = stringResource(R.string.settings_profile_saved, SimpleDateFormat("MMM d, yyyy", resources.configuration.locales[0]).format(Date(profile.savedAt))),
+                                onLoad = { onLoadProfile(profile.cookies) },
+                                onDelete = {
+                                    onDeleteProfile(profile.name)
+                                    profiles = ProfileManager.getProfiles(context)
+                                }
+                            )
+                            if (index < profiles.lastIndex) {
+                                HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+                            }
+                        }
+                    }
                 }
 
                 if (debugUnlocked) {

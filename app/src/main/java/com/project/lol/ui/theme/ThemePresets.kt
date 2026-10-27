@@ -92,7 +92,7 @@ object ThemePresets {
     private val builtIn = listOf(
         ThemePreset(
             "spotifree", "SpotiFree", "Dark",
-            pal(0xFF7FC79A, 0xFF2E6B45, 0xFFB6CCBB, 0xFF121411, 0xFF1C1E1A, 0xFF45473F, 0xFFE3E2DC, 0xFFC6C5BE, 0xFF909189),
+            pal(0xFFC9B1FF, 0xFF453963, 0xFFA5BFFF, 0xFF14121A, 0xFF1D1B25, 0xFF292733, 0xFFEEEAF6, 0xFFAEA8C0, 0xFF3C3849),
         ),
         ThemePreset(
             "catppuccin", "Catppuccin", "Mocha",
@@ -181,10 +181,6 @@ object ThemePresets {
         ThemePreset(
             "matcha", "Matcha", "Latte",
             pal(0xFFA6C36F, 0xFF3B4A22, 0xFFD9C08F, 0xFF12150E, 0xFF1A1E15, 0xFF262B1F, 0xFFEDF1E0, 0xFFA8AF94, 0xFF363C2C),
-        ),
-        ThemePreset(
-            "lavender", "Lavender", "Fields",
-            pal(0xFFC9B1FF, 0xFF453963, 0xFFA5BFFF, 0xFF14121A, 0xFF1D1B25, 0xFF292733, 0xFFEEEAF6, 0xFFAEA8C0, 0xFF3C3849),
         ),
         ThemePreset(
             "velvet", "Velvet", "Rose",

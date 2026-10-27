@@ -21,6 +21,7 @@ class SpotiFreeApp : Application() {
         ThemeController.init(this)
         CustomLyricsPresets.init(this)
         migrateProxyEraPrefs()
+        forceCleanedUpOptions()
         CrashHandler.install(this)
         CipherDeobfuscator.initialize(this)
         YouTube.setCacheDir(File(cacheDir, "innertube_http"), InnertubeCachePrefs.maxBytes(this))
@@ -38,6 +39,17 @@ class SpotiFreeApp : Application() {
         edit.putBoolean("ProxyEraMigrated", true)
         edit.apply()
         if (fromProxyEra) Logger.i("app", "proxy era prefs migrated")
+    }
+
+    private fun forceCleanedUpOptions() {
+        val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("SettingsCleanupDone", false)) return
+        prefs.edit()
+            .putBoolean("HideEmptyPlayer", true)
+            .putBoolean("TakeControl", true)
+            .putBoolean("AndAuto", true)
+            .putBoolean("SettingsCleanupDone", true)
+            .apply()
     }
 
     override fun attachBaseContext(newBase: Context) {
