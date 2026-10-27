@@ -507,6 +507,11 @@ object SpotiFreePlayer {
                     if(typeof closeNowPlay==='function') closeNowPlay();
                     var al=document.querySelector('a[data-testid=context-item-info-artist]');
                     if(!al) al=document.querySelector('a[data-testid=context-item-info-show]');
+                    if(!al){
+                        var an=(splArtist.textContent||'').trim();
+                        var cands=document.querySelectorAll('a[href^="/artist/"]');
+                        for(var ci=0;ci<cands.length;ci++){ if((cands[ci].textContent||'').trim()===an){al=cands[ci];break;} }
+                    }
                     if(al){al.click();}
                 };
 
