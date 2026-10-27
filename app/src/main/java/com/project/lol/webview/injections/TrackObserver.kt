@@ -137,6 +137,18 @@ object TrackObserver {
 
             function attach(el) {
                 root = el; anchor = null; fiberKey = null;
+                obs.disconnect();
+                obs.observe(el, {
+                    subtree: true,
+                    childList: true,
+                    attributes: true,
+                    attributeFilter: ['href']
+                });
+                let id = currentId();
+                if (!id) {
+                    const uri = fiberURI();
+                    if (uri) id = uri.split(':').pop();
+                }
                 if (id) emit(id, 'init');
             }
 
