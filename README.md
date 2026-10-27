@@ -6,23 +6,23 @@
 
 <p align="center">
   <a href="https://github.com/depo23/SpotiFree/stargazers">
-    <img src="https://img.shields.io/github/stars/depo23/SpotiFree?style=for-the-badge&logo=starship&labelColor=0d0d0d&color=1DB954" alt="stars"/>
+    <img src="https://img.shields.io/github/stars/depo23/SpotiFree?style=for-the-badge&logo=starship&labelColor=0d0d0d&color=8A4FFF" alt="stars"/>
   </a>
   &nbsp;
   <a href="https://github.com/depo23/SpotiFree/releases">
-    <img src="https://img.shields.io/github/downloads/depo23/SpotiFree/total?style=for-the-badge&logo=download&labelColor=0d0d0d&color=1DB954" alt="downloads"/>
+    <img src="https://img.shields.io/github/downloads/depo23/SpotiFree/total?style=for-the-badge&logo=download&labelColor=0d0d0d&color=8A4FFF" alt="downloads"/>
   </a>
   &nbsp;
   <a href="https://github.com/depo23/SpotiFree/releases/latest">
-    <img src="https://img.shields.io/github/v/release/depo23/SpotiFree?style=for-the-badge&logo=github&labelColor=0d0d0d&color=1DB954" alt="version"/>
+    <img src="https://img.shields.io/github/v/release/depo23/SpotiFree?style=for-the-badge&logo=github&labelColor=0d0d0d&color=8A4FFF" alt="version"/>
   </a>
   &nbsp;
   <a href="https://github.com/depo23/SpotiFree/forks">
-    <img src="https://img.shields.io/github/forks/depo23/SpotiFree?style=for-the-badge&logo=git&labelColor=0d0d0d&color=1DB954" alt="forks"/>
+    <img src="https://img.shields.io/github/forks/depo23/SpotiFree?style=for-the-badge&logo=git&labelColor=0d0d0d&color=8A4FFF" alt="forks"/>
   </a>
   &nbsp;
   <a href="https://github.com/depo23/SpotiFree/commits/main">
-    <img src="https://img.shields.io/github/last-commit/depo23/SpotiFree?style=for-the-badge&logo=git&labelColor=0d0d0d&color=1DB954" alt="last commit"/>
+    <img src="https://img.shields.io/github/last-commit/depo23/SpotiFree?style=for-the-badge&logo=git&labelColor=0d0d0d&color=8A4FFF" alt="last commit"/>
   </a>
 </p>
 
@@ -42,7 +42,7 @@
 
 <div align="center">
   <a href="https://github.com/depo23/SpotiFree/releases/latest">
-    <img src="https://img.shields.io/github/v/release/depo23/SpotiFree?style=for-the-badge&logo=github&labelColor=0d0d0d&color=1DB954" alt="Download APK"/>
+    <img src="https://img.shields.io/github/v/release/depo23/SpotiFree?style=for-the-badge&logo=github&labelColor=0d0d0d&color=8A4FFF" alt="Download APK"/>
   </a>
 </div>
 
