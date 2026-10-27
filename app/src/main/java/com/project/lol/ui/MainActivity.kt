@@ -108,6 +108,7 @@ import com.project.lol.timer.SleepTimerAction
 import com.project.lol.timer.SleepTimerManager
 import com.project.lol.ui.components.BatteryOptimizationDialog
 import com.project.lol.ui.components.SettingsDialog
+import com.project.lol.ui.screens.SettingsTab
 import com.project.lol.ui.components.SleepTimerDialog
 import com.project.lol.ui.theme.SpotifyTheme
 import com.project.lol.ui.theme.ThemeController
@@ -297,6 +298,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             }
 
             var settingsDialogOpen by remember { mutableStateOf(false) }
+            var settingsStartTab by remember { mutableStateOf(SettingsTab.Appearance) }
             var playerExpanded by remember { mutableStateOf(false) }
             var ctxSheetOpen by remember { mutableStateOf(false) }
             var showMiniMenu by remember { mutableStateOf(false) }
@@ -342,6 +344,9 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                 SettingsDialog(
                     visible = settingsDialogOpen,
                     onClose = { settingsDialogOpen = false },
+                    initialTab = settingsStartTab,
+                    serviceEnabled = serviceEnabled,
+                    onServiceToggle = { newValue -> setServiceEnabled(newValue) },
                     onCheckForUpdates = { checkForUpdates(manual = true) },
                     prefs = prefs,
                     materialYou = materialYou,
@@ -422,6 +427,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
+                                        settingsStartTab = SettingsTab.Appearance
                                         settingsDialogOpen = true
                                     }) {
                                         Icon(
@@ -690,6 +696,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 onToggleMenu = { showMiniMenu = !showMiniMenu },
                                 onOpenSettings = {
                                     showMiniMenu = false
+                                    settingsStartTab = SettingsTab.Advanced
                                     settingsDialogOpen = true
                                 },
                                 serviceEnabled = serviceEnabled,

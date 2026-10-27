@@ -203,7 +203,7 @@ private const val DEBUG_UNLOCK_TAPS = 5
 private const val LOGGER_WIDE_BREAKPOINT = 600
 private const val LYRICS_WIDE_BREAKPOINT = 600
 
-private enum class SettingsTab(@StringRes val labelRes: Int) {
+enum class SettingsTab(@StringRes val labelRes: Int) {
     Appearance(R.string.settings_tab_appearance),
     Playback(R.string.settings_tab_playback),
     Content(R.string.settings_tab_content),
@@ -242,7 +242,10 @@ fun SettingsContent(
     onDebugToggle: (Boolean) -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     blockServiceWorker: Boolean,
-    onBlockServiceWorkerChange: (Boolean) -> Unit
+    onBlockServiceWorkerChange: (Boolean) -> Unit,
+    initialTab: SettingsTab = SettingsTab.Appearance,
+    serviceEnabled: Boolean = false,
+    onServiceToggle: ((Boolean) -> Unit)? = null
 ) {
     var autoplayMode by remember { mutableStateOf(prefs.getString("APlayMode", "disabled") ?: "disabled") }
     var closeNowPlay by remember { mutableStateOf(prefs.getBoolean("CloseNowPlay", false)) }
@@ -391,7 +394,7 @@ fun SettingsContent(
         }
     }
 
-    var settingsTab by remember { mutableStateOf(SettingsTab.Appearance) }
+    var settingsTab by remember(initialTab) { mutableStateOf(initialTab) }
     val tabScrollStates = SettingsTab.entries.map { rememberScrollState() }
     val scrollState = tabScrollStates[settingsTab.ordinal]
     var batteryExempt by remember(settingsTab) { mutableStateOf(BatterySaver.isExempt(context)) }
@@ -888,6 +891,21 @@ fun SettingsContent(
             }
 
             if (settingsTab == SettingsTab.Advanced) {
+                onServiceToggle?.let { toggle ->
+                    SettingSectionCard(
+                        title = stringResource(R.string.main_service),
+                        icon = TablerIcons.Power
+                    ) {
+                        SettingSwitchTile(
+                            title = stringResource(R.string.settings_service_enabled),
+                            subtitle = stringResource(R.string.settings_service_subtitle),
+                            icon = TablerIcons.Power,
+                            checked = serviceEnabled,
+                            onCheckedChange = toggle
+                        )
+                    }
+                }
+
                 SettingSectionCard(
                     title = stringResource(R.string.settings_section_system),
                     icon = TablerIcons.Power
