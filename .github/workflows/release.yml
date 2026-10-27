@@ -27,6 +27,7 @@ jobs:
           mkdir -p keystore
           echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotifree-release.p12
           echo "$KEYSTORE_PROPERTIES" > keystore/keystore.properties
+          sed -i 's/^storeFile=.*/storeFile=spotifree-release.p12/' keystore/keystore.properties
       - name: Placeholder google-services.json
         run: |
           cat > app/google-services.json <<'JSON'
