@@ -48,10 +48,6 @@
     <string name="settings_autoplay_disabled">Devre dışı</string>
     <string name="settings_autoplay_onetime">Başlangıçta bir kez</string>
     <string name="settings_autoplay_permanent">Kalıcı</string>
-    <string name="settings_player_mode">Oynatıcı Modu</string>
-    <string name="settings_player_spotilol">Spotilol Oynatıcı</string>
-    <string name="settings_player_original">Spotify Orijinal</string>
-    <string name="settings_player_fullscreen">Spotilol Oynatıcı Tam Ekran</string>
     <string name="settings_web_canvas">Canvas</string>
     <string name="settings_web_canvas_subtitle">Şarkıların arkasında dönen videolar (Spotify\'ın Canvas ayarı)</string>
     <string name="settings_web_videos">Video Podcast\'ler</string>

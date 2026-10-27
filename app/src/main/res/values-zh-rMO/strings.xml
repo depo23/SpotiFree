@@ -47,10 +47,6 @@
     <string name="settings_autoplay_disabled">停用</string>
     <string name="settings_autoplay_onetime">僅啟動時自動播放</string>
     <string name="settings_autoplay_permanent">始終開啟</string>
-    <string name="settings_player_mode">播放器模式</string>
-    <string name="settings_player_spotilol">Spotilol 播放器</string>
-    <string name="settings_player_original">Spotify 原生播放器</string>
-    <string name="settings_player_fullscreen">Spotilol 全螢幕播放器</string>
     <string name="settings_web_canvas">畫布 (Canvas)</string>
     <string name="settings_web_canvas_subtitle">歌曲背景循環影片（Spotify 的 Canvas 功能）</string>
     <string name="settings_web_videos">影片 Podcast</string>
