@@ -913,7 +913,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             Box(
                 modifier = Modifier
-                    .padding(top = 8.dp)
+                    .padding(top = 4.dp)
                     .size(44.dp)
                     .shadow(6.dp, CircleShape)
                     .clip(CircleShape)
