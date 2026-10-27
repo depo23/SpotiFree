@@ -86,10 +86,6 @@ class OfflineActivity : ComponentActivity() {
                         ThemeController.updateAmoled(enabled)
                     },
                     hideTopBar = hideTopBarState.value,
-                    onHideTopBarChange = { enabled ->
-                        hideTopBarState.value = enabled
-                        prefs.edit().putBoolean("HideTopBar", enabled).apply()
-                    },
                     landscapeMode = landscapeState.value,
                     onLandscapeModeChange = { enabled ->
                         landscapeState.value = enabled

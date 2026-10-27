@@ -35,8 +35,6 @@
     <string name="settings_material_you_subtitle">使用Android系统的动态颜色</string>
     <string name="settings_amoled_theme">AMOLED主题</string>
     <string name="settings_amoled_theme_subtitle">使用纯黑背景以节省电量</string>
-    <string name="settings_hide_top_bar">隐藏顶栏</string>
-    <string name="settings_hide_top_bar_subtitle">从顶部向下滑动以显示</string>
     <string name="settings_landscape_mode">横屏模式</string>
     <string name="settings_landscape_mode_subtitle">允许旋转至横屏</string>
     <string name="settings_keep_screen_on">保持屏幕常亮</string>

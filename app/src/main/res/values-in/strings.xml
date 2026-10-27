@@ -34,8 +34,6 @@
     <string name="settings_material_you_subtitle">Gunakan warna dinamis sistem Android</string>
     <string name="settings_amoled_theme">Tema AMOLED</string>
     <string name="settings_amoled_theme_subtitle">Latar belakang hitam pekat untuk menghemat baterai</string>
-    <string name="settings_hide_top_bar">Sembunyikan bilah atas</string>
-    <string name="settings_hide_top_bar_subtitle">Geser ke bawah dari atas untuk menampilkannya</string>
     <string name="settings_landscape_mode">Mode lanskap</string>
     <string name="settings_landscape_mode_subtitle">Izinkan rotasi ke lanskap</string>
     <string name="settings_keep_screen_on">Biarkan layar menyala</string>

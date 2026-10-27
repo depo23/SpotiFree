@@ -221,8 +221,6 @@ fun SettingsContent(
     onMaterialYouChange: (Boolean) -> Unit,
     amoledThemeState: Boolean,
     onAmoledThemeChange: (Boolean) -> Unit,
-    hideTopBar: Boolean,
-    onHideTopBarChange: (Boolean) -> Unit,
     landscapeMode: Boolean,
     onLandscapeModeChange: (Boolean) -> Unit,
     keepScreenOn: Boolean,
@@ -522,17 +520,6 @@ fun SettingsContent(
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
-
-                    SettingSwitchTile(
-                        title = stringResource(R.string.settings_hide_top_bar),
-                        subtitle = stringResource(R.string.settings_hide_top_bar_subtitle),
-                        icon = TablerIcons.EyeOff,
-                        checked = hideTopBar,
-                        onCheckedChange = { enabled ->
-                            onHideTopBarChange(enabled)
-                            prefs.edit().putBoolean("HideTopBar", enabled).apply()
-                        }
-                    )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
 
@@ -3202,8 +3189,6 @@ fun SettingsContentPreview() {
             onMaterialYouChange = {},
             amoledThemeState = false,
             onAmoledThemeChange = {},
-            hideTopBar = false,
-            onHideTopBarChange = {},
             landscapeMode = false,
             onLandscapeModeChange = {},
             keepScreenOn = false,

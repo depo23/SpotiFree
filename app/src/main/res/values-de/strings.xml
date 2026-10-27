@@ -34,8 +34,6 @@
     <string name="settings_material_you_subtitle">Dynamische Android-Systemfarben verwenden</string>
     <string name="settings_amoled_theme">AMOLED-Design</string>
     <string name="settings_amoled_theme_subtitle">Rein schwarzer Hintergrund zum Akkusparen</string>
-    <string name="settings_hide_top_bar">Obere Leiste ausblenden</string>
-    <string name="settings_hide_top_bar_subtitle">Zum Anzeigen von oben nach unten wischen</string>
     <string name="settings_landscape_mode">Querformat</string>
     <string name="settings_landscape_mode_subtitle">Drehen ins Querformat erlauben</string>
     <string name="settings_keep_screen_on">Bildschirm eingeschaltet lassen</string>

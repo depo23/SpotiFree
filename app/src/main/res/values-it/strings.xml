@@ -34,8 +34,6 @@
     <string name="settings_material_you_subtitle">Usa i colori dinamici di Android</string>
     <string name="settings_amoled_theme">Tema AMOLED</string>
     <string name="settings_amoled_theme_subtitle">Sfondo nero puro per risparmiare batteria</string>
-    <string name="settings_hide_top_bar">Nascondi la barra superiore</string>
-    <string name="settings_hide_top_bar_subtitle">Scorri dall\'alto verso il basso per mostrarla</string>
     <string name="settings_landscape_mode">Modalità orizzontale</string>
     <string name="settings_landscape_mode_subtitle">Consenti la rotazione in orizzontale</string>
     <string name="settings_keep_screen_on">Mantieni lo schermo acceso</string>

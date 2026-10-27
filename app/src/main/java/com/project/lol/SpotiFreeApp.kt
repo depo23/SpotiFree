@@ -42,6 +42,9 @@ class SpotiFreeApp : Application() {
 
     private fun forceCleanedUpOptions() {
         val prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
+        if (!prefs.getBoolean("TopBarOnDefault", false)) {
+            prefs.edit().putBoolean("HideTopBar", true).putBoolean("TopBarOnDefault", true).apply()
+        }
         if (prefs.getBoolean("SettingsCleanupDone", false)) return
         prefs.edit()
             .putBoolean("HideEmptyPlayer", true)

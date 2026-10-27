@@ -36,8 +36,6 @@
     <string name="settings_material_you_subtitle">Android sistem dinamik renklerini kullan</string>
     <string name="settings_amoled_theme">AMOLED Teması</string>
     <string name="settings_amoled_theme_subtitle">Pil tasarrufu için tamamen siyah arka plan</string>
-    <string name="settings_hide_top_bar">Üst Çubuğu Gizle</string>
-    <string name="settings_hide_top_bar_subtitle">Göstermek için yukarıdan aşağı kaydırın</string>
     <string name="settings_landscape_mode">Yatay Mod</string>
     <string name="settings_landscape_mode_subtitle">Yatay konuma döndürmeye izin ver</string>
     <string name="settings_keep_screen_on">Ekranı Açık Tut</string>

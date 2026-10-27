@@ -210,7 +210,7 @@ class SpotifyWebViewClient(
         // was a separate evaluateJavascript call and one failure didn't stop the rest.
         val parts = buildList {
             add("window.__splShowScrollbar=$showScrollbar;")
-            add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{visibility:hidden!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")
+            add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{display:none!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")
             add("window.__splHideTopBar=$hideTopBar;")
             add("window.__splPowerSavePref=$powerSave;")
             add("window.__splHideEmpty=$hideEmptyPlayer;")

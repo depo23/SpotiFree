@@ -34,8 +34,6 @@
     <string name="settings_material_you_subtitle">Использовать динамические цвета Android</string>
     <string name="settings_amoled_theme">Тема AMOLED</string>
     <string name="settings_amoled_theme_subtitle">Чистый чёрный фон для экономии заряда</string>
-    <string name="settings_hide_top_bar">Скрыть верхнюю панель</string>
-    <string name="settings_hide_top_bar_subtitle">Проведите вниз от верхнего края, чтобы показать её</string>
     <string name="settings_landscape_mode">Горизонтальная ориентация</string>
     <string name="settings_landscape_mode_subtitle">Разрешить поворот в горизонтальное положение</string>
     <string name="settings_keep_screen_on">Не выключать экран</string>

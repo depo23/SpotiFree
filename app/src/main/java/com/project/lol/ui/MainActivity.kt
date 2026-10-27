@@ -336,11 +336,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                         amoledState.value = enabled
                         ThemeController.updateAmoled(enabled)
                     },
-                    hideTopBar = hideTopBar,
-                    onHideTopBarChange = { enabled ->
-                        hideTopBarState.value = enabled
-                        prefs.edit().putBoolean("HideTopBar", enabled).apply()
-                    },
                     landscapeMode = landscapeMode,
                     onLandscapeModeChange = { enabled ->
                         landscapeModeState.value = enabled
@@ -414,7 +409,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                     }
                                 },
                                 actions = {
-                                )
                                 Spacer(Modifier.width(8.dp))
                             },
                                 expandedHeight = 48.dp,

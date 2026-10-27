@@ -37,8 +37,6 @@
     <string name="settings_material_you_subtitle">Utiliser les couleurs dynamiques du système Android</string>
     <string name="settings_amoled_theme">Thème AMOLED</string>
     <string name="settings_amoled_theme_subtitle">Arrière-plan noir pur pour économiser la batterie</string>
-    <string name="settings_hide_top_bar">Masquer la barre supérieure</string>
-    <string name="settings_hide_top_bar_subtitle">Glisser vers le bas depuis le haut pour l\'afficher</string>
     <string name="settings_landscape_mode">Mode paysage</string>
     <string name="settings_landscape_mode_subtitle">Autoriser la rotation en mode paysage</string>
     <string name="settings_keep_screen_on">Maintenir l\'écran allumé</string>

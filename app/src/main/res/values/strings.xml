@@ -36,8 +36,6 @@
     <string name="settings_material_you_subtitle">Use Android system dynamic colors</string>
     <string name="settings_amoled_theme">AMOLED Theme</string>
     <string name="settings_amoled_theme_subtitle">Pure black background to save battery</string>
-    <string name="settings_hide_top_bar">Hide Top Bar</string>
-    <string name="settings_hide_top_bar_subtitle">Swipe down from the top to show it</string>
     <string name="settings_landscape_mode">Landscape Mode</string>
     <string name="settings_landscape_mode_subtitle">Allow rotating to landscape</string>
     <string name="settings_keep_screen_on">Keep Screen On</string>
