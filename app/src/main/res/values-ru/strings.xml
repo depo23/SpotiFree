@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Spotilol</string>
+    <string name="app_name">SpotiFree</string>
     <string name="aa_playlists">Плейлисты</string>
     <string name="aa_albums">Альбомы</string>
     <string name="aa_artists">Исполнители</string>
@@ -157,10 +157,10 @@
     <string name="settings_open_links_always_hint">Выбирайте «Всегда» при открытии ссылки Spotify</string>
     <string name="settings_open_links_unsupported">Не поддерживается на этом устройстве</string>
     <string name="settings_github_repository">Репозиторий GitHub</string>
-    <string name="settings_github_subtitle">github.com/lyssadev/Spotilol</string>
+    <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Сервер Discord</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
-    <string name="settings_version">Версия Spotilol</string>
+    <string name="settings_version">Версия SpotiFree</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>
     <string name="settings_webview_engine">Движок WebView</string>
@@ -210,7 +210,7 @@
     <string name="logger_export_failed">Не удалось экспортировать журнал</string>
     <string name="logger_copy_entry">Копировать запись</string>
     <string name="logger_scroll_latest">К последней записи</string>
-    <string name="offline_app_name">Spotilol</string>
+    <string name="offline_app_name">SpotiFree</string>
     <string name="offline_version">v%1$s · %2$s</string>
     <string name="offline_desc_settings">Настройки</string>
     <string name="offline_desc_exit_offline_mode">Выйти из офлайн-режима</string>
@@ -308,7 +308,7 @@
     <string name="offline_import_skipped">Уже импортировано: %1$d</string>
     <string name="offline_import_failed">Не удалось импортировать: %1$d</string>
     <string name="offline_empty_import_cta">Импортировать файлы</string>
-    <string name="offline_dialog_delete_import_message">Удалить «%1$s» — %2$s — из Spotilol? Исходный файл останется на устройстве.</string>
+    <string name="offline_dialog_delete_import_message">Удалить «%1$s» — %2$s — из SpotiFree? Исходный файл останется на устройстве.</string>
     <string name="offline_desc_new_playlist">Создать плейлист</string>
     <string name="offline_playlists_status_none">Плейлистов пока нет</string>
     <string name="offline_playlists_status_one">1 плейлист</string>
@@ -388,33 +388,33 @@
     <string name="timer_desc_open">Таймер сна</string>
 
     <string name="battery_dialog_title">Продолжайте слушать музыку</string>
-    <string name="battery_dialog_intro">Android может останавливать Spotilol в фоновом режиме для экономии заряда батареи. Поэтому музыка иногда сама приостанавливается при выключении экрана. Достаточно изменить одну настройку, чтобы это исправить.</string>
+    <string name="battery_dialog_intro">Android может останавливать SpotiFree в фоновом режиме для экономии заряда батареи. Поэтому музыка иногда сама приостанавливается при выключении экрана. Достаточно изменить одну настройку, чтобы это исправить.</string>
     <string name="battery_dialog_benefit_playback">Музыка продолжает играть при выключенном экране</string>
     <string name="battery_dialog_benefit_controls">Элементы управления воспроизведением в уведомлении продолжают работать</string>
     <string name="battery_dialog_benefit_downloads">Загрузки завершаются без прерываний</string>
     <string name="battery_dialog_benefit_timer">Таймер сна срабатывает точно в назначенное время</string>
-    <string name="battery_dialog_reassure">Spotilol по-прежнему экономно расходует заряд батареи — приложение работает только тогда, когда вы действительно слушаете музыку.</string>
+    <string name="battery_dialog_reassure">SpotiFree по-прежнему экономно расходует заряд батареи — приложение работает только тогда, когда вы действительно слушаете музыку.</string>
     <string name="battery_dialog_hint">Android откроет системный экран настроек батареи. Просто выберите «Разрешить».</string>
     <string name="battery_dialog_confirm">Разрешить воспроизведение в фоновом режиме</string>
     <string name="battery_dialog_dismiss">Не сейчас</string>
     <string name="settings_battery_background">Фоновое воспроизведение</string>
     <string name="settings_battery_background_on">Разрешено — музыка продолжает играть в фоновом режиме</string>
     <string name="settings_battery_background_off">Ограничено — Android может приостанавливать воспроизведение в фоновом режиме</string>
-    <string name="settings_battery_info">Оптимизация батареи Android может останавливать Spotilol при работе в фоновом режиме. Здесь открывается системный экран настроек батареи, где можно разрешить работу приложения.</string>
+    <string name="settings_battery_info">Оптимизация батареи Android может останавливать SpotiFree при работе в фоновом режиме. Здесь открывается системный экран настроек батареи, где можно разрешить работу приложения.</string>
     <string name="settings_battery_already_allowed">Фоновое воспроизведение уже разрешено</string>
     <string name="settings_battery_prompt_unavailable">Не удалось открыть диалог настроек батареи. Вместо него открываются настройки приложения.</string>
 
-    <string name="splash_title">Spotilol</string>
+    <string name="splash_title">SpotiFree</string>
     <string name="splash_version_label">v%1$s · %2$s</string>
     <string name="splash_onboarding_welcome">Добро пожаловать</string>
-    <string name="splash_onboarding_permissions_subtitle">Spotilol нужны эти разрешения для корректной работы.</string>
+    <string name="splash_onboarding_permissions_subtitle">SpotiFree нужны эти разрешения для корректной работы.</string>
     <string name="splash_onboarding_notifications_title">Уведомления</string>
     <string name="splash_onboarding_notifications_desc">Управление воспроизведением в панели уведомлений и на экране блокировки.</string>
     <string name="splash_onboarding_bluetooth_title">Ближайшие устройства</string>
     <string name="splash_onboarding_bluetooth_desc">Поддерживает работу Spotify Connect на ваших Bluetooth-устройствах.</string>
     <string name="splash_onboarding_accept">Принять</string>
     <string name="settings_dialog_title">Настройки</string>
-    <string name="settings_dialog_version">Spotilol v%1$s · %2$s</string>
+    <string name="settings_dialog_version">SpotiFree v%1$s · %2$s</string>
     <string name="settings_dialog_close">Закрыть</string>
     <string name="error_title_no_internet">Вы офлайн</string>
     <string name="error_message_no_internet">Подключение к интернету не обнаружено.\nПроверьте сеть и попробуйте снова.</string>
@@ -430,7 +430,7 @@
     <string name="error_message_generic">При загрузке Spotify произошла\nнепредвиденная ошибка.</string>
     <string name="error_retry">Повторить</string>
     <string name="error_detail">Ошибка %1$d - %2$s</string>
-    <string name="crash_title">Spotilol упал</string>
+    <string name="crash_title">SpotiFree упал</string>
     <string name="crash_unknown">Неизвестный сбой</string>
     <string name="crash_no_report">отчёт о сбое не зафиксирован</string>
     <string name="crash_report_header">Отчёт</string>
@@ -439,9 +439,9 @@
     <string name="crash_copied">Отчёт о сбое скопирован</string>
     <string name="crash_restart">Перезапустить</string>
     <string name="notif_channel_media_name">Воспроизведение медиа</string>
-    <string name="notif_channel_media_description">Управление воспроизведением Spotilol</string>
+    <string name="notif_channel_media_description">Управление воспроизведением SpotiFree</string>
     <string name="notif_channel_offline_name">Офлайн-воспроизведение</string>
-    <string name="notif_channel_offline_description">Управление офлайн-воспроизведением Spotilol</string>
+    <string name="notif_channel_offline_description">Управление офлайн-воспроизведением SpotiFree</string>
     <string name="notif_action_previous">Предыдущий</string>
     <string name="notif_action_next">Следующий</string>
     <string name="notif_action_play">Воспроизвести</string>
@@ -455,12 +455,12 @@
     <string name="notif_unknown_name">Неизвестно</string>
     <string name="notif_by_artist">от %1$s</string>
     <string name="notif_channel_downloads_name">Загрузки</string>
-    <string name="notif_channel_downloads_description">Загрузка треков Spotilol</string>
+    <string name="notif_channel_downloads_description">Загрузка треков SpotiFree</string>
     <string name="notif_repeat_disable">Выключить повтор</string>
     <string name="notif_repeat_disable_one">Выключить повтор одного трека</string>
     <string name="notif_repeat_enable">Включить повтор</string>
     <string name="dl_notif_downloading_playlist">Скачивание плейлиста</string>
-    <string name="dl_notif_downloading_title">Загрузка Spotilol</string>
+    <string name="dl_notif_downloading_title">Загрузка SpotiFree</string>
     <string name="dl_notif_track_of">Трек %1$d из %2$d</string>
     <string name="dl_notif_stage_percent">%1$s · %2$d%%</string>
     <string name="dl_notif_saved">Сохранено: %1$d</string>
@@ -473,13 +473,13 @@
     <string name="bridge_player_unlocked">Плеер разблокирован</string>
     <string name="bridge_reloading">Перезагрузка…</string>
     <string name="service_disabled_message">Сервис не включён</string>
-    <string name="widget_player_name">Плеер Spotilol</string>
-    <string name="widget_player_description">Управление воспроизведением Spotilol</string>
-    <string name="widget_art_name">Обложка Spotilol</string>
+    <string name="widget_player_name">Плеер SpotiFree</string>
+    <string name="widget_player_description">Управление воспроизведением SpotiFree</string>
+    <string name="widget_art_name">Обложка SpotiFree</string>
     <string name="widget_art_description">Обложка альбома текущего трека</string>
     <string name="widget_action_shuffle">Перемешивание</string>
     <string name="widget_action_repeat">Повтор</string>
-    <string name="widget_empty_title">Spotilol</string>
+    <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Откройте приложение, чтобы начать воспроизведение</string>
     <string name="settings_section_privacy">ПРИВАТНОСТЬ</string>
     <string name="settings_telemetry">Данные об использовании и производительности</string>
@@ -558,7 +558,7 @@
     <string name="theme_delete">Удалить тему</string>
     <string name="widget_badge_offline">Офлайн</string>
     <string name="widget_studio_title">Студия виджета</string>
-    <string name="widget_studio_subtitle">Настройте виджет Spotilol</string>
+    <string name="widget_studio_subtitle">Настройте виджет SpotiFree</string>
     <string name="widget_studio_preview">Предпросмотр</string>
     <string name="widget_studio_preview_sample_title">Название трека</string>
     <string name="widget_studio_preview_sample_artist">Имя исполнителя</string>
@@ -593,7 +593,7 @@
     <string name="widget_studio_add">Добавить виджет</string>
     <string name="widget_studio_close">Закрыть</string>
     <string name="widget_studio_no_widget">Виджета пока нет</string>
-    <string name="widget_studio_no_widget_desc">Добавьте виджет плеера Spotilol на главном экране и вернитесь сюда для настройки.</string>
+    <string name="widget_studio_no_widget_desc">Добавьте виджет плеера SpotiFree на главном экране и вернитесь сюда для настройки.</string>
     <string name="settings_widget_studio">Студия виджета</string>
     <string name="settings_widget_studio_subtitle">Настроить размер, информацию и управление</string>
 </resources>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Spotilol</string>
+    <string name="app_name">SpotiFree</string>
     <string name="aa_playlists">Çalma listeleri</string>
     <string name="aa_albums">Albümler</string>
     <string name="aa_artists">Sanatçılar</string>
@@ -163,10 +163,10 @@
     <string name="settings_open_links_always_hint">Bir Spotify bağlantısı açarken \'Her zaman\' seçeneğini kullanın</string>
     <string name="settings_open_links_unsupported">Bu cihazda desteklenmiyor</string>
     <string name="settings_github_repository">GitHub Deposu</string>
-    <string name="settings_github_subtitle">github.com/lyssadev/Spotilol</string>
+    <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Discord Sunucusu</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
-    <string name="settings_version">Spotilol Sürümü</string>
+    <string name="settings_version">SpotiFree Sürümü</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>
     <string name="settings_webview_engine">WebView Motoru</string>
@@ -216,7 +216,7 @@
     <string name="logger_export_failed">Günlük dışa aktarılamadı</string>
     <string name="logger_copy_entry">Girdiyi kopyala</string>
     <string name="logger_scroll_latest">En yeniye git</string>
-    <string name="offline_app_name">Spotilol</string>
+    <string name="offline_app_name">SpotiFree</string>
     <string name="offline_version">v%1$s · %2$s</string>
     <string name="offline_desc_settings">Ayarlar</string>
     <string name="offline_desc_exit_offline_mode">Çevrimdışı moddan çık</string>
@@ -314,7 +314,7 @@
     <string name="offline_import_skipped">%1$d parça zaten içe aktarılmış</string>
     <string name="offline_import_failed">%1$d parça içe aktarılamadı</string>
     <string name="offline_empty_import_cta">Dosyaları içe aktar</string>
-    <string name="offline_dialog_delete_import_message">Spotilol\'dan %2$s sanatçısına ait "%1$s" kaldırılsın mı? Orijinal dosya cihazında kalır.</string>
+    <string name="offline_dialog_delete_import_message">SpotiFree\'dan %2$s sanatçısına ait "%1$s" kaldırılsın mı? Orijinal dosya cihazında kalır.</string>
     <string name="offline_desc_new_playlist">Çalma listesi oluştur</string>
     <string name="offline_playlists_status_none">Henüz çalma listesi yok</string>
     <string name="offline_playlists_status_one">1 çalma listesi</string>
@@ -394,33 +394,33 @@
     <string name="timer_desc_open">Uyku zamanlayıcısı</string>
 
     <string name="battery_dialog_title">Müzik çalmaya devam etsin</string>
-    <string name="battery_dialog_intro">Android, pil tasarrufu yapmak için Spotilol\'u arka planda çalışırken durdurabilir. Bu yüzden ekran kapandığında müzik bazen kendiliğinden duraklar. Tek bir ayarı değiştirerek bunu düzeltebilirsin.</string>
+    <string name="battery_dialog_intro">Android, pil tasarrufu yapmak için SpotiFree\'u arka planda çalışırken durdurabilir. Bu yüzden ekran kapandığında müzik bazen kendiliğinden duraklar. Tek bir ayarı değiştirerek bunu düzeltebilirsin.</string>
     <string name="battery_dialog_benefit_playback">Ekran kapalıyken müzik çalmaya devam eder</string>
     <string name="battery_dialog_benefit_controls">Bildirimdeki medya kontrolleri yanıt vermeye devam eder</string>
     <string name="battery_dialog_benefit_downloads">İndirmeler kesintisiz tamamlanır</string>
     <string name="battery_dialog_benefit_timer">Uyku zamanlayıcısı tam zamanında çalışır</string>
-    <string name="battery_dialog_reassure">Spotilol pil tasarrufu sağlamaya devam eder; yalnızca gerçekten müzik dinlerken çalışır.</string>
+    <string name="battery_dialog_reassure">SpotiFree pil tasarrufu sağlamaya devam eder; yalnızca gerçekten müzik dinlerken çalışır.</string>
     <string name="battery_dialog_hint">Android şimdi sistemin pil ayarları ekranını açacak. Sadece "İzin ver" seçeneğini seç.</string>
     <string name="battery_dialog_confirm">Arka planda oynatmaya izin ver</string>
     <string name="battery_dialog_dismiss">Şimdi değil</string>
     <string name="settings_battery_background">Arka Planda Oynatma</string>
     <string name="settings_battery_background_on">İzin verildi — müzik arka planda çalmaya devam eder</string>
     <string name="settings_battery_background_off">Kısıtlandı — Android arka plandaki oynatmayı duraklatabilir</string>
-    <string name="settings_battery_info">Android\'in pil optimizasyonu, Spotilol arka planda çalışırken uygulamayı durdurabilir. Bu seçenek, uygulamanın çalışmasına izin verebileceğin sistem pil ayarları ekranını açar.</string>
+    <string name="settings_battery_info">Android\'in pil optimizasyonu, SpotiFree arka planda çalışırken uygulamayı durdurabilir. Bu seçenek, uygulamanın çalışmasına izin verebileceğin sistem pil ayarları ekranını açar.</string>
     <string name="settings_battery_already_allowed">Arka planda oynatmaya zaten izin verildi</string>
     <string name="settings_battery_prompt_unavailable">Pil iletişim kutusu açılamadı. Bunun yerine uygulama ayarları açılıyor.</string>
 
-    <string name="splash_title">Spotilol</string>
+    <string name="splash_title">SpotiFree</string>
     <string name="splash_version_label">v%1$s · %2$s</string>
     <string name="splash_onboarding_welcome">Hoş geldiniz</string>
-    <string name="splash_onboarding_permissions_subtitle">Spotilol\'un düzgün çalışması için bu izinlere ihtiyacı var.</string>
+    <string name="splash_onboarding_permissions_subtitle">SpotiFree\'un düzgün çalışması için bu izinlere ihtiyacı var.</string>
     <string name="splash_onboarding_notifications_title">Bildirimler</string>
     <string name="splash_onboarding_notifications_desc">Bildirim panelinde ve kilit ekranında oynatma kontrolleri.</string>
     <string name="splash_onboarding_bluetooth_title">Yakındaki cihazlar</string>
     <string name="splash_onboarding_bluetooth_desc">Bluetooth cihazlarınızda Spotify Connect\'in çalışmasını sağlar.</string>
     <string name="splash_onboarding_accept">Kabul et</string>
     <string name="settings_dialog_title">Ayarlar</string>
-    <string name="settings_dialog_version">Spotilol v%1$s · %2$s</string>
+    <string name="settings_dialog_version">SpotiFree v%1$s · %2$s</string>
     <string name="settings_dialog_close">Kapat</string>
     <string name="error_title_no_internet">Çevrimdışısınız</string>
     <string name="error_message_no_internet">İnternet bağlantısı algılanamadı.\nAğınızı kontrol edip tekrar deneyin.</string>
@@ -437,7 +437,7 @@
     <string name="error_retry">Yeniden dene</string>
     <string name="error_detail">Hata %1$d - %2$s</string>
 
-    <string name="crash_title">Spotilol çöktü</string>
+    <string name="crash_title">SpotiFree çöktü</string>
     <string name="crash_unknown">Bilinmeyen çökme</string>
     <string name="crash_no_report">çökme raporu yakalanamadı</string>
     <string name="crash_report_header">Rapor</string>
@@ -447,9 +447,9 @@
     <string name="crash_restart">Yeniden başlat</string>
 
     <string name="notif_channel_media_name">Medya Oynatma</string>
-    <string name="notif_channel_media_description">Spotilol medya oynatma kontrolleri</string>
+    <string name="notif_channel_media_description">SpotiFree medya oynatma kontrolleri</string>
     <string name="notif_channel_offline_name">Çevrimdışı Oynatma</string>
-    <string name="notif_channel_offline_description">Spotilol çevrimdışı oynatma kontrolleri</string>
+    <string name="notif_channel_offline_description">SpotiFree çevrimdışı oynatma kontrolleri</string>
     <string name="notif_action_previous">Önceki</string>
     <string name="notif_action_next">Sonraki</string>
     <string name="notif_action_play">Oynat</string>
@@ -463,13 +463,13 @@
     <string name="notif_unknown_name">Bilinmeyen</string>
     <string name="notif_by_artist">%1$s tarafından</string>
     <string name="notif_channel_downloads_name">İndirmeler</string>
-    <string name="notif_channel_downloads_description">Spotilol parça indirmeleri</string>
+    <string name="notif_channel_downloads_description">SpotiFree parça indirmeleri</string>
     <string name="notif_repeat_disable">Tekrarı devre dışı bırak</string>
     <string name="notif_repeat_disable_one">Birini tekrarlamayı devre dışı bırak</string>
     <string name="notif_repeat_enable">Tekrarı etkinleştir</string>
 
     <string name="dl_notif_downloading_playlist">Çalma listesi indiriliyor</string>
-    <string name="dl_notif_downloading_title">Spotilol İndirme</string>
+    <string name="dl_notif_downloading_title">SpotiFree İndirme</string>
     <string name="dl_notif_track_of">Parça %1$d / %2$d</string>
     <string name="dl_notif_stage_percent">%1$s · %2$d%%</string>
     <string name="dl_notif_saved">%1$d kaydedildi</string>
@@ -485,13 +485,13 @@
 
     <string name="service_disabled_message">Hizmet etkin değil</string>
 
-    <string name="widget_player_name">Spotilol oynatıcı</string>
-    <string name="widget_player_description">Spotilol için oynatma kontrolleri</string>
-    <string name="widget_art_name">Spotilol kapak</string>
+    <string name="widget_player_name">SpotiFree oynatıcı</string>
+    <string name="widget_player_description">SpotiFree için oynatma kontrolleri</string>
+    <string name="widget_art_name">SpotiFree kapak</string>
     <string name="widget_art_description">Mevcut parçanın albüm kapağı</string>
     <string name="widget_action_shuffle">Karıştır</string>
     <string name="widget_action_repeat">Tekrarla</string>
-    <string name="widget_empty_title">Spotilol</string>
+    <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Oynatmaya başlamak için uygulamayı açın</string>
     <string name="settings_section_privacy">Gizlilik</string>
     <string name="settings_telemetry">Kullanım ve performans verileri</string>
@@ -570,7 +570,7 @@
     <string name="theme_delete">Temayı sil</string>
     <string name="widget_badge_offline">Çevrimdışı</string>
     <string name="widget_studio_title">Widget Stüdyosu</string>
-    <string name="widget_studio_subtitle">Spotilol widget\'ını özelleştir</string>
+    <string name="widget_studio_subtitle">SpotiFree widget\'ını özelleştir</string>
     <string name="widget_studio_preview">Önizleme</string>
     <string name="widget_studio_preview_sample_title">Şarkı adı</string>
     <string name="widget_studio_preview_sample_artist">Sanatçı adı</string>
@@ -605,7 +605,7 @@
     <string name="widget_studio_add">Widget ekle</string>
     <string name="widget_studio_close">Kapat</string>
     <string name="widget_studio_no_widget">Henüz widget yok</string>
-    <string name="widget_studio_no_widget_desc">Spotilol oynatıcı widget\'ını ana ekranından ekle, sonra özelleştirmek için buraya dön.</string>
+    <string name="widget_studio_no_widget_desc">SpotiFree oynatıcı widget\'ını ana ekranından ekle, sonra özelleştirmek için buraya dön.</string>
     <string name="settings_widget_studio">Widget Stüdyosu</string>
     <string name="settings_widget_studio_subtitle">Boyutu, bilgileri ve kontrolleri özelleştir</string>
 </resources>

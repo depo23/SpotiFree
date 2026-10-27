@@ -101,7 +101,7 @@ object Lrc {
         val total = durationMs ?: sorted.last().endMs.takeIf { it > sorted.last().startMs }
 
         return buildString {
-            append("[re:Spotilol]\n")
+            append("[re:SpotiFree]\n")
             if (total != null && total > 0) {
                 append("[length:").append(stamp(total)).append("]\n")
             }

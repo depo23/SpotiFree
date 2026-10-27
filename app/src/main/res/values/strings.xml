@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Spotilol</string>
+    <string name="app_name">SpotiFree</string>
     <string name="aa_playlists">Playlists</string>
     <string name="aa_albums">Albums</string>
     <string name="aa_artists">Artists</string>
@@ -164,32 +164,32 @@
     <string name="settings_open_links_always_hint">Use \'Always\' when opening a Spotify link</string>
     <string name="settings_open_links_unsupported">Not supported on this device</string>
     <string name="settings_github_repository">GitHub Repository</string>
-    <string name="settings_github_subtitle">github.com/lyssadev/Spotilol</string>
+    <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Discord Server</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
     <string name="settings_check_updates">Check for updates</string>
-    <string name="settings_check_updates_subtitle">Download and install the latest Spotilol</string>
-    <string name="update_title_available">Spotilol %1$s is available</string>
+    <string name="settings_check_updates_subtitle">Download and install the latest SpotiFree</string>
+    <string name="update_title_available">SpotiFree %1$s is available</string>
     <string name="update_title_ready">Update ready</string>
     <string name="update_title_failed">Update failed</string>
     <string name="update_text_downloading">Downloading… %1$d%%</string>
-    <string name="update_text_ready">Install Spotilol %1$s now? Android will ask you to confirm.</string>
+    <string name="update_text_ready">Install SpotiFree %1$s now? Android will ask you to confirm.</string>
     <string name="update_install">Install</string>
     <string name="update_later">Later</string>
     <string name="update_ok">OK</string>
     <string name="update_allow_installs">Allow installs</string>
-    <string name="update_up_to_date">Spotilol is up to date</string>
+    <string name="update_up_to_date">SpotiFree is up to date</string>
     <string name="update_check_failed">Could not check for updates. Check your connection.</string>
     <string name="update_download_failed">Could not download the update. It will retry on the next check.</string>
     <string name="update_no_apk">The latest release has no installable APK</string>
     <string name="update_channel_name">App updates</string>
-    <string name="update_installed_title">Spotilol %1$s installed</string>
+    <string name="update_installed_title">SpotiFree %1$s installed</string>
     <string name="update_installed_text">Tap to open the new version.</string>
     <string name="update_open">Open</string>
-    <string name="update_installed_toast">Spotilol updated to %1$s</string>
-    <string name="update_installing_title">Installing Spotilol %1$s</string>
+    <string name="update_installed_toast">SpotiFree updated to %1$s</string>
+    <string name="update_installing_title">Installing SpotiFree %1$s</string>
     <string name="update_installing_text">Preparing the update…</string>
-    <string name="update_confirm_title">Confirm Spotilol %1$s</string>
+    <string name="update_confirm_title">Confirm SpotiFree %1$s</string>
     <string name="update_confirm_text">Android\'s installer is open. Tap Install there to finish.</string>
     <string name="update_close">Close</string>
     <string name="update_copying_text">Copying the update… %1$d%%</string>
@@ -202,7 +202,7 @@
     <string name="update_freq_week">Every week</string>
     <string name="update_freq_month">Every month</string>
     <string name="update_freq_never">Never</string>
-    <string name="settings_version">Spotilol Version</string>
+    <string name="settings_version">SpotiFree Version</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>
     <string name="settings_webview_engine">WebView Engine</string>
@@ -252,7 +252,7 @@
     <string name="logger_export_failed">Could not export the log</string>
     <string name="logger_copy_entry">Copy entry</string>
     <string name="logger_scroll_latest">Jump to newest</string>
-    <string name="offline_app_name">Spotilol</string>
+    <string name="offline_app_name">SpotiFree</string>
     <string name="offline_version">v%1$s · %2$s</string>
     <string name="offline_desc_settings">Settings</string>
     <string name="offline_desc_exit_offline_mode">Exit offline mode</string>
@@ -351,7 +351,7 @@
     <string name="offline_import_skipped">%1$d already imported</string>
     <string name="offline_import_failed">%1$d could not be imported</string>
     <string name="offline_empty_import_cta">Import files</string>
-    <string name="offline_dialog_delete_import_message">Remove "%1$s" by %2$s from Spotilol? The original file on your device is kept.</string>
+    <string name="offline_dialog_delete_import_message">Remove "%1$s" by %2$s from SpotiFree? The original file on your device is kept.</string>
     <string name="offline_desc_new_playlist">Create playlist</string>
     <string name="offline_playlists_status_none">No playlists yet</string>
     <string name="offline_playlists_status_one">1 playlist</string>
@@ -431,33 +431,33 @@
     <string name="timer_desc_open">Sleep timer</string>
 
     <string name="battery_dialog_title">Keep the music playing</string>
-    <string name="battery_dialog_intro">Android may stop Spotilol while it runs in the background to save battery - that\'s why songs sometimes pause by themselves when the screen turns off. One quick setting fixes it.</string>
+    <string name="battery_dialog_intro">Android may stop SpotiFree while it runs in the background to save battery - that\'s why songs sometimes pause by themselves when the screen turns off. One quick setting fixes it.</string>
     <string name="battery_dialog_benefit_playback">Music keeps playing with the screen off</string>
     <string name="battery_dialog_benefit_controls">Media controls stay responsive in the notification</string>
     <string name="battery_dialog_benefit_downloads">Downloads finish without interruption</string>
     <string name="battery_dialog_benefit_timer">Sleep timer fires exactly on time</string>
-    <string name="battery_dialog_reassure">Spotilol stays easy on the battery - it only works while you\'re actually listening.</string>
+    <string name="battery_dialog_reassure">SpotiFree stays easy on the battery - it only works while you\'re actually listening.</string>
     <string name="battery_dialog_hint">Android will open its battery screen next - just pick \"Allow\".</string>
     <string name="battery_dialog_confirm">Allow background playback</string>
     <string name="battery_dialog_dismiss">Not now</string>
     <string name="settings_battery_background">Background Playback</string>
     <string name="settings_battery_background_on">Allowed - music keeps playing in the background</string>
     <string name="settings_battery_background_off">Restricted - Android may pause playback in the background</string>
-    <string name="settings_battery_info">Android\'s battery optimization can stop Spotilol while it runs in the background. This opens the system battery screen where you can allow it.</string>
+    <string name="settings_battery_info">Android\'s battery optimization can stop SpotiFree while it runs in the background. This opens the system battery screen where you can allow it.</string>
     <string name="settings_battery_already_allowed">Background playback is already allowed</string>
     <string name="settings_battery_prompt_unavailable">Couldn\'t open the battery dialog, opening app settings instead</string>
 
-    <string name="splash_title">Spotilol</string>
+    <string name="splash_title">SpotiFree</string>
     <string name="splash_version_label">v%1$s · %2$s</string>
     <string name="splash_onboarding_welcome">Welcome</string>
-    <string name="splash_onboarding_permissions_subtitle">Spotilol needs these permissions to work properly.</string>
+    <string name="splash_onboarding_permissions_subtitle">SpotiFree needs these permissions to work properly.</string>
     <string name="splash_onboarding_notifications_title">Notifications</string>
     <string name="splash_onboarding_notifications_desc">Playback controls in the notification shade and lock screen.</string>
     <string name="splash_onboarding_bluetooth_title">Nearby devices</string>
     <string name="splash_onboarding_bluetooth_desc">Keeps Spotify Connect working on your Bluetooth devices.</string>
     <string name="splash_onboarding_accept">Accept</string>
     <string name="settings_dialog_title">Settings</string>
-    <string name="settings_dialog_version">Spotilol v%1$s · %2$s</string>
+    <string name="settings_dialog_version">SpotiFree v%1$s · %2$s</string>
     <string name="settings_dialog_close">Close</string>
     <string name="error_title_no_internet">You\'re Offline</string>
     <string name="error_message_no_internet">No internet connection detected.\nCheck your network and try again.</string>
@@ -474,7 +474,7 @@
     <string name="error_retry">Retry</string>
     <string name="error_detail">Error %1$d - %2$s</string>
 
-    <string name="crash_title">Spotilol crashed</string>
+    <string name="crash_title">SpotiFree crashed</string>
     <string name="crash_unknown">Unknown crash</string>
     <string name="crash_no_report">no crash report captured</string>
     <string name="crash_report_header">Report</string>
@@ -484,9 +484,9 @@
     <string name="crash_restart">Restart</string>
 
     <string name="notif_channel_media_name">Media Playback</string>
-    <string name="notif_channel_media_description">Spotilol media playback controls</string>
+    <string name="notif_channel_media_description">SpotiFree media playback controls</string>
     <string name="notif_channel_offline_name">Offline Playback</string>
-    <string name="notif_channel_offline_description">Spotilol offline playback controls</string>
+    <string name="notif_channel_offline_description">SpotiFree offline playback controls</string>
     <string name="notif_action_previous">Previous</string>
     <string name="notif_action_next">Next</string>
     <string name="notif_action_play">Play</string>
@@ -500,13 +500,13 @@
     <string name="notif_unknown_name">Unknown</string>
     <string name="notif_by_artist">by %1$s</string>
     <string name="notif_channel_downloads_name">Downloads</string>
-    <string name="notif_channel_downloads_description">Spotilol track downloads</string>
+    <string name="notif_channel_downloads_description">SpotiFree track downloads</string>
     <string name="notif_repeat_disable">Disable repeat</string>
     <string name="notif_repeat_disable_one">Disable repeat one</string>
     <string name="notif_repeat_enable">Enable repeat</string>
 
     <string name="dl_notif_downloading_playlist">Downloading playlist</string>
-    <string name="dl_notif_downloading_title">Spotilol Download</string>
+    <string name="dl_notif_downloading_title">SpotiFree Download</string>
     <string name="dl_notif_track_of">Track %1$d of %2$d</string>
     <string name="dl_notif_stage_percent">%1$s · %2$d%%</string>
     <string name="dl_notif_saved">%1$d saved</string>
@@ -522,18 +522,18 @@
 
     <string name="service_disabled_message">Service is not enabled</string>
 
-    <string name="widget_player_name">Spotilol player</string>
-    <string name="widget_player_description">Playback controls for Spotilol</string>
-    <string name="widget_art_name">Spotilol art</string>
+    <string name="widget_player_name">SpotiFree player</string>
+    <string name="widget_player_description">Playback controls for SpotiFree</string>
+    <string name="widget_art_name">SpotiFree art</string>
     <string name="widget_art_description">Album art of the current track</string>
     <string name="widget_action_shuffle">Shuffle</string>
     <string name="widget_action_repeat">Repeat</string>
-    <string name="widget_empty_title">Spotilol</string>
+    <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Open the app to start playing</string>
     <string name="widget_badge_offline">Offline</string>
 
     <string name="widget_studio_title">Widget Studio</string>
-    <string name="widget_studio_subtitle">Customize the Spotilol widget</string>
+    <string name="widget_studio_subtitle">Customize the SpotiFree widget</string>
     <string name="widget_studio_preview">Preview</string>
     <string name="widget_studio_preview_sample_title">Song title</string>
     <string name="widget_studio_preview_sample_artist">Artist name</string>
@@ -568,7 +568,7 @@
     <string name="widget_studio_add">Add widget</string>
     <string name="widget_studio_close">Close</string>
     <string name="widget_studio_no_widget">No widget yet</string>
-    <string name="widget_studio_no_widget_desc">Add the Spotilol player widget from your home screen, then come back here to customize it.</string>
+    <string name="widget_studio_no_widget_desc">Add the SpotiFree player widget from your home screen, then come back here to customize it.</string>
     <string name="settings_widget_studio">Widget Studio</string>
     <string name="settings_widget_studio_subtitle">Customize size, info and controls</string>
     <string name="settings_section_privacy">Privacy</string>

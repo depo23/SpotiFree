@@ -53,7 +53,7 @@ import java.util.Locale
 
 private val REPO_OWNER = com.project.lol.BuildConfig.UPDATE_REPO.substringBefore('/')
 private val REPO_NAME = com.project.lol.BuildConfig.UPDATE_REPO.substringAfter('/')
-private const val RELEASES_URL = "https://github.com/lyssadev/Spotilol/releases"
+private val RELEASES_URL = "https://github.com/${com.project.lol.BuildConfig.UPDATE_REPO}/releases"
 
 @Composable
 fun ChangelogDialog(onDismiss: () -> Unit) {

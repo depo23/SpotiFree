@@ -25,7 +25,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Spotilol"
+rootProject.name = "SpotiFree"
 include(":app")
 include(":lame")
 include(":opus")

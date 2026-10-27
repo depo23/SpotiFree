@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Spotilol</string>
+    <string name="app_name">SpotiFree</string>
     <string name="aa_playlists">Playlists</string>
     <string name="aa_albums">Álbumes</string>
     <string name="aa_artists">Artistas</string>
@@ -157,10 +157,10 @@
     <string name="settings_open_links_always_hint">Usa \'Siempre\' al abrir un enlace de Spotify</string>
     <string name="settings_open_links_unsupported">No compatible con este dispositivo</string>
     <string name="settings_github_repository">Repositorio de GitHub</string>
-    <string name="settings_github_subtitle">github.com/lyssadev/Spotilol</string>
+    <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Servidor de Discord</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
-    <string name="settings_version">Versión de Spotilol</string>
+    <string name="settings_version">Versión de SpotiFree</string>
     <string name="settings_version_format">v%1$s · %2$s</string>
     <string name="settings_changelog_version">v%1$s</string>
     <string name="settings_webview_engine">Motor de WebView</string>
@@ -210,7 +210,7 @@
     <string name="logger_export_failed">No se pudo exportar el registro</string>
     <string name="logger_copy_entry">Copiar entrada</string>
     <string name="logger_scroll_latest">Ir al más reciente</string>
-    <string name="offline_app_name">Spotilol</string>
+    <string name="offline_app_name">SpotiFree</string>
     <string name="offline_version">v%1$s · %2$s</string>
     <string name="offline_desc_settings">Ajustes</string>
     <string name="offline_desc_exit_offline_mode">Salir del modo sin conexión</string>
@@ -308,7 +308,7 @@
     <string name="offline_import_skipped">%1$d ya se habían importado</string>
     <string name="offline_import_failed">No se pudieron importar %1$d</string>
     <string name="offline_empty_import_cta">Importar archivos</string>
-    <string name="offline_dialog_delete_import_message">¿Quitar «%1$s» de %2$s de Spotilol? El archivo original de tu dispositivo se conservará.</string>
+    <string name="offline_dialog_delete_import_message">¿Quitar «%1$s» de %2$s de SpotiFree? El archivo original de tu dispositivo se conservará.</string>
     <string name="offline_desc_new_playlist">Crear lista de reproducción</string>
     <string name="offline_playlists_status_none">Aún no hay listas de reproducción</string>
     <string name="offline_playlists_status_one">1 lista de reproducción</string>
@@ -388,33 +388,33 @@
     <string name="timer_desc_open">Temporizador de suspensión</string>
 
     <string name="battery_dialog_title">Sigue escuchando música</string>
-    <string name="battery_dialog_intro">Android puede detener Spotilol mientras se ejecuta en segundo plano para ahorrar batería. Por eso, a veces la música se pausa sola cuando se apaga la pantalla. Puedes solucionarlo con un sencillo ajuste.</string>
+    <string name="battery_dialog_intro">Android puede detener SpotiFree mientras se ejecuta en segundo plano para ahorrar batería. Por eso, a veces la música se pausa sola cuando se apaga la pantalla. Puedes solucionarlo con un sencillo ajuste.</string>
     <string name="battery_dialog_benefit_playback">La música sigue sonando con la pantalla apagada</string>
     <string name="battery_dialog_benefit_controls">Los controles multimedia siguen respondiendo en la notificación</string>
     <string name="battery_dialog_benefit_downloads">Las descargas terminan sin interrupciones</string>
     <string name="battery_dialog_benefit_timer">El temporizador de apagado se activa justo a la hora prevista</string>
-    <string name="battery_dialog_reassure">Spotilol sigue ahorrando batería: solo funciona mientras estás escuchando música.</string>
+    <string name="battery_dialog_reassure">SpotiFree sigue ahorrando batería: solo funciona mientras estás escuchando música.</string>
     <string name="battery_dialog_hint">Android abrirá la pantalla de batería del sistema. Solo tienes que seleccionar «Permitir».</string>
     <string name="battery_dialog_confirm">Permitir reproducción en segundo plano</string>
     <string name="battery_dialog_dismiss">Ahora no</string>
     <string name="settings_battery_background">Reproducción en segundo plano</string>
     <string name="settings_battery_background_on">Permitida: la música sigue sonando en segundo plano</string>
     <string name="settings_battery_background_off">Restringida: Android puede pausar la reproducción en segundo plano</string>
-    <string name="settings_battery_info">La optimización de batería de Android puede detener Spotilol cuando se ejecuta en segundo plano. Esto abre la pantalla de batería del sistema, donde puedes permitir su funcionamiento.</string>
+    <string name="settings_battery_info">La optimización de batería de Android puede detener SpotiFree cuando se ejecuta en segundo plano. Esto abre la pantalla de batería del sistema, donde puedes permitir su funcionamiento.</string>
     <string name="settings_battery_already_allowed">La reproducción en segundo plano ya está permitida</string>
     <string name="settings_battery_prompt_unavailable">No se pudo abrir el diálogo de batería. Se abrirán los ajustes de la aplicación.</string>
 
-    <string name="splash_title">Spotilol</string>
+    <string name="splash_title">SpotiFree</string>
     <string name="splash_version_label">v%1$s · %2$s</string>
     <string name="splash_onboarding_welcome">Bienvenido</string>
-    <string name="splash_onboarding_permissions_subtitle">Spotilol necesita estos permisos para funcionar correctamente.</string>
+    <string name="splash_onboarding_permissions_subtitle">SpotiFree necesita estos permisos para funcionar correctamente.</string>
     <string name="splash_onboarding_notifications_title">Notificaciones</string>
     <string name="splash_onboarding_notifications_desc">Controles de reproducción en el panel de notificaciones y la pantalla de bloqueo.</string>
     <string name="splash_onboarding_bluetooth_title">Dispositivos cercanos</string>
     <string name="splash_onboarding_bluetooth_desc">Mantiene Spotify Connect funcionando en tus dispositivos Bluetooth.</string>
     <string name="splash_onboarding_accept">Aceptar</string>
     <string name="settings_dialog_title">Ajustes</string>
-    <string name="settings_dialog_version">Spotilol v%1$s · %2$s</string>
+    <string name="settings_dialog_version">SpotiFree v%1$s · %2$s</string>
     <string name="settings_dialog_close">Cerrar</string>
     <string name="error_title_no_internet">Estás sin conexión</string>
     <string name="error_message_no_internet">No se detectó conexión a Internet.\nComprueba tu red e inténtalo de nuevo.</string>
@@ -430,7 +430,7 @@
     <string name="error_message_generic">Ocurrió un error inesperado\nal cargar Spotify.</string>
     <string name="error_retry">Reintentar</string>
     <string name="error_detail">Error %1$d - %2$s</string>
-    <string name="crash_title">Spotilol se bloqueó</string>
+    <string name="crash_title">SpotiFree se bloqueó</string>
     <string name="crash_unknown">Fallo desconocido</string>
     <string name="crash_no_report">no se capturó ningún informe de fallos</string>
     <string name="crash_report_header">Informe</string>
@@ -439,9 +439,9 @@
     <string name="crash_copied">Informe de fallos copiado</string>
     <string name="crash_restart">Reiniciar</string>
     <string name="notif_channel_media_name">Reproducción multimedia</string>
-    <string name="notif_channel_media_description">Controles de reproducción multimedia de Spotilol</string>
+    <string name="notif_channel_media_description">Controles de reproducción multimedia de SpotiFree</string>
     <string name="notif_channel_offline_name">Reproducción sin conexión</string>
-    <string name="notif_channel_offline_description">Controles de reproducción sin conexión de Spotilol</string>
+    <string name="notif_channel_offline_description">Controles de reproducción sin conexión de SpotiFree</string>
     <string name="notif_action_previous">Anterior</string>
     <string name="notif_action_next">Siguiente</string>
     <string name="notif_action_play">Reproducir</string>
@@ -455,12 +455,12 @@
     <string name="notif_unknown_name">Desconocido</string>
     <string name="notif_by_artist">por %1$s</string>
     <string name="notif_channel_downloads_name">Descargas</string>
-    <string name="notif_channel_downloads_description">Descargas de pistas de Spotilol</string>
+    <string name="notif_channel_downloads_description">Descargas de pistas de SpotiFree</string>
     <string name="notif_repeat_disable">Desactivar repetición</string>
     <string name="notif_repeat_disable_one">Desactivar repetir canción</string>
     <string name="notif_repeat_enable">Activar repetición</string>
     <string name="dl_notif_downloading_playlist">Descargando playlist</string>
-    <string name="dl_notif_downloading_title">Descarga de Spotilol</string>
+    <string name="dl_notif_downloading_title">Descarga de SpotiFree</string>
     <string name="dl_notif_track_of">Pista %1$d de %2$d</string>
     <string name="dl_notif_stage_percent">%1$s · %2$d%%</string>
     <string name="dl_notif_saved">%1$d guardadas</string>
@@ -473,13 +473,13 @@
     <string name="bridge_player_unlocked">Reproductor desbloqueado</string>
     <string name="bridge_reloading">Recargando…</string>
     <string name="service_disabled_message">El servicio no está activado</string>
-    <string name="widget_player_name">Reproductor de Spotilol</string>
-    <string name="widget_player_description">Controles de reproducción para Spotilol</string>
-    <string name="widget_art_name">Portada de Spotilol</string>
+    <string name="widget_player_name">Reproductor de SpotiFree</string>
+    <string name="widget_player_description">Controles de reproducción para SpotiFree</string>
+    <string name="widget_art_name">Portada de SpotiFree</string>
     <string name="widget_art_description">Portada del álbum de la pista actual</string>
     <string name="widget_action_shuffle">Reproducción aleatoria</string>
     <string name="widget_action_repeat">Repetir</string>
-    <string name="widget_empty_title">Spotilol</string>
+    <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Abre la app para empezar a reproducir</string>
     <string name="settings_section_privacy">PRIVACIDAD</string>
     <string name="settings_telemetry">Datos de uso y rendimiento</string>
@@ -558,7 +558,7 @@
     <string name="theme_delete">Eliminar tema</string>
     <string name="widget_badge_offline">Sin conexión</string>
     <string name="widget_studio_title">Widget Studio</string>
-    <string name="widget_studio_subtitle">Personaliza el widget de Spotilol</string>
+    <string name="widget_studio_subtitle">Personaliza el widget de SpotiFree</string>
     <string name="widget_studio_preview">Vista previa</string>
     <string name="widget_studio_preview_sample_title">Título de la canción</string>
     <string name="widget_studio_preview_sample_artist">Nombre del artista</string>
@@ -593,7 +593,7 @@
     <string name="widget_studio_add">Añadir widget</string>
     <string name="widget_studio_close">Cerrar</string>
     <string name="widget_studio_no_widget">Aún no hay widget</string>
-    <string name="widget_studio_no_widget_desc">Añade el widget de reproductor de Spotilol desde tu pantalla de inicio y luego vuelve aquí para personalizarlo.</string>
+    <string name="widget_studio_no_widget_desc">Añade el widget de reproductor de SpotiFree desde tu pantalla de inicio y luego vuelve aquí para personalizarlo.</string>
     <string name="settings_widget_studio">Widget Studio</string>
     <string name="settings_widget_studio_subtitle">Personaliza tamaño, información y controles</string>
 </resources>

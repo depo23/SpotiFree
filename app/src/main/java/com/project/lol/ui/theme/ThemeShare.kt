@@ -52,7 +52,7 @@ object ThemeShare {
     const val FORMAT = "spotilol.theme"
     const val VERSION = 1
     const val MIME_TYPE = "application/json"
-    const val APP_NAME = "Spotilol"
+    const val APP_NAME = "SpotiFree"
 
     private val json = Json {
         prettyPrint = true
