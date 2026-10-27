@@ -108,6 +108,10 @@ object FetchOverride {
                                         if(j && j.canonical_uri) {
                                             var tid = j.canonical_uri.replace('spotify:track:','');
                                             var cg = j.album && j.album.cover_group && j.album.cover_group.image;
+                                            if (!window.__splMetaDumped) {
+                                                window.__splMetaDumped = true;
+                                                try { AndBridge.dbg('d', 'meta-keys ' + Object.keys(j).join(',') + ' name=' + JSON.stringify(j.name)); } catch(e){}
+                                            }
                                             window.__splTrackMeta = window.__splTrackMeta || {};
                                             window.__splTrackMeta[tid] = {
                                                 uri: j.canonical_uri,
