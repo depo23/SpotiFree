@@ -625,14 +625,10 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                     onInputChange = { sleepTimerInputText.value = it },
                                     onStartCountdown = { minutes ->
                                         showSleepTimerDialog.value = false
-                                        analytics.logEvent("sleep_timer_start", Bundle().apply {
-                                            putString("minutes", minutes.toString())
-                                        })
                                         SleepTimerManager.startCountdown(minutes)
                                     },
                                     onStartEndOfSong = {
                                         showSleepTimerDialog.value = false
-                                        analytics.logEvent("sleep_timer_end_of_song", null)
                                         SleepTimerManager.startEndOfSong()
                                     },
                                     onActionChange = { SleepTimerManager.setAction(this@MainActivity, it) },
@@ -661,7 +657,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                     BatteryOptimizationDialog(
                                         onConfirm = {
                                             showBatteryDialog.value = false
-                                            analytics.logEvent("battery_prompt_allow", null)
                                             if (!BatterySaver.requestExemption(this@MainActivity)) {
                                                 Logger.w(TAG, "battery exemption dialog unavailable, opening app details")
                                                 BatterySaver.openAppSettings(this@MainActivity)
@@ -669,7 +664,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                         },
                                         onDismiss = {
                                             showBatteryDialog.value = false
-                                            analytics.logEvent("battery_prompt_dismiss", null)
                                         }
                                     )
                                 }
@@ -758,16 +752,9 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         serviceEnabledState.value = newValue
         prefs.edit().putBoolean("ServiceOn", newValue).apply()
         if (!newValue) {
-            analytics.logEvent("service_toggle", Bundle().apply {
-                putString("enabled", "off")
-            })
             stopService(Intent(this, MediaNotificationService::class.java))
             serviceStarted = false
             destroyWebView()
-        } else {
-            analytics.logEvent("service_toggle", Bundle().apply {
-                putString("enabled", "on")
-            })
         }
     }
 
