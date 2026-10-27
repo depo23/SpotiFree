@@ -1,4 +1,4 @@
-# SpotiFree v1.3.0
+# SpotiFree v0.1
 
 SpotiFree is the new name of this app, now its own project. It installs as a new app called **SpotiFree**, next to any Spotilol you already have: sign in once, then you can remove the old one.
 
