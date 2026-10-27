@@ -29,22 +29,16 @@ object CssHack {
             };
             window.splFitRows=function(){
                 try{
-                    var rows=document.querySelectorAll('section[data-testid=artist-page] div[data-testid=tracklist-row]');
-                    for(var r=0;r<rows.length;r++){
-                        var row=rows[r];var cells=[];
-                        for(var c=0;c<row.children.length;c++){
-                            var el=row.children[c];
-                            if(el.getAttribute&&el.getAttribute('aria-colindex')&&el.offsetParent!==null)cells.push(el);
-                        }
-                        if(!cells.length)continue;
-                        var ti=-1;
-                        for(var k=0;k<cells.length;k++){if(cells[k].querySelector('a[href*="/track/"]')){ti=k;break;}}
-                        var t=[];
-                        for(var m=0;m<cells.length;m++){t.push(m===ti?'minmax(0,1fr)':(m===0?'40px':'auto'));}
-                        var tpl=t.join(' ');
-                        if(row.style.getPropertyValue('grid-template-columns')!==tpl)row.style.setProperty('grid-template-columns',tpl,'important');
-                        row.style.setProperty('width','100%','important');
+                    if(window.__splRowDump)return;
+                    var row=document.querySelector('section[data-testid=artist-page] div[data-testid=tracklist-row]');
+                    if(!row)return;
+                    window.__splRowDump=true;
+                    var info=[];
+                    for(var c=0;c<row.children.length;c++){
+                        var el=row.children[c];var cs=getComputedStyle(el);
+                        info.push((el.getAttribute('aria-colindex')||'-')+':'+cs.display+':'+Math.round(el.getBoundingClientRect().width)+':'+(el.textContent||'').trim().slice(0,20));
                     }
+                    AndBridge.dbg('d','artist-row '+getComputedStyle(row).gridTemplateColumns+' | '+info.join(' | ')+' | '+row.outerHTML.replace(/<svg[\s\S]*?<\/svg>/g,'').replace(/<img[^>]*>/g,'<img>').slice(0,1200));
                 }catch(e){}
             };
             setInterval(window.splFitRows,1000);
