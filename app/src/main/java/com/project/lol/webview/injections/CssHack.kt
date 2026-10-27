@@ -39,12 +39,18 @@ object CssHack {
                             var el=rows[r].children[c];var ix=el.getAttribute&&el.getAttribute('aria-colindex');
                             if(ix==='2')tc=el;else if(ix==='3')pc=el;
                         }
-                        if(!tc||!pc)continue;
-                        var txt=(pc.textContent||'').trim();
-                        if(!txt||!/^[0-9][0-9.,\s]*$/.test(txt))continue;
+                        if(!tc)continue;
+                        var lk=tc.querySelector('a[data-testid=internal-track-link]');
+                        var txt='';
+                        if(pc){var pt=(pc.textContent||'').trim();if(/^[0-9][0-9.,\s]*$/.test(pt))txt=pt;}
+                        if(!txt&&lk){
+                            var tm=/\/track\/([A-Za-z0-9]{22})/.exec(lk.getAttribute('href')||'');
+                            var cnt=tm&&window.__splPlays&&window.__splPlays[tm[1]];
+                            if(cnt)txt=Number(cnt).toLocaleString('en-US');
+                        }
+                        if(!txt)continue;
                         var box=tc.querySelector('.spl-plays');
                         if(!box){
-                            var lk=tc.querySelector('a[data-testid=internal-track-link]');
                             var host=lk&&lk.parentNode;
                             if(!host)continue;
                             box=document.createElement('div');
