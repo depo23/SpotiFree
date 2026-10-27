@@ -131,38 +131,12 @@ object TrackObserver {
                 body = body || '';
                 const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body);
                 if (m) window.splSetTrackUri(m[1]);
-                const f = /spotify:track:[A-Za-z0-9]{22}/.exec(body);
-                if (f && !window.__splStateDumps) {
-                    window.__splStateDumps = 1;
-                    try { AndBridge.dbg('d', 'state-ctx ' + body.slice(Math.max(0, f.index - 300), f.index + 120)); } catch(e){}
-                }
             };
 
             const obs = new MutationObserver(check);
 
             function attach(el) {
                 root = el; anchor = null; fiberKey = null;
-                if (!window.__splNpDumped) {
-                    window.__splNpDumped = true;
-                    try {
-                        const links = Array.from(el.querySelectorAll('a')).slice(0, 8)
-                            .map(a => (a.getAttribute('data-testid') || '') + ' ' + (a.getAttribute('href') || ''));
-                        const html = el.outerHTML.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<img[^>]*>/g, '<img>');
-                        AndBridge.dbg('d', 'np-root ' + el.tagName + ' ' + (el.getAttribute('data-testid') || '') + ' links=' + links.join(' | ') + ' html=' + html.slice(0, 900));
-                    } catch(e){}
-                }
-                obs.disconnect();
-                obs.observe(el, {
-                    subtree: true,
-                    childList: true,
-                    attributes: true,
-                    attributeFilter: ['href']
-                });
-                let id = currentId();
-                if (!id) {
-                    const uri = fiberURI();
-                    if (uri) id = uri.split(':').pop();
-                }
                 if (id) emit(id, 'init');
             }
 
