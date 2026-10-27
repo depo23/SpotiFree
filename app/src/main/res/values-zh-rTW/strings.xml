@@ -492,9 +492,6 @@
     <string name="widget_action_repeat">循環</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">開啟應用程式開始播放</string>
-    <string name="settings_section_privacy">隱私</string>
-    <string name="settings_telemetry">使用情形與效能資料</string>
-    <string name="settings_telemetry_subtitle">分享匿名的使用情形與效能資料。預設為關閉；當機報告一律會傳送</string>
 
     <string name="dl_status_invalid_request">無效的下載要求</string>
     <string name="dl_status_no_current_track">無法辨識目前曲目</string>

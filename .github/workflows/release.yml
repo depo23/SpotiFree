@@ -28,24 +28,6 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 -d > keystore/spotifree-release.p12
           echo "$KEYSTORE_PROPERTIES" > keystore/keystore.properties
           sed -i 's/^storeFile=.*/storeFile=spotifree-release.p12/' keystore/keystore.properties
-      - name: Placeholder google-services.json
-        run: |
-          cat > app/google-services.json <<'JSON'
-          {
-            "project_info": {"project_number": "000000000000", "project_id": "ci-placeholder", "storage_bucket": "ci-placeholder.appspot.com"},
-            "client": [{
-              "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.spotifree.app"}},
-              "api_key": [{"current_key": "AIzaSyA-ci-placeholder-0000000000000000"}]
-            }],
-            "configuration_version": "1"
-          }
-          JSON
-      # No real Firebase project: turn Crashlytics off too. Upstream already
-      # disables Analytics and Performance in its manifest, so only add what is missing.
-      - name: Disable Crashlytics collection
-        run: |
-          sed -i 's#</application>#        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />\n    </application>#' app/src/main/AndroidManifest.xml
-          grep -c 'firebase_crashlytics_collection_enabled' app/src/main/AndroidManifest.xml | grep -qx 1
       - run: chmod +x gradlew && ./gradlew assembleRelease --stacktrace
       - name: Publish release
         env:

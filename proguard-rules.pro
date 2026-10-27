@@ -1,22 +1,11 @@
-# Firebase Analytics
 -keepclassmembers class * extends android.app.Application {
     public <init>();
 }
--keep class com.google.firebase.** { *; }
--keep class com.google.android.gms.** { *; }
--dontwarn com.google.firebase.**
--dontwarn com.google.android.gms.**
 
-# Firebase Crashlytics
 -keepattributes *Annotation*
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
--keep class com.google.firebase.crashlytics.** { *; }
--dontwarn com.google.firebase.crashlytics.**
 
--keep class com.google.firebase.sessions.** { *; }
--keep class com.google.firebase.perf.** { *; }
--keep class com.google.firebase.encoders.** { *; }
 -keep class com.google.protos.** { *; }
 -keep class ** extends com.google.protobuf.GeneratedMessageLite { *; }
 -keep class ** extends com.google.protobuf.GeneratedMessage { *; }

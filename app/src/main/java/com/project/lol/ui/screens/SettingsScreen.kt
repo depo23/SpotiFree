@@ -136,7 +136,6 @@ import com.project.lol.util.LogFilter
 import com.project.lol.util.LogLevel
 import com.project.lol.util.Logger
 import com.project.lol.util.Logger.isAutoScroll
-import com.project.lol.util.Telemetry
 import com.project.lol.webview.helpers.LyricsStyle
 import com.project.lol.webview.helpers.LyricsTheme
 import com.project.lol.widget.WidgetStudioActivity
@@ -268,7 +267,6 @@ fun SettingsContent(
     var lyricsAlign by remember { mutableStateOf(prefs.getString("LyricsAlign", LyricsTheme.ALIGN_START) ?: LyricsTheme.ALIGN_START) }
     var lyricsAnimate by remember { mutableStateOf(prefs.getBoolean("LyricsAnimate", true)) }
     var spicyLyricsEnabled by remember { mutableStateOf(prefs.getBoolean("SpicyLyrics", true)) }
-    var telemetryEnabled by remember { mutableStateOf(prefs.getBoolean(Telemetry.KEY, false)) }
     var fastStartup by remember { mutableStateOf(prefs.getBoolean("FastStartup", false)) }
 
     val context = LocalContext.current
@@ -997,22 +995,6 @@ fun SettingsContent(
                                 ).show()
                                 BatterySaver.openAppSettings(context)
                             }
-                        }
-                    )
-                }
-
-                SettingSectionCard(
-                    title = stringResource(R.string.settings_section_privacy),
-                    icon = TablerIcons.Shield
-                ) {
-                    SettingSwitchTile(
-                        title = stringResource(R.string.settings_telemetry),
-                        subtitle = stringResource(R.string.settings_telemetry_subtitle),
-                        icon = TablerIcons.EyeOff,
-                        checked = telemetryEnabled,
-                        onCheckedChange = { enabled ->
-                            telemetryEnabled = enabled
-                            Telemetry.setEnabled(context, enabled)
                         }
                     )
                 }

@@ -493,9 +493,6 @@
     <string name="widget_action_repeat">Tekrarla</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Oynatmaya başlamak için uygulamayı açın</string>
-    <string name="settings_section_privacy">Gizlilik</string>
-    <string name="settings_telemetry">Kullanım ve performans verileri</string>
-    <string name="settings_telemetry_subtitle">Anonim kullanım ve performans verilerini paylaşın. Varsayılan olarak kapalı; çökme raporları her zaman gönderilir.</string>
 
     <string name="dl_status_invalid_request">Geçersiz indirme isteği</string>
     <string name="dl_status_no_current_track">Geçerli parça belirlenemedi</string>

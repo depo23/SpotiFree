@@ -481,9 +481,6 @@
     <string name="widget_action_repeat">Repetir</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Abra o app para começar a tocar</string>
-    <string name="settings_section_privacy">PRIVACIDADE</string>
-    <string name="settings_telemetry">Dados de uso e desempenho</string>
-    <string name="settings_telemetry_subtitle">Compartilhar dados anônimos de uso e desempenho. Desativado por padrão; os relatórios de falha são sempre enviados.</string>
 
     <string name="dl_status_invalid_request">Solicitação de download inválida</string>
     <string name="dl_status_no_current_track">Não foi possível identificar a faixa atual</string>

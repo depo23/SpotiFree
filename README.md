@@ -92,22 +92,7 @@ cd SpotiFree
 
 APK lands at `app/build/outputs/apk/debug/app-debug.apk`.
 
-### Google Services
-
-spotifree doesn't use a Firebase project and sends no analytics or performance data (both are switched off in the manifest). the Firebase libraries are still part of the build, though, so Gradle expects an `app/google-services.json` to exist. you don't need a real one: save this placeholder as `app/google-services.json` (it's git-ignored):
-
-```json
-{
-  "project_info": {"project_number": "000000000000", "project_id": "ci-placeholder", "storage_bucket": "ci-placeholder.appspot.com"},
-  "client": [{
-    "client_info": {"mobilesdk_app_id": "1:000000000000:android:0000000000000000", "android_client_info": {"package_name": "com.spotifree.app"}},
-    "api_key": [{"current_key": "AIzaSyA-ci-placeholder-0000000000000000"}]
-  }],
-  "configuration_version": "1"
-}
-```
-
-release builds on GitHub use exactly this placeholder and also turn crash reporting off. to do the same in your build, add `<meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />` inside `<application>` in `AndroidManifest.xml`.
+no API keys or extra config files needed. spotifree sends no analytics, performance or crash data.
 
 ---
 

@@ -494,9 +494,6 @@
     <string name="widget_action_repeat">Répéter</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Ouvrez l\'application pour lancer la lecture</string>
-    <string name="settings_section_privacy">Confidentialité</string>
-    <string name="settings_telemetry">Données d\'utilisation et de performance</string>
-    <string name="settings_telemetry_subtitle">Partager anonymement les données d\'utilisation et de performance. Désactivé par défaut ; les rapports de plantage sont toujours envoyés.</string>
 
     <string name="dl_status_invalid_request">Demande de téléchargement non valide</string>
     <string name="dl_status_no_current_track">Impossible d\'identifier le morceau actuel</string>

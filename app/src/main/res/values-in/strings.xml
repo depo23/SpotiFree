@@ -481,9 +481,6 @@
     <string name="widget_action_repeat">Ulangi</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Buka aplikasi untuk mulai memutar</string>
-    <string name="settings_section_privacy">PRIVASI</string>
-    <string name="settings_telemetry">Data penggunaan dan performa</string>
-    <string name="settings_telemetry_subtitle">Bagikan data penggunaan dan performa anonim. Mati secara default; laporan crash selalu dikirim.</string>
 
     <string name="dl_status_invalid_request">Permintaan unduhan tidak valid</string>
     <string name="dl_status_no_current_track">Tidak dapat mengidentifikasi trek saat ini</string>

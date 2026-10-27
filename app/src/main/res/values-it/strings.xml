@@ -481,9 +481,6 @@
     <string name="widget_action_repeat">Ripeti</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Apri l\'app per iniziare a riprodurre</string>
-    <string name="settings_section_privacy">PRIVACY</string>
-    <string name="settings_telemetry">Dati di utilizzo e prestazioni</string>
-    <string name="settings_telemetry_subtitle">Condivisione di dati anonimi su utilizzo e prestazioni. Disattivata per impostazione predefinita; i rapporti di arresto anomalo vengono sempre inviati.</string>
 
     <string name="dl_status_invalid_request">Richiesta di download non valida</string>
     <string name="dl_status_no_current_track">Impossibile identificare il brano corrente</string>

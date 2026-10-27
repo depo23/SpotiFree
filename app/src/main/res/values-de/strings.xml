@@ -481,9 +481,6 @@
     <string name="widget_action_repeat">Wiederholen</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">App öffnen, um die Wiedergabe zu starten</string>
-    <string name="settings_section_privacy">DATENSCHUTZ</string>
-    <string name="settings_telemetry">Nutzungs- und Leistungsdaten</string>
-    <string name="settings_telemetry_subtitle">Anonyme Nutzungs- und Leistungsdaten teilen. Standardmäßig aus; Absturzberichte werden immer gesendet.</string>
 
     <string name="dl_status_invalid_request">Ungültige Download-Anfrage</string>
     <string name="dl_status_no_current_track">Der aktuelle Titel konnte nicht ermittelt werden</string>

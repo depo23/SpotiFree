@@ -99,7 +99,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.webkit.WebViewCompat
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.project.lol.R
 import com.project.lol.offline.DownloadManager
 import com.project.lol.profile.ProfileManager
@@ -222,8 +221,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
     private lateinit var prefs: SharedPreferences
 
-    private val analytics: FirebaseAnalytics by lazy { FirebaseAnalytics.getInstance(this) }
-
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -232,12 +229,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             isAppearanceLightNavigationBars = false
         }
         super.onCreate(savedInstanceState)
-
-        // Track screen view
-        analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, Bundle().apply {
-            putString(FirebaseAnalytics.Param.SCREEN_NAME, "MainActivity")
-            putString(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity")
-        })
 
         prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
 
@@ -431,9 +422,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
-                                        analytics.logEvent("open_settings", Bundle().apply {
-                                            putString(FirebaseAnalytics.Param.SCREEN_NAME, "SettingsDialog")
-                                        })
                                         settingsDialogOpen = true
                                     }) {
                                         Icon(
@@ -1433,11 +1421,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         checkForUpdates(manual = false)
         Logger.i(TAG, "activity resumed: restoring webview loops")
         WebViewHost.attach(this)
-
-        analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, Bundle().apply {
-            putString(FirebaseAnalytics.Param.SCREEN_NAME, "MainActivity")
-            putString(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity")
-        })
 
         prefs = getSharedPreferences("spotifree_prefs", MODE_PRIVATE)
         serviceEnabledState.value = prefs.getBoolean("ServiceOn", true)

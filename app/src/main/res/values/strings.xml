@@ -571,9 +571,6 @@
     <string name="widget_studio_no_widget_desc">Add the SpotiFree player widget from your home screen, then come back here to customize it.</string>
     <string name="settings_widget_studio">Widget Studio</string>
     <string name="settings_widget_studio_subtitle">Customize size, info and controls</string>
-    <string name="settings_section_privacy">Privacy</string>
-    <string name="settings_telemetry">Usage and performance data</string>
-    <string name="settings_telemetry_subtitle">Share anonymous usage and performance data. Off by default; crash reports are always sent.</string>
 
     <string name="dl_status_invalid_request">Invalid download request</string>
     <string name="dl_status_no_current_track">Could not identify the current track</string>

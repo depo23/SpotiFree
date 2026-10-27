@@ -481,9 +481,6 @@
     <string name="widget_action_repeat">Repetir</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Abre la app para empezar a reproducir</string>
-    <string name="settings_section_privacy">PRIVACIDAD</string>
-    <string name="settings_telemetry">Datos de uso y rendimiento</string>
-    <string name="settings_telemetry_subtitle">Compartir datos anónimos de uso y rendimiento. Desactivado por defecto; los informes de fallos siempre se envían.</string>
 
     <string name="dl_status_invalid_request">Solicitud de descarga no válida</string>
     <string name="dl_status_no_current_track">No se pudo identificar la canción actual</string>

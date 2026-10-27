@@ -481,9 +481,6 @@
     <string name="widget_action_repeat">Повтор</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">Откройте приложение, чтобы начать воспроизведение</string>
-    <string name="settings_section_privacy">ПРИВАТНОСТЬ</string>
-    <string name="settings_telemetry">Данные об использовании и производительности</string>
-    <string name="settings_telemetry_subtitle">Отправлять анонимные данные об использовании и производительности. По умолчанию выключено; отчёты о сбоях отправляются всегда.</string>
 
     <string name="dl_status_invalid_request">Недопустимый запрос на скачивание</string>
     <string name="dl_status_no_current_track">Не удалось определить текущий трек</string>

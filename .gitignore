@@ -16,8 +16,6 @@ app/build
 # Gradle wrapper binary
 gradle/wrapper/gradle-wrapper.jar
 
-# Firebase
-app/google-services.json
 
 # Keystore files
 *.jks

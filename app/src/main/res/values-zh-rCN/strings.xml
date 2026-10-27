@@ -492,9 +492,6 @@
     <string name="widget_action_repeat">循环</string>
     <string name="widget_empty_title">SpotiFree</string>
     <string name="widget_empty_subtitle">打开应用开始播放</string>
-    <string name="settings_section_privacy">隐私</string>
-    <string name="settings_telemetry">使用和性能数据</string>
-    <string name="settings_telemetry_subtitle">共享匿名的使用和性能数据。默认关闭；崩溃报告始终会发送</string>
 
     <string name="dl_status_invalid_request">无效的下载请求</string>
     <string name="dl_status_no_current_track">无法识别当前曲目</string>
