@@ -91,6 +91,23 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
+                    if(gqlOp) {
+                        window.__splGqlSeen = window.__splGqlSeen || {};
+                        if(!window.__splGqlSeen[gqlOp]) {
+                            window.__splGqlSeen[gqlOp] = 1;
+                            p.then(function(resp){
+                                try {
+                                    resp.clone().text().then(function(t){
+                                        try {
+                                            var n = (t.match(/"playcount"/g) || []).length;
+                                            var i = t.indexOf('"playcount"');
+                                            AndBridge.dbg('d', 'gql ' + gqlOp + ' playcount=' + n + ' len=' + t.length + (i >= 0 ? ' ctx=' + t.slice(Math.max(0, i - 160), i + 60) : ''));
+                                        } catch(e){}
+                                    });
+                                } catch(e){}
+                            });
+                        }
+                    }
                     if(gqlOp === 'canvas' && window.__splFullPlayer) {
                         return p.then(function(resp){
                             return resp.clone().json().then(function(j){
