@@ -38,11 +38,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,12 +51,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -85,14 +79,11 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.view.WindowCompat
@@ -301,7 +292,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             var settingsStartTab by remember { mutableStateOf(SettingsTab.Appearance) }
             var playerExpanded by remember { mutableStateOf(false) }
             var ctxSheetOpen by remember { mutableStateOf(false) }
-            var showMiniMenu by remember { mutableStateOf(false) }
             val versionName = remember {
                 runCatching { packageManager.getPackageInfo(packageName, 0).versionName }
                     .getOrNull() ?: ""
@@ -692,16 +682,10 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
 
                         if (hideTopBar && !pipFilling) {
                             QuickAccessOverlay(
-                                showMenu = showMiniMenu,
-                                onToggleMenu = { showMiniMenu = !showMiniMenu },
                                 onOpenSettings = {
-                                    showMiniMenu = false
                                     settingsStartTab = SettingsTab.Advanced
                                     settingsDialogOpen = true
-                                },
-                                serviceEnabled = serviceEnabled,
-                                onServiceToggle = { newValue -> setServiceEnabled(newValue) },
-                                onDismissMenu = { showMiniMenu = false }
+                                }
                             )
                         }
                     }
@@ -909,14 +893,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     }
 
     @Composable
-    private fun QuickAccessOverlay(
-        showMenu: Boolean,
-        onToggleMenu: () -> Unit,
-        onOpenSettings: () -> Unit,
-        serviceEnabled: Boolean,
-        onServiceToggle: (Boolean) -> Unit,
-        onDismissMenu: () -> Unit
-    ) {
+    private fun QuickAccessOverlay(onOpenSettings: () -> Unit) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             Box(
                 modifier = Modifier
@@ -924,7 +901,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                     .size(44.dp)
                     .shadow(6.dp, CircleShape)
                     .clip(CircleShape)
-                    .clickable(onClick = onToggleMenu),
+                    .clickable(onClick = onOpenSettings),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -933,79 +910,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                     tint = Color.Unspecified,
                     modifier = Modifier.fillMaxSize()
                 )
-            }
-
-            if (showMenu) {
-                Popup(
-                    alignment = Alignment.TopCenter,
-                    offset = IntOffset(0, with(LocalDensity.current) { 64.dp.toPx() }.toInt()),
-                    onDismissRequest = onDismissMenu
-                ) {
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                        )
-                    ) {
-                        Column(modifier = Modifier.width(220.dp)) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()                                                .clickable(onClick = onOpenSettings)
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = TablerIcons.Settings,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(Modifier.width(12.dp))
-                                Text(
-                                    text = stringResource(R.string.main_settings),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Icon(
-                                    imageVector = TablerIcons.Menu2,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                                )
-                            }
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onServiceToggle(!serviceEnabled) }
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.main_service),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Switch(
-                                    checked = serviceEnabled,
-                                    onCheckedChange = onServiceToggle,
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primary,
-                                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
             }
         }
     }
