@@ -53,10 +53,19 @@ object CssHack {
                         if(!box){
                             var host=lk&&lk.parentNode;
                             if(!host)continue;
-                            box=document.createElement('div');
+                            var as=null;
+                            for(var h=0;h<host.children.length;h++){
+                                var hc=host.children[h];
+                                if(hc.tagName==='SPAN'&&/encore-text-body-small/.test(hc.className))as=hc;
+                            }
+                            if(!as)continue;
+                            box=document.createElement('span');
                             box.className='spl-plays';
-                            box.style.cssText='font-size:12px;line-height:1.3;color:rgba(255,255,255,.55);margin-top:2px;white-space:nowrap';
-                            host.appendChild(box);
+                            box.style.cssText='flex:none;margin-right:12px;color:rgba(255,255,255,.55);white-space:nowrap';
+                            as.style.display='flex';
+                            as.style.alignItems='center';
+                            as.insertBefore(box,as.firstChild);
+                            if(as.children[1])as.children[1].style.minWidth='0';
                         }
                         var want='\u25B6 '+txt;
                         if(box.textContent!==want)box.textContent=want;
