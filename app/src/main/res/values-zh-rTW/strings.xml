@@ -344,8 +344,6 @@
     <string name="main_update_available">有可用的更新</string>
     <string name="main_version_label">v%1$s · %2$s</string>
     <string name="main_settings_content_description">設定</string>
-    <string name="main_webview_version">WebView：%1$s</string>
-    <string name="main_webview_version_unknown">不適用</string>
     <string name="main_account_saved">帳號已儲存</string>
     <string name="main_profile_load_failed">無法載入設定檔</string>
     <string name="main_profile_deleted">設定檔已刪除</string>
@@ -480,7 +478,6 @@
     <string name="bridge_player_unlocked">播放器已解鎖</string>
     <string name="bridge_reloading">正在重新載入…</string>
 
-    <string name="service_disabled_message">服務未啟用</string>
 
     <string name="widget_player_name">SpotiFree 播放器</string>
     <string name="widget_player_description">SpotiFree 的播放控制項</string>

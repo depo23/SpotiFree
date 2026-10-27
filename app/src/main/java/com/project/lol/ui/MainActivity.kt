@@ -21,7 +21,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Rational
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -30,7 +29,6 @@ import android.webkit.WebStorage
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -63,12 +61,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -87,7 +83,6 @@ import androidx.core.content.edit
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.webkit.WebViewCompat
 import com.project.lol.R
 import com.project.lol.offline.DownloadManager
 import com.project.lol.profile.ProfileManager
@@ -435,6 +430,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 if (!SleepTimerManager.isActive) {
                                     sleepTimerInputText.value = ""
                                 }
+                            }
 
                                 bridge.onVolumeDialogRequest = {
                                     publishVolumeIcon(syncVolumeState())
@@ -631,22 +627,6 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                         }
                                     )
                                 }
-                        } else {
-                            AndroidView(
-                                factory = { context ->
-                                    LayoutInflater.from(context)
-                                        .inflate(R.layout.service_disabled, null).apply {
-                                            val tvVersion = findViewById<TextView>(R.id.tvWebViewVersion)
-                                            val pkg = WebViewCompat.getCurrentWebViewPackage(context)
-                                            tvVersion.text = context.getString(
-                                                R.string.main_webview_version,
-                                                pkg?.versionName ?: context.getString(R.string.main_webview_version_unknown)
-                                            )
-                                        }
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
 
                         if (hideTopBar && !pipFilling) {
                             QuickAccessOverlay(

@@ -339,8 +339,6 @@
     <string name="main_update_available">Hay una nueva actualización disponible</string>
     <string name="main_version_label">v%1$s · %2$s</string>
     <string name="main_settings_content_description">Ajustes</string>
-    <string name="main_webview_version">Webview: %1$s</string>
-    <string name="main_webview_version_unknown">N/A</string>
     <string name="main_account_saved">Cuenta guardada</string>
     <string name="main_profile_load_failed">No se pudo cargar el perfil</string>
     <string name="main_profile_deleted">Perfil eliminado</string>
@@ -470,7 +468,6 @@
     <string name="dl_notif_action_cancel">Cancelar</string>
     <string name="bridge_player_unlocked">Reproductor desbloqueado</string>
     <string name="bridge_reloading">Recargando…</string>
-    <string name="service_disabled_message">El servicio no está activado</string>
     <string name="widget_player_name">Reproductor de SpotiFree</string>
     <string name="widget_player_description">Controles de reproducción para SpotiFree</string>
     <string name="widget_art_name">Portada de SpotiFree</string>

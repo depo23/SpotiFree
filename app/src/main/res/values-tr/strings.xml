@@ -345,8 +345,6 @@
     <string name="main_update_available">Yeni bir güncelleme mevcut</string>
     <string name="main_version_label">v%1$s · %2$s</string>
     <string name="main_settings_content_description">Ayarlar</string>
-    <string name="main_webview_version">Webview: %1$s</string>
-    <string name="main_webview_version_unknown">Yok</string>
     <string name="main_account_saved">Hesap kaydedildi</string>
     <string name="main_profile_load_failed">Profil yüklenemedi</string>
     <string name="main_profile_deleted">Profil silindi</string>
@@ -481,7 +479,6 @@
     <string name="bridge_player_unlocked">Oynatıcının kilidi açıldı</string>
     <string name="bridge_reloading">Yeniden yükleniyor…</string>
 
-    <string name="service_disabled_message">Hizmet etkin değil</string>
 
     <string name="widget_player_name">SpotiFree oynatıcı</string>
     <string name="widget_player_description">SpotiFree için oynatma kontrolleri</string>

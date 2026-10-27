@@ -339,8 +339,6 @@
     <string name="main_update_available">Ein neues Update ist verfügbar</string>
     <string name="main_version_label">v%1$s · %2$s</string>
     <string name="main_settings_content_description">Einstellungen</string>
-    <string name="main_webview_version">Webview: %1$s</string>
-    <string name="main_webview_version_unknown">N/A</string>
     <string name="main_account_saved">Konto gespeichert</string>
     <string name="main_profile_load_failed">Profil konnte nicht geladen werden</string>
     <string name="main_profile_deleted">Profil gelöscht</string>
@@ -470,7 +468,6 @@
     <string name="dl_notif_action_cancel">Abbrechen</string>
     <string name="bridge_player_unlocked">Player entsperrt</string>
     <string name="bridge_reloading">Wird neu geladen…</string>
-    <string name="service_disabled_message">Der Dienst ist nicht aktiviert</string>
     <string name="widget_player_name">SpotiFree-Player</string>
     <string name="widget_player_description">Wiedergabesteuerung für SpotiFree</string>
     <string name="widget_art_name">SpotiFree-Cover</string>

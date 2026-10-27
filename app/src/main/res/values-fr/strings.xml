@@ -346,8 +346,6 @@
     <string name="main_update_available">Une nouvelle mise à jour est disponible</string>
     <string name="main_version_label">v%1$s · %2$s</string>
     <string name="main_settings_content_description">Paramètres</string>
-    <string name="main_webview_version">Webview : %1$s</string>
-    <string name="main_webview_version_unknown">N/A</string>
     <string name="main_account_saved">Compte enregistré</string>
     <string name="main_profile_load_failed">Le profil n\'a pas pu être chargé</string>
     <string name="main_profile_deleted">Profil supprimé</string>
@@ -482,7 +480,6 @@
     <string name="bridge_player_unlocked">Lecteur déverrouillé</string>
     <string name="bridge_reloading">Rechargement…</string>
 
-    <string name="service_disabled_message">Le service n\'est pas activé</string>
 
     <string name="widget_player_name">Lecteur SpotiFree</string>
     <string name="widget_player_description">Commandes de lecture pour SpotiFree</string>
