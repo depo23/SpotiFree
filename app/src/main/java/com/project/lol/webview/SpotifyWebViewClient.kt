@@ -496,7 +496,7 @@ class SpotifyWebViewClient(
             append(ColumnsButton.CONTENT)
             append(SpicyLyrics.CONTENT)
             append(WebPrefs.CONTENT)
-            append(PlaylistLookupSheet.CONTENT)
+            append(HeartLongPress.CONTENT)
             // The Full Screen Player is the only player.
             append("window.__splFullPlayer=true;\n")
             append(SpotiFreePlayer.CONTENT)
