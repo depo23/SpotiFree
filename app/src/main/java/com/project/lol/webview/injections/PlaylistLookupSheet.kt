@@ -11,7 +11,7 @@ object PlaylistLookupSheet {
             var TTL = 600000;
             var LIB_TTL = 300000;
             var PAGE_LIMIT = 100;
-            var MAX_PAGES = 10;
+            var MAX_PAGES = 6;
             var STYLE_ID = 'spl-plsheet-style';
             var FB_HASH = '346811f856fb0b7e4f6c59f8ebea78dd081c6e2fb01b77c954b26259d5fc6763';
 
@@ -248,6 +248,11 @@ object PlaylistLookupSheet {
                 card.appendChild(tools);
 
                 listEl = el('div', 'spl-pl-list');
+                var scrollT = null;
+                listEl.addEventListener('scroll', function(){
+                    clearTimeout(scrollT);
+                    scrollT = setTimeout(startChecks, 200);
+                }, { passive: true });
                 card.appendChild(listEl);
 
                 sheet.appendChild(card);
@@ -409,13 +414,19 @@ object PlaylistLookupSheet {
                 return r;
             }
 
+            function rowVisible(r){
+                if (!listEl || !r) return false;
+                var a = listEl.getBoundingClientRect(), b = r.getBoundingClientRect();
+                return b.bottom >= a.top - 300 && b.top <= a.bottom + 300;
+            }
+
             function startChecks(){
                 if (!cur || !plCache) return;
                 var my = token, tid = cur.id, turi = cur.uri;
                 var work = [];
                 for (var i = 0; i < plCache.length; i++) {
                     var p = plCache[i], pid = plId(p);
-                    if (cachedIn(tid, pid) === undefined && rowByPid[pid] && !inflight[keyOf(tid, pid)]) work.push(p);
+                    if (cachedIn(tid, pid) === undefined && rowByPid[pid] && !inflight[keyOf(tid, pid)] && rowVisible(rowByPid[pid])) work.push(p);
                 }
                 var idx = 0;
                 pumpAll = function(){
