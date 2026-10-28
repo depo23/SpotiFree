@@ -96,7 +96,7 @@ object PlaylistLookupSheet {
             }
 
             function likedState(){
-                var fb = document.querySelector('div[data-testid=now-playing-widget]>div:last-child>button');
+                var fb = (typeof window.splFavBtn === 'function') ? window.splFavBtn() : document.querySelector('div[data-testid=now-playing-widget]>div:last-child>button');
                 return !!(fb && fb.getAttribute('aria-checked') === 'true');
             }
 
@@ -105,7 +105,9 @@ object PlaylistLookupSheet {
                 var pre = (typeof window.ensureAuthToken === 'function') ? window.ensureAuthToken() : Promise.resolve(true);
                 return Promise.resolve(pre).then(function(){
                     if (typeof window.fetchAllLibrary !== 'function' || typeof window.parseLibrary !== 'function') return [];
-                    return window.fetchAllLibrary().then(function(items){
+                    return window.fetchAllLibrary({filters:['Playlists'],maxPages:20}).then(function(items){
+                        return (items && items.length) ? items : window.fetchAllLibrary({maxPages:4});
+                    }).then(function(items){
                         var lib = window.parseLibrary(items) || {};
                         var pls = (lib.playlists || []).filter(function(p){
                             return p && p.name && p.id && String(p.id).indexOf('spotify:playlist:') === 0;

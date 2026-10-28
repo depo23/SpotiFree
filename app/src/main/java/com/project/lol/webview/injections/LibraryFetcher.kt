@@ -2,9 +2,11 @@ package com.project.lol.webview.injections
 
 object LibraryFetcher {
     const val CONTENT = """
-            window.fetchAllLibrary = async function(){
-                var limit=50, offset=0, allItems=[], hasMore=true;
-                while(hasMore){
+            window.fetchAllLibrary = async function(opts){
+                opts = opts || {};
+                var limit=50, offset=0, allItems=[], hasMore=true, pages=0, maxPages=opts.maxPages||1000;
+                while(hasMore && pages<maxPages){
+                    pages++;
                     var pFetch = (window.oriFetch || window.fetch)('https://api-partner.spotify.com/pathfinder/v2/query',{
                         method:'POST',
                         headers:{
@@ -14,7 +16,7 @@ object LibraryFetcher {
                         },
                         body:JSON.stringify({
                             variables:{
-                                filters:[],order:null,textFilter:'',
+                                filters:opts.filters||[],order:null,textFilter:'',
                                 features:['LIKED_SONGS','YOUR_EPISODES_V2','PRERELEASES','EVENTS'],
                                 limit:limit,offset:offset,flatten:false,expandedFolders:[],
                                 folderUri:null,includeFoldersWhenFlattening:true
