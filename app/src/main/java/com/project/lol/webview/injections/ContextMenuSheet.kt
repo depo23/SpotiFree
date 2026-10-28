@@ -180,11 +180,11 @@ object ContextMenuSheet {
                     S + '{position:fixed!important;inset:auto 0 0 0!important;transform:none!important;width:100%!important;max-width:100%!important;pointer-events:auto!important;z-index:2147483647!important;will-change:auto!important}' +
                     S + ' #context-menu{width:100%!important;max-width:100%!important;max-height:none!important;overflow:visible!important;padding:0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important}' +
                     S + ' #context-menu>*{width:100%!important;max-width:100%!important;box-sizing:border-box!important}' +
-                    S + ' ul[role="menu"]{width:100%!important;max-width:100%!important;min-width:0!important;max-height:55vh!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important;border-radius:18px 18px 0 0!important;box-shadow:0 -10px 40px rgba(0,0,0,.65)!important;padding:4px 0 calc(14px + env(safe-area-inset-bottom,0px))!important;scrollbar-width:none!important;overscroll-behavior:contain!important}' +
+                    S + ' ul[role="menu"]{width:100%!important;max-width:100%!important;min-width:0!important;max-height:45vh!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important;border-radius:18px 18px 0 0!important;box-shadow:0 -10px 40px rgba(0,0,0,.65)!important;padding:4px 0 calc(14px + env(safe-area-inset-bottom,0px))!important;scrollbar-width:none!important;overscroll-behavior:contain!important}' +
                     S + ' ul[role="menu"]::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}' +
                     S + ' ul[role="menu"]::before{content:"";display:block;position:sticky;top:0;z-index:2;width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.28);margin:8px auto 6px}' +
                     S + ' ul[role="menu"]:has(> .' + HEAD_CLS + ')::before{display:none!important}' +
-                    S + ' ul[role="menu"] button{padding:12px 16px!important;min-height:48px!important}' +
+                    S + ' ul[role="menu"] button{padding:8px 16px!important;min-height:40px!important}' +
                     S + ' ul[role="menu"]:has(> .' + HEAD_CLS + '){min-height:55vh!important}' +
                     S + ' [data-testid="user-widget-menu"]{width:100%!important;max-width:100%!important}' +
                     S + ' [data-testid="user-widget-menu"]>*{width:100%!important;max-width:100%!important;box-sizing:border-box!important}' +

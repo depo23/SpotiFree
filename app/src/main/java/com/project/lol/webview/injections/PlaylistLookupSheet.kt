@@ -17,7 +17,7 @@ object PlaylistLookupSheet {
 
             var sheet = null, card = null, listEl = null, filterEl = null, covEl = null, tiEl = null, arEl = null;
             var cur = null;
-            var plCache = null, plCacheAt = 0;
+            var plCache = null, plCacheAt = 0, plRefreshing = false;
             var contains = {};
             var token = 0;
             var prevClose = null;
@@ -41,7 +41,7 @@ object PlaylistLookupSheet {
                 s.textContent = [
                     '#spl-plsheet{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}',
                     '#spl-plsheet.spl-open{opacity:1}',
-                    '#spl-plsheet .spl-pl-card{width:min(560px,100%);max-height:76vh;display:flex;flex-direction:column;background:#181818;border:1px solid rgba(255,255,255,.08);border-bottom:none;border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.6);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain}',
+                    '#spl-plsheet .spl-pl-card{width:min(560px,100%);max-height:58vh;display:flex;flex-direction:column;background:#181818;border:1px solid rgba(255,255,255,.08);border-bottom:none;border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.6);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain}',
                     '#spl-plsheet.spl-open .spl-pl-card{transform:translateY(0)}',
                     '#spl-plsheet .spl-pl-drag{flex:0 0 auto;display:flex;align-items:center;justify-content:center;height:18px;cursor:grab;touch-action:none}',
                     '#spl-plsheet .spl-pl-drag::before{content:"";width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.28)}',
@@ -58,14 +58,14 @@ object PlaylistLookupSheet {
                     '#spl-plsheet .spl-pl-search svg{width:14px;height:14px;color:rgba(255,255,255,.5);flex-shrink:0}',
                     '#spl-plsheet .spl-pl-search input{flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;font-size:13px;height:100%}',
                     '#spl-plsheet .spl-pl-search input::placeholder{color:rgba(255,255,255,.4)}',
-                    '#spl-plsheet .spl-pl-list{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px calc(16px + env(safe-area-inset-bottom,0px))}',
+                    '#spl-plsheet .spl-pl-list{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 8px calc(10px + env(safe-area-inset-bottom,0px))}',
                     '#spl-plsheet .spl-pl-list::-webkit-scrollbar{width:4px}',
                     '#spl-plsheet .spl-pl-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}',
                     '#spl-plsheet .spl-pl-hint{padding:0 12px 8px;font-size:11px;color:rgba(255,255,255,.4)}',
-                    '#spl-plsheet .spl-pl-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;min-height:52px}',
+                    '#spl-plsheet .spl-pl-row{display:flex;align-items:center;gap:10px;padding:4px 10px;border-radius:10px;cursor:pointer;min-height:44px}',
                     '#spl-plsheet .spl-pl-row:hover{background:rgba(255,255,255,.07)}',
                     '#spl-plsheet .spl-pl-row:active{background:rgba(255,255,255,.12)}',
-                    '#spl-plsheet .spl-pl-ico{width:40px;height:40px;border-radius:6px;flex-shrink:0;background:#282828;display:flex;align-items:center;justify-content:center;color:#b3b3b3;overflow:hidden}',
+                    '#spl-plsheet .spl-pl-ico{width:36px;height:36px;border-radius:6px;flex-shrink:0;background:#282828;display:flex;align-items:center;justify-content:center;color:#b3b3b3;overflow:hidden}',
                     '#spl-plsheet .spl-pl-ico img{width:100%;height:100%;object-fit:cover}',
                     '#spl-plsheet .spl-pl-ico svg{width:20px;height:20px}',
                     '#spl-plsheet .spl-pl-name{flex:1;min-width:0;font-size:14px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
@@ -101,7 +101,13 @@ object PlaylistLookupSheet {
             }
 
             function loadPlaylists(force){
-                if (!force && plCache && (Date.now() - plCacheAt) < LIB_TTL) return Promise.resolve(plCache);
+                if (!force && plCache) {
+                    if ((Date.now() - plCacheAt) >= LIB_TTL && !plRefreshing) {
+                        plRefreshing = true;
+                        loadPlaylists(true).then(function(){ plRefreshing = false; if (cur) renderList(); }, function(){ plRefreshing = false; });
+                    }
+                    return Promise.resolve(plCache);
+                }
                 var pre = (typeof window.ensureAuthToken === 'function') ? window.ensureAuthToken() : Promise.resolve(true);
                 return Promise.resolve(pre).then(function(){
                     if (typeof window.fetchAllLibrary !== 'function' || typeof window.parseLibrary !== 'function') return [];
@@ -506,6 +512,7 @@ object PlaylistLookupSheet {
 
             setInterval(wireButtons, 2000);
             wireButtons();
+            setTimeout(function(){ try { if (!plCache) loadPlaylists(false); } catch(e){} }, 12000);
         })();
     """
 }
