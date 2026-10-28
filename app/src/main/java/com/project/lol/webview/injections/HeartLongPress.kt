@@ -47,25 +47,18 @@ object HeartLongPress {
             setInterval(function(){
                 try {
                     if (window.__splAddDump) return;
-                    var inp = document.querySelector('input[placeholder*="playlist" i]');
-                    if (!inp) return;
-                    var root = inp.closest('[role="dialog"]') || inp.closest('#context-menu') || document.body;
-                    var all = root.querySelectorAll('*'), lk = null;
-                    for (var i = 0; i < all.length; i++) {
-                        if (all[i].children.length === 0 && (all[i].textContent || '').trim() === 'Liked Songs') { lk = all[i]; break; }
-                    }
-                    if (!lk) return;
+                    var root = document.querySelector('#context-menu') || document.querySelector('[role="dialog"]');
+                    if (!root || !/playlist/i.test(root.textContent || '')) return;
                     window.__splAddDump = true;
-                    var row = lk;
-                    while (row.parentElement && row.getBoundingClientRect().height < 50) row = row.parentElement;
-                    var chain = [], n = row;
-                    for (var k = 0; k < 6 && n; k++, n = n.parentElement) {
-                        var cs = getComputedStyle(n);
-                        chain.push(n.tagName + (n.id ? '#' + n.id : '') + (n.getAttribute('role') ? '[' + n.getAttribute('role') + ']' : '') + ' h=' + Math.round(n.getBoundingClientRect().height) + ' pad=' + cs.paddingTop + '/' + cs.paddingBottom + ' pos=' + cs.position);
+                    var rows = root.querySelectorAll('li,[role="menuitemcheckbox"],[role="menuitem"],[role="option"],button');
+                    var info = [];
+                    for (var i = 0; i < Math.min(rows.length, 6); i++) {
+                        var r = rows[i], cs = getComputedStyle(r);
+                        info.push(r.tagName + (r.getAttribute('role') ? '[' + r.getAttribute('role') + ']' : '') + ' h=' + Math.round(r.getBoundingClientRect().height) + ' pad=' + cs.paddingTop + '/' + cs.paddingBottom + ' mar=' + cs.marginTop + '/' + cs.marginBottom + ' txt=' + (r.textContent || '').trim().slice(0, 18));
                     }
-                    AndBridge.dbg('d', 'addpl-dom ' + chain.join(' < ') + ' html=' + row.outerHTML.replace(/<svg[\s\S]*?<\/svg>/g, '<svg>').replace(/<img[^>]*>/g, '<img>').slice(0, 900));
+                    AndBridge.dbg('d', 'addpl-dom root=' + root.tagName + (root.id ? '#' + root.id : '') + ' rows=' + rows.length + ' | ' + info.join(' | ') + ' | html=' + root.outerHTML.replace(/<svg[\s\S]*?<\/svg>/g, '<svg>').replace(/<img[^>]*>/g, '<img>').slice(0, 1500));
                 } catch(e){}
-            }, 700);
+            }, 500);
         })();
     """
 }
