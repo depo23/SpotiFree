@@ -211,8 +211,7 @@ class SpotifyWebViewClient(
         val parts = buildList {
             add("window.__splShowScrollbar=$showScrollbar;")
             if (prefs.getBoolean("NativeUi", false)) {
-                add("(function(){var s=document.createElement('style');s.textContent='#spotifreePlayerControls{display:none!important} #global-nav-bar a[href$=\"/search\"],#global-nav-bar button[data-testid=\"search-button\"]{display:none!important}';(document.head||document.documentElement).appendChild(s);})();")
-                add("""setInterval(function(){try{document.querySelectorAll('a[href*="/search"],button[aria-label*="earch" i],a[aria-label*="earch" i]').forEach(function(e){if(e.closest('[role=search],form'))return;var r=e.getBoundingClientRect();if(r.top<150&&r.width>0&&r.width<100&&e.style.display!=='none')e.style.display='none';});}catch(_){}},800);""")
+                add("(function(){var s=document.createElement('style');s.textContent='#spotifreePlayerControls{display:none!important} html #global-nav-bar form[role=search],html #global-nav-bar button[data-testid=search-icon]{display:none!important}';(document.head||document.documentElement).appendChild(s);})();")
             }
             add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{display:none!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")
             add("window.__splHideTopBar=$hideTopBar;")
