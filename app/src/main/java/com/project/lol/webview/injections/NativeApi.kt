@@ -142,6 +142,15 @@ object NativeApi {
                         }
                     } catch(e){}
                 }
+                if (uris.length < 4) {
+                    var rows = [];
+                    document.querySelectorAll('div[data-testid="tracklist-row"] a[href*="/track/"]').forEach(function(a){
+                        var m = (a.getAttribute('href') || '').match(/\/track\/([A-Za-z0-9]{22})/);
+                        if (m && rows.indexOf('spotify:track:' + m[1]) === -1) rows.push('spotify:track:' + m[1]);
+                    });
+                    try{ AndBridge.dbg('i', 'queue dom rows ' + rows.length + ' ctx ' + ctx + ' sm ' + uris.length); }catch(_){}
+                    if (rows.length > uris.length && rows.indexOf(cur) !== -1) uris = rows;
+                }
                 var ci = uris.indexOf(cur);
                 var next = (ci >= 0 ? uris.slice(ci + 1) : uris).filter(function(u){ return u !== cur; }).slice(0, 50);
                 var out = new Array(next.length);
