@@ -1008,10 +1008,7 @@ fun SettingsContent(
                         title = stringResource(R.string.settings_version),
                         subtitle = stringResource(R.string.settings_version_format, appVersionName, BuildInfo.id),
                         icon = TablerIcons.DeviceMobile,
-                        onClick = {
-                            onDebugSecretTap()
-                            onCheckForUpdates()
-                        },
+                        onClick = { onDebugSecretTap() },
                         onLongClick = { onDebugSecretHold() }
                     )
 
@@ -1229,7 +1226,22 @@ fun SettingsContent(
                 updateFrequency = value
                 prefs.edit().putString(UpdateChecker.KEY_FREQUENCY, value).apply()
             },
-            onDismiss = { showUpdateFrequencyDialog = false }
+            onDismiss = { showUpdateFrequencyDialog = false },
+            extraAction = {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+                )
+                TextButton(
+                    onClick = {
+                        showUpdateFrequencyDialog = false
+                        onCheckForUpdates()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.settings_check_updates))
+                }
+            }
         )
     }
 
@@ -2871,7 +2883,8 @@ fun SingleChoiceDialog(
     options: List<Pair<String, String>>,
     selected: String,
     onSelect: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    extraAction: (@Composable () -> Unit)? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -2930,6 +2943,7 @@ fun SingleChoiceDialog(
                         }
                     }
                 }
+                extraAction?.invoke()
             }
         },
         confirmButton = {

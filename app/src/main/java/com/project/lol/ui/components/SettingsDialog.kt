@@ -11,21 +11,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -55,7 +50,6 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.Settings
 import compose.icons.tablericons.X
 
-private const val ScrimOpacity = 0.32f
 
 @Composable
 fun SettingsDialog(
@@ -109,14 +103,7 @@ fun SettingsDialog(
                     exit = fadeOut(animationSpec = tween(120))
                 ) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.scrim.copy(alpha = ScrimOpacity))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { onClose() }
-                            .systemBarsPadding(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         AnimatedVisibility(
@@ -128,19 +115,10 @@ fun SettingsDialog(
                             exit = fadeOut(animationSpec = tween(120))
                         ) {
                             Surface(
-                                modifier = Modifier
-                                    .widthIn(max = 440.dp)
-                                    .fillMaxWidth(0.9f)
-                                    .heightIn(max = 640.dp)
-                                    .fillMaxHeight(0.84f)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) { },
-                                shape = RoundedCornerShape(28.dp),
-                                color = MaterialTheme.colorScheme.surfaceContainerHigh
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.surface
                             ) {
-                                Column(modifier = Modifier.fillMaxSize()) {
+                                Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
                                     SettingsDialogHeader(onClose = onClose)
                                     HorizontalDivider(
                                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
