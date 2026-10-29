@@ -1,5 +1,5 @@
-# SpotiFree v0.9.42
+# SpotiFree v0.9.43
 
-- Native player, search and artist page (beta, Settings > Advanced): queue, Canvas and sleep timer
-- New update screen, softer Material design and short play counts (1.4B)
-- Faster playlist loading, and fixes for the heart, queue and artist links
+- Native player: the queue now lists the whole album or playlist
+- Download button turns into a stop button while downloading
+- Cleaner icon-only player buttons and rounded Canvas video
