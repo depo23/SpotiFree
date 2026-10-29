@@ -1,5 +1,5 @@
-# SpotiFree v0.9.45
+# SpotiFree v0.9.46
 
-- Native player: the queue now follows the full playlist, not just the first few songs
-- Native UI hides Spotify's own search icon, since search has its own button
-- Settings is a full-screen panel with a cleaner header
+- Native player: the queue finds the full playlist or album, and queue and sleep timer swap places
+- Native UI hides Spotify's own search icon in the top bar
+- Settings is a full-screen panel with update checks under Automatic update checks
