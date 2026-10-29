@@ -149,17 +149,20 @@ object NativeApi {
                         if (full.length > uris.length) uris = full;
                     } catch(e){ try{ AndBridge.dbg('e', 'queue ctx failed ' + (e && e.message || e)); }catch(_){} }
                 }
-                if (uris.length < 60) {
-                    var rows = [];
-                    document.querySelectorAll('div[data-testid="tracklist-row"] a[href*="/track/"]').forEach(function(a){
-                        var m = (a.getAttribute('href') || '').match(/\/track\/([A-Za-z0-9]{22})/);
-                        if (m && rows.indexOf('spotify:track:' + m[1]) === -1) rows.push('spotify:track:' + m[1]);
-                    });
-                    try{ AndBridge.dbg('i', 'queue dom rows ' + rows.length + ' ctx ' + ctx + ' sm ' + uris.length); }catch(_){}
-                    if (rows.length > uris.length && rows.indexOf(cur) !== -1) uris = rows;
+                function after(list){
+                    var k = list.indexOf(cur);
+                    return (k >= 0 ? list.slice(k + 1) : list).filter(function(u){ return u !== cur; });
                 }
-                var ci = uris.indexOf(cur);
-                var next = (ci >= 0 ? uris.slice(ci + 1) : uris).filter(function(u){ return u !== cur; }).slice(0, 50);
+                var rows = [];
+                document.querySelectorAll('div[data-testid="tracklist-row"] a[href*="/track/"]').forEach(function(a){
+                    var m = (a.getAttribute('href') || '').match(/\/track\/([A-Za-z0-9]{22})/);
+                    if (m && rows.indexOf('spotify:track:' + m[1]) === -1) rows.push('spotify:track:' + m[1]);
+                });
+                var nx = window.__splNext;
+                var nxl = (nx && nx.uris && (!ctx || !nx.ctx || nx.ctx === ctx)) ? nx.uris.filter(function(u){ return u !== cur; }) : [];
+                var cands = [after(uris), rows.indexOf(cur) !== -1 ? after(rows) : [], nxl];
+                try{ AndBridge.dbg('i', 'queue sources ctx/sm ' + cands[0].length + ' dom ' + cands[1].length + ' state ' + cands[2].length); }catch(_){}
+                var next = cands.reduce(function(a, b){ return b.length > a.length ? b : a; }, []).slice(0, 50);
                 var out = new Array(next.length);
                 var idx = 0;
                 async function worker(){

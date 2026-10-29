@@ -135,6 +135,16 @@ object TrackObserver {
                         if (sm && sm.tracks && sm.tracks.length) window.__splSM = sm;
                     } catch(e){}
                 }
+                if (body.indexOf('"next_tracks"') !== -1) {
+                    try {
+                        const j = JSON.parse(body);
+                        const ps = j.player_state || (j.cluster && j.cluster.player_state) || null;
+                        if (ps && ps.next_tracks) {
+                            const u = ps.next_tracks.map(function(t){ return t && t.uri; }).filter(function(x){ return x && x.indexOf('spotify:track:') === 0; });
+                            if (u.length) window.__splNext = { ctx: ps.context_uri || null, uris: u };
+                        }
+                    } catch(e){}
+                }
                 const cx = /"context_uri"\s*:\s*"(spotify:(?:playlist|album|artist):[A-Za-z0-9]{22})"/.exec(body);
                 if (cx) window.__splCtxUri = cx[1];
                 const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body);
