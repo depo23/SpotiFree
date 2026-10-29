@@ -210,6 +210,9 @@ class SpotifyWebViewClient(
         // was a separate evaluateJavascript call and one failure didn't stop the rest.
         val parts = buildList {
             add("window.__splShowScrollbar=$showScrollbar;")
+            if (prefs.getBoolean("NativeUi", false)) {
+                add("(function(){var s=document.createElement('style');s.textContent='#spotifreePlayerControls{display:none!important}';(document.head||document.documentElement).appendChild(s);})();")
+            }
             add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{display:none!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")
             add("window.__splHideTopBar=$hideTopBar;")
             add("window.__splPowerSavePref=$powerSave;")
@@ -497,6 +500,7 @@ class SpotifyWebViewClient(
             append(SpicyLyrics.CONTENT)
             append(WebPrefs.CONTENT)
             append(HeartLongPress.CONTENT)
+            append(NativeApi.CONTENT)
             // The Full Screen Player is the only player.
             append("window.__splFullPlayer=true;\n")
             append(SpotiFreePlayer.CONTENT)

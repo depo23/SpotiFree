@@ -141,6 +141,7 @@ import com.project.lol.webview.helpers.LyricsTheme
 import com.project.lol.widget.WidgetStudioActivity
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
+import compose.icons.tablericons.Rocket
 import compose.icons.tablericons.Clock
 import compose.icons.tablericons.ArrowsMinimize
 import compose.icons.tablericons.ArrowsSort
@@ -248,6 +249,7 @@ fun SettingsContent(
     var customCss by remember { mutableStateOf(prefs.getString("CustomCss", "") ?: "") }
     var amoledTheme by remember { mutableStateOf(amoledThemeState) }
     var swipeStop by remember { mutableStateOf(prefs.getBoolean("SwipeStop", true)) }
+    var nativeUiOn by remember { mutableStateOf(prefs.getBoolean("NativeUi", false)) }
     var btAutoPause by remember { mutableStateOf(prefs.getBoolean("BtAutoPause", false)) }
     var btAutoResume by remember { mutableStateOf(prefs.getBoolean("BtAutoResume", false)) }
     var hpAutoResume by remember { mutableStateOf(prefs.getBoolean("HpAutoResume", false)) }
@@ -877,6 +879,19 @@ fun SettingsContent(
                     title = stringResource(R.string.settings_section_system),
                     icon = TablerIcons.Power
                 ) {
+                    SettingSwitchTile(
+                        title = stringResource(R.string.settings_native_ui),
+                        subtitle = stringResource(R.string.settings_native_ui_subtitle),
+                        icon = TablerIcons.Rocket,
+                        checked = nativeUiOn,
+                        onCheckedChange = {
+                            nativeUiOn = it
+                            prefs.edit().putBoolean("NativeUi", it).apply()
+                        }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 44.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+
                     SettingSwitchTile(
                         title = stringResource(R.string.settings_swipe_to_stop),
                         subtitle = stringResource(R.string.settings_swipe_to_stop_subtitle),

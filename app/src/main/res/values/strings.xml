@@ -144,6 +144,8 @@
     <string name="settings_profile_saved">Saved %1$s</string>
     <string name="settings_delete">Delete</string>
 
+    <string name="settings_native_ui">Native UI (beta)</string>
+    <string name="settings_native_ui_subtitle">Experimental native player, search and artist page. Restart the app after changing.</string>
     <string name="settings_swipe_to_stop">Swipe to Stop Service</string>
     <string name="settings_swipe_to_stop_subtitle">Kill background service from recents</string>
     <string name="settings_empty_cache">Empty Cache</string>
