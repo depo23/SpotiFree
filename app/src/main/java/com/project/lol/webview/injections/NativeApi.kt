@@ -113,8 +113,35 @@ object NativeApi {
                     var u = t && t.metadata && t.metadata.uri;
                     if (u && u.indexOf('spotify:track:') === 0) uris.push(u);
                 });
+                var ctx = null;
+                (function scan(o, d){
+                    if (ctx || !o || d > 6) return;
+                    if (typeof o === 'string') { if (/^spotify:(playlist|album):[A-Za-z0-9]{22}$/.test(o)) ctx = o; return; }
+                    if (typeof o === 'object') for (var k in o) scan(o[k], d + 1);
+                })(sm, 0);
+                if (ctx) {
+                    try {
+                        var f = window.mngFetch || window.oriFetch || window.fetch;
+                        var r = await f('https://spclient.wg.spotify.com/context-resolve/v1/' + ctx, {
+                            headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken }
+                        });
+                        if (r.ok) {
+                            var cj = await r.json();
+                            var full = [];
+                            (function pick(o, d){
+                                if (!o || d > 8) return;
+                                if (Array.isArray(o)) { o.forEach(function(x){ pick(x, d + 1); }); return; }
+                                if (typeof o === 'object') {
+                                    if (typeof o.uri === 'string' && o.uri.indexOf('spotify:track:') === 0) { full.push(o.uri); return; }
+                                    for (var k in o) pick(o[k], d + 1);
+                                }
+                            })(cj.pages || cj, 0);
+                            if (full.length > uris.length) uris = full;
+                        }
+                    } catch(e){}
+                }
                 var ci = uris.indexOf(cur);
-                var next = (ci >= 0 ? uris.slice(ci + 1) : uris).filter(function(u){ return u !== cur; }).slice(0, 30);
+                var next = (ci >= 0 ? uris.slice(ci + 1) : uris).filter(function(u){ return u !== cur; }).slice(0, 50);
                 var out = new Array(next.length);
                 var idx = 0;
                 async function worker(){

@@ -211,7 +211,7 @@ class SpotifyWebViewClient(
         val parts = buildList {
             add("window.__splShowScrollbar=$showScrollbar;")
             if (prefs.getBoolean("NativeUi", false)) {
-                add("(function(){var s=document.createElement('style');s.textContent='#spotifreePlayerControls{display:none!important}';(document.head||document.documentElement).appendChild(s);})();")
+                add("(function(){var s=document.createElement('style');s.textContent='#spotifreePlayerControls{display:none!important} #global-nav-bar a[href$=\"/search\"],#global-nav-bar button[data-testid=\"search-button\"]{display:none!important}';(document.head||document.documentElement).appendChild(s);})();")
             }
             add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{display:none!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")
             add("window.__splHideTopBar=$hideTopBar;")

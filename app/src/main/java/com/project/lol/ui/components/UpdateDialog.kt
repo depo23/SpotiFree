@@ -24,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -181,14 +182,30 @@ private fun UpdateScreen(
                     }
                 }
 
-                if (notes.isNotBlank()) {
-                    Text(
-                        text = notes.take(300),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 4,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                val points = remember(notes) {
+                    notes.lines()
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() && !it.startsWith("#") }
+                        .map { it.removePrefix("- ").removePrefix("* ").replace("**", "") }
+                        .take(3)
+                }
+                if (points.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.padding(bottom = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        points.forEach { line ->
+                            Row(verticalAlignment = Alignment.Top) {
+                                Text("•", color = MaterialTheme.colorScheme.primary, modifier = Modifier.width(16.dp))
+                                Text(
+                                    text = line,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 2
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
