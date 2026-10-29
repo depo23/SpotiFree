@@ -30,12 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
-import compose.icons.tablericons.ArrowsShuffle
 import compose.icons.tablericons.ChevronDown
 import compose.icons.tablericons.Heart
 import compose.icons.tablericons.PlayerPause
@@ -44,6 +46,21 @@ import compose.icons.tablericons.PlayerSkipBack
 import compose.icons.tablericons.PlayerSkipForward
 import compose.icons.tablericons.Repeat
 import compose.icons.tablericons.RepeatOnce
+
+private val ShuffleIcon: ImageVector by lazy {
+    ImageVector.Builder(
+        name = "Shuffle",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).addPath(
+        pathData = PathParser().parsePathString(
+            "M10.59,9.17L5.41,4 4,5.41l5.17,5.17 1.42,-1.41zM14.5,4l2.04,2.04L4,18.59 5.41,20 17.96,7.46 20,9.5L20,4h-5.5zM14.83,13.41l-1.41,1.41 3.13,3.13L14.5,20L20,20v-5.5l-2.04,2.04 -3.13,-3.13z"
+        ).toNodes(),
+        fill = SolidColor(Color.Black)
+    ).build()
+}
 
 private fun formatTime(ms: Long): String {
     val total = (ms / 1000).coerceAtLeast(0)
@@ -213,7 +230,7 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ToggleIcon(TablerIcons.ArrowsShuffle, state.shuffle, "Shuffle") { NativeUi.shuffle() }
+                ToggleIcon(ShuffleIcon, state.shuffle, "Shuffle") { NativeUi.shuffle() }
                 IconButton(onClick = { NativeUi.previous() }, modifier = Modifier.size(56.dp)) {
                     Icon(TablerIcons.PlayerSkipBack, contentDescription = "Previous", modifier = Modifier.size(32.dp))
                 }
