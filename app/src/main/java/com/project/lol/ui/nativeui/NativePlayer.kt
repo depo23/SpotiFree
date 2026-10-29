@@ -1,8 +1,11 @@
 package com.project.lol.ui.nativeui
 
 import androidx.compose.animation.core.animateDpAsState
-import android.net.Uri
-import android.widget.VideoView
+import android.graphics.Matrix
+import android.graphics.SurfaceTexture
+import android.media.MediaPlayer
+import android.view.Surface
+import android.view.TextureView
 import com.project.lol.offline.DownloadManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -226,27 +229,72 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
     if (showQueue) QueueSheet(state, onDismiss = { showQueue = false })
 }
 
+private class CanvasPlayer(val view: TextureView) {
+    var player: MediaPlayer? = null
+    var url: String = ""
+
+    fun fit() {
+        val mp = player ?: return
+        val vw = mp.videoWidth.toFloat()
+        val vh = mp.videoHeight.toFloat()
+        if (vw <= 0f || vh <= 0f || view.width == 0 || view.height == 0) return
+        val scale = maxOf(view.width / vw, view.height / vh)
+        val m = Matrix()
+        m.setScale(vw * scale / view.width, vh * scale / view.height, view.width / 2f, view.height / 2f)
+        view.setTransform(m)
+    }
+
+    fun load(surface: SurfaceTexture?) {
+        release()
+        if (url.isEmpty() || surface == null) return
+        try {
+            player = MediaPlayer().apply {
+                setSurface(Surface(surface))
+                setDataSource(url)
+                isLooping = true
+                setVolume(0f, 0f)
+                setOnPreparedListener { fit(); start() }
+                setOnVideoSizeChangedListener { _, _, _ -> fit() }
+                setOnErrorListener { _, _, _ -> true }
+                prepareAsync()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    fun release() {
+        player?.release()
+        player = null
+    }
+}
+
 @Composable
 private fun CanvasVideo(url: String, modifier: Modifier) {
     AndroidView(
         modifier = modifier.background(Color.Black),
         factory = { ctx ->
-            VideoView(ctx).apply {
-                setOnPreparedListener { mp ->
-                    mp.isLooping = true
-                    mp.setVolume(0f, 0f)
-                    start()
+            val tv = TextureView(ctx)
+            val holder = CanvasPlayer(tv)
+            tv.tag = holder
+            tv.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                override fun onSurfaceTextureAvailable(st: SurfaceTexture, w: Int, h: Int) = holder.load(st)
+                override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) = holder.fit()
+                override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
+                    holder.release()
+                    return true
                 }
-                setOnErrorListener { _, _, _ -> true }
+                override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}
             }
+            tv
         },
         update = { view ->
-            if (view.tag != url) {
-                view.tag = url
-                view.setVideoURI(Uri.parse(url))
+            val holder = view.tag as CanvasPlayer
+            if (holder.url != url) {
+                holder.url = url
+                holder.load(if (view.isAvailable) view.surfaceTexture else null)
             }
         },
-        onRelease = { it.stopPlayback() }
+        onRelease = { (it.tag as CanvasPlayer).release() }
     )
 }
 
