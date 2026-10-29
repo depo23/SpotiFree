@@ -135,6 +135,8 @@ object TrackObserver {
                         if (sm && sm.tracks && sm.tracks.length) window.__splSM = sm;
                     } catch(e){}
                 }
+                const cx = /"context_uri"\s*:\s*"(spotify:(?:playlist|album|artist):[A-Za-z0-9]{22})"/.exec(body);
+                if (cx) window.__splCtxUri = cx[1];
                 const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body);
                 if (m) window.splSetTrackUri(m[1]);
             };

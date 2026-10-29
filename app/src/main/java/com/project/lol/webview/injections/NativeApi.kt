@@ -113,7 +113,7 @@ object NativeApi {
                     var u = t && t.metadata && t.metadata.uri;
                     if (u && u.indexOf('spotify:track:') === 0) uris.push(u);
                 });
-                var ctx = null;
+                var ctx = window.__splCtxUri || null;
                 (function scan(o, d){
                     if (ctx || !o || d > 6) return;
                     if (typeof o === 'string') { if (/^spotify:(playlist|album):[A-Za-z0-9]{22}$/.test(o)) ctx = o; return; }
@@ -125,6 +125,7 @@ object NativeApi {
                         var r = await f('https://spclient.wg.spotify.com/context-resolve/v1/' + ctx, {
                             headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken }
                         });
+                        try{ AndBridge.dbg('i', 'queue ctx ' + ctx + ' status ' + r.status + ' sm ' + uris.length); }catch(_){}
                         if (r.ok) {
                             var cj = await r.json();
                             var full = [];
@@ -136,6 +137,7 @@ object NativeApi {
                                     for (var k in o) pick(o[k], d + 1);
                                 }
                             })(cj.pages || cj, 0);
+                            try{ AndBridge.dbg('i', 'queue ctx tracks ' + full.length); }catch(_){}
                             if (full.length > uris.length) uris = full;
                         }
                     } catch(e){}

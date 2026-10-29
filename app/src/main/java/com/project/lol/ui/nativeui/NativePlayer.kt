@@ -3,6 +3,7 @@ package com.project.lol.ui.nativeui
 import androidx.compose.animation.core.animateDpAsState
 import android.net.Uri
 import android.widget.VideoView
+import com.project.lol.offline.DownloadManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,6 +41,7 @@ import androidx.compose.runtime.produceState
 import com.project.lol.timer.SleepTimerManager
 import com.project.lol.timer.SleepTimerMode
 import compose.icons.tablericons.Clock
+import compose.icons.tablericons.X
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import org.json.JSONArray
@@ -366,8 +368,19 @@ private fun PlayerBody(
             FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
                 Icon(QueueIcon, contentDescription = "Queue", modifier = Modifier.size(22.dp))
             }
-            FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Icon(DownloadIcon, contentDescription = "Download", modifier = Modifier.size(22.dp))
+            val downloading by produceState(false) {
+                while (true) {
+                    value = DownloadManager.isDownloading()
+                    delay(500)
+                }
+            }
+            FilledTonalButton(
+                onClick = { if (downloading) DownloadManager.cancelAll() else NativeUi.runJs("splDoDownload()") },
+                modifier = Modifier.weight(1f).height(52.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp)
+            ) {
+                if (downloading) Icon(TablerIcons.X, contentDescription = "Cancel download", modifier = Modifier.size(22.dp))
+                else Icon(DownloadIcon, contentDescription = "Download", modifier = Modifier.size(22.dp))
             }
             val timerLabel = when {
                 !timer.active -> ""
