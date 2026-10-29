@@ -1,4 +1,4 @@
-# SpotiFree v0.9.39
+# SpotiFree v0.9.40
 
 SpotiFree is the new name of this app, now its own project. It installs as a new app called **SpotiFree**, next to the app it grew out of: sign in once, then you can remove the old one.
 
