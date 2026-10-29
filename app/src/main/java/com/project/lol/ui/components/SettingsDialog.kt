@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,7 +44,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.project.lol.R
 import com.project.lol.ui.screens.SettingsContent
-import com.project.lol.util.BuildInfo
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Settings
 import compose.icons.tablericons.X
@@ -177,12 +175,6 @@ private fun View.findDialogWindow(): Window? {
 
 @Composable
 private fun SettingsDialogHeader(onClose: () -> Unit) {
-    val context = LocalContext.current
-    val versionName = remember {
-        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
-            .getOrNull() ?: ""
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -211,7 +203,7 @@ private fun SettingsDialogHeader(onClose: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = stringResource(R.string.settings_dialog_version, versionName, BuildInfo.id),
+                    text = stringResource(R.string.settings_made_free_by),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

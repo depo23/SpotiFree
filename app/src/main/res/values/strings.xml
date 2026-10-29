@@ -167,6 +167,7 @@
     <string name="settings_github_subtitle">github.com/depo23/SpotiFree</string>
     <string name="settings_discord_server">Discord Server</string>
     <string name="settings_discord_subtitle">discord.gg/95dAE2UkqP</string>
+    <string name="settings_made_free_by">Made Free by Zoé</string>
     <string name="settings_check_updates">Check for updates</string>
     <string name="settings_check_updates_subtitle">Download and install the latest SpotiFree</string>
     <string name="update_title_available">SpotiFree %1$s is available</string>
