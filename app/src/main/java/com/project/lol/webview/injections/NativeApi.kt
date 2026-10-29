@@ -118,6 +118,9 @@ object NativeApi {
                         window.ensureAuthToken().then(function(){ return window.searchMediaItems(arg); }).then(done, fail);
                     } else if (op === 'artist') {
                         window.splNativeArtist(arg).then(done, fail);
+                    } else if (op === 'canvas') {
+                        var same = window.__splCanvasFor && window.__splCanvasFor === window.splTrackId;
+                        done({ url: same ? (window.__splCanvasUrl || '') : '' });
                     } else if (op === 'queue') {
                         window.splNativeQueue().then(done, fail);
                     } else {

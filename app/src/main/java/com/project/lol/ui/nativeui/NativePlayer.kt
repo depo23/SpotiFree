@@ -1,6 +1,18 @@
 package com.project.lol.ui.nativeui
 
 import androidx.compose.animation.core.animateDpAsState
+import android.net.Uri
+import android.widget.VideoView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,7 +57,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronDown
-import compose.icons.tablericons.Heart
 import compose.icons.tablericons.PlayerPause
 import compose.icons.tablericons.PlayerPlay
 import compose.icons.tablericons.PlayerSkipBack
@@ -95,7 +106,7 @@ fun NativeMiniPlayer(state: NativePlayerState, onOpen: () -> Unit, modifier: Mod
                 }
                 IconButton(onClick = { NativeUi.like() }) {
                     Icon(
-                        TablerIcons.Heart,
+                        if (state.fav) HeartFilledIcon else HeartOutlineIcon,
                         contentDescription = "Like",
                         tint = if (state.fav) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -145,30 +156,116 @@ private fun ToggleIcon(icon: ImageVector, active: Boolean, label: String, onClic
 @Composable
 fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: () -> Unit) {
     var showQueue by remember { mutableStateOf(false) }
+    var canvasUrl by remember { mutableStateOf("") }
+    var controlsVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(state.title) {
+        canvasUrl = ""
+        controlsVisible = true
+        repeat(25) {
+            val answer = NativeCalls.call("canvas", JSONObject.quote(""))
+            val url = try { JSONObject(answer).optString("url", "") } catch (_: Exception) { "" }
+            if (url.isNotEmpty()) {
+                canvasUrl = url
+                return@LaunchedEffect
+            }
+            delay(2000)
+        }
+    }
+
+    val hasCanvas = canvasUrl.isNotEmpty()
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (hasCanvas) Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { controlsVisible = !controlsVisible } else Modifier
+                )
+        ) {
+            if (hasCanvas) {
+                CanvasVideo(canvasUrl, Modifier.fillMaxSize())
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color.Black.copy(alpha = 0.45f), Color.Transparent, Color.Black.copy(alpha = 0.75f))
+                            )
+                        )
+                )
+            }
+            AnimatedVisibility(
+                visible = !hasCanvas || controlsVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                PlayerBody(state, showCover = !hasCanvas, onClose = onClose, onArtist = onArtist, onQueue = { showQueue = true })
+            }
+        }
+    }
+
+    if (showQueue) QueueSheet(onDismiss = { showQueue = false })
+}
+
+@Composable
+private fun CanvasVideo(url: String, modifier: Modifier) {
+    AndroidView(
+        modifier = modifier.background(Color.Black),
+        factory = { ctx ->
+            VideoView(ctx).apply {
+                setOnPreparedListener { mp ->
+                    mp.isLooping = true
+                    mp.setVolume(0f, 0f)
+                    start()
+                }
+                setOnErrorListener { _, _, _ -> true }
+            }
+        },
+        update = { view ->
+            if (view.tag != url) {
+                view.tag = url
+                view.setVideoURI(Uri.parse(url))
+            }
+        },
+        onRelease = { it.stopPlayback() }
+    )
+}
+
+@Composable
+private fun PlayerBody(
+    state: NativePlayerState,
+    showCover: Boolean,
+    onClose: () -> Unit,
+    onArtist: () -> Unit,
+    onQueue: () -> Unit
+) {
     var dragging by remember { mutableStateOf(false) }
     var dragValue by remember { mutableStateOf(0f) }
     val duration = state.duration.coerceAtLeast(1L)
     val shown = if (dragging) dragValue else state.position.toFloat().coerceIn(0f, duration.toFloat())
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onClose) { Icon(TablerIcons.ChevronDown, contentDescription = "Close") }
-                Spacer(Modifier.weight(1f))
-                Text("Now playing", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.weight(1f))
-                Spacer(Modifier.size(48.dp))
-            }
+            IconButton(onClick = onClose) { Icon(TablerIcons.ChevronDown, contentDescription = "Close") }
+            Spacer(Modifier.weight(1f))
+            Text("Now playing", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.size(48.dp))
+        }
 
+        if (showCover) {
             Spacer(Modifier.height(12.dp))
             RemoteImage(
                 state.cover,
@@ -178,85 +275,85 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
                 MaterialTheme.shapes.extraLarge
             )
             Spacer(Modifier.height(28.dp))
+        } else {
+            Spacer(Modifier.weight(1f))
+        }
 
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        state.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        state.artist,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.clickable(onClick = onArtist)
-                    )
-                }
-                ToggleIcon(TablerIcons.Heart, state.fav, "Like") { NativeUi.like() }
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    state.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    state.artist,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.clickable(onClick = onArtist)
+                )
             }
+            ToggleIcon(if (state.fav) HeartFilledIcon else HeartOutlineIcon, state.fav, "Like") { NativeUi.like() }
+        }
 
-            Spacer(Modifier.height(12.dp))
-            Slider(
-                value = shown,
-                onValueChange = { dragging = true; dragValue = it },
-                onValueChangeFinished = {
-                    NativeUi.seek(dragValue.toLong())
-                    dragging = false
-                },
-                valueRange = 0f..duration.toFloat(),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(formatTime(shown.toLong()), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(formatTime(state.duration), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(12.dp))
+        Slider(
+            value = shown,
+            onValueChange = { dragging = true; dragValue = it },
+            onValueChangeFinished = {
+                NativeUi.seek(dragValue.toLong())
+                dragging = false
+            },
+            valueRange = 0f..duration.toFloat(),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(formatTime(shown.toLong()), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(formatTime(state.duration), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+
+        Spacer(Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ToggleIcon(ShuffleIcon, state.shuffle, "Shuffle") { NativeUi.shuffle() }
+            IconButton(onClick = { NativeUi.previous() }, modifier = Modifier.size(56.dp)) {
+                Icon(TablerIcons.PlayerSkipBack, contentDescription = "Previous", modifier = Modifier.size(32.dp))
             }
-
-            Spacer(Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ToggleIcon(ShuffleIcon, state.shuffle, "Shuffle") { NativeUi.shuffle() }
-                IconButton(onClick = { NativeUi.previous() }, modifier = Modifier.size(56.dp)) {
-                    Icon(TablerIcons.PlayerSkipBack, contentDescription = "Previous", modifier = Modifier.size(32.dp))
-                }
-                PlayButton(state.playing, 84.dp) { NativeUi.togglePlay() }
-                IconButton(onClick = { NativeUi.next() }, modifier = Modifier.size(56.dp)) {
-                    Icon(TablerIcons.PlayerSkipForward, contentDescription = "Next", modifier = Modifier.size(32.dp))
-                }
-                ToggleIcon(
-                    if (state.repeat == "mixed") TablerIcons.RepeatOnce else TablerIcons.Repeat,
-                    state.repeat != "false",
-                    "Repeat"
-                ) { NativeUi.repeat() }
+            PlayButton(state.playing, 84.dp) { NativeUi.togglePlay() }
+            IconButton(onClick = { NativeUi.next() }, modifier = Modifier.size(56.dp)) {
+                Icon(TablerIcons.PlayerSkipForward, contentDescription = "Next", modifier = Modifier.size(32.dp))
             }
+            ToggleIcon(
+                if (state.repeat == "mixed") TablerIcons.RepeatOnce else TablerIcons.Repeat,
+                state.repeat != "false",
+                "Repeat"
+            ) { NativeUi.repeat() }
+        }
 
-            Spacer(Modifier.height(20.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                FilledTonalButton(onClick = { showQueue = true }, modifier = Modifier.weight(1f).height(52.dp)) {
-                    Icon(QueueIcon, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Queue")
-                }
-                FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp)) {
-                    Icon(DownloadIcon, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Download")
-                }
+        Spacer(Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp)) {
+                Icon(QueueIcon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Queue")
+            }
+            FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp)) {
+                Icon(DownloadIcon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Download")
             }
         }
     }
-
-    if (showQueue) QueueSheet(onDismiss = { showQueue = false })
 }
 
 private data class QueueItem(val uri: String, val name: String, val artist: String, val image: String)

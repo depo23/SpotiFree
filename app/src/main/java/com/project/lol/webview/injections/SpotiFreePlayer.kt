@@ -832,6 +832,7 @@ object SpotiFreePlayer {
                     };
                     function clog(m){ try{ AndBridge.dbg('d','canvas '+m); }catch(e){} }
                     function splApplyCanvas(){
+                        window.__splCanvasUrl=splCanvasUrl||'';window.__splCanvasFor=splCanvasFor;
                         var has=!!splCanvasUrl;
                         pl.classList.toggle('spl-has-canvas',has);
                         pl.classList.toggle('spl-canvas',has&&!splCanvasOff);
