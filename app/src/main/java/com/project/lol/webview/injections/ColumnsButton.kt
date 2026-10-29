@@ -24,7 +24,7 @@ object ColumnsButton {
                 el.dispatchEvent(new MouseEvent('click', ev(0)));
             }
             function collectionPage(){
-                var p = location.pathname;
+                var p = location.pathname.replace(/^\/intl-[A-Za-z-]+(?=\/)/,'');
                 return /^\/(playlist|album)\//.test(p) || p.indexOf('/collection/tracks') === 0;
             }
             function headerBlock(){

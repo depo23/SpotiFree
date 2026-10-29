@@ -55,7 +55,7 @@ object PlaylistSort {
             function sortKey(){ return keyOf(state); }
 
             function currentUri(){
-                var path = location.pathname;
+                var path = location.pathname.replace(/^\/intl-[A-Za-z-]+(?=\/)/,'');
                 if (path === uriPath) return uriVal;
                 uriPath = path;
                 var m = path.match(/^\/playlist\/([A-Za-z0-9]+)/);

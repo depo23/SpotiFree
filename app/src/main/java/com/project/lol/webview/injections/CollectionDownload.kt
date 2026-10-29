@@ -19,7 +19,7 @@ object CollectionDownload {
             var COVER_RE = /ab67616d0000[0-9a-f]{4}/i;
         
             function pageType(){
-                var p = location.pathname;
+                var p = location.pathname.replace(/^\/intl-[A-Za-z-]+(?=\/)/,'');
                 if (p.indexOf('/playlist/') !== -1) return 'playlist';
                 if (p.indexOf('/album/') !== -1) return 'album';
                 if (p.indexOf('/collection/tracks') !== -1) return 'liked';

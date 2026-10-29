@@ -29,7 +29,7 @@ object CssHack {
             };
             window.splPlaysRows=function(){
                 try{
-                    var main=/^\/artist\/[^\/]+\/?$/.test(location.pathname);
+                    var main=/^\/artist\/[^\/]+\/?$/.test(location.pathname.replace(/^\/intl-[A-Za-z-]+(?=\/)/,''));
                     document.documentElement.classList.toggle('splArtistMain',main);
                     if(main)return;
                     var rows=document.querySelectorAll('section[data-testid=artist-page] div[data-testid=tracklist-row]');
