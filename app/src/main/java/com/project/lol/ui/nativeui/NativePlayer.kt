@@ -364,24 +364,22 @@ private fun PlayerBody(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Icon(QueueIcon, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Queue")
+                Icon(QueueIcon, contentDescription = "Queue", modifier = Modifier.size(22.dp))
             }
             FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Icon(DownloadIcon, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Download")
+                Icon(DownloadIcon, contentDescription = "Download", modifier = Modifier.size(22.dp))
             }
             val timerLabel = when {
-                !timer.active -> "Sleep"
+                !timer.active -> ""
                 timer.mode == SleepTimerMode.COUNTDOWN -> formatTime(timer.remainingMs)
                 else -> "End of song"
             }
             val timerContent: @Composable () -> Unit = {
-                Icon(TablerIcons.Clock, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(timerLabel, maxLines = 1)
+                Icon(TablerIcons.Clock, contentDescription = "Sleep timer", modifier = Modifier.size(22.dp))
+                if (timerLabel.isNotEmpty()) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(timerLabel, maxLines = 1)
+                }
             }
             if (timer.active) {
                 Button(onClick = onSleepTimer, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) { timerContent() }
