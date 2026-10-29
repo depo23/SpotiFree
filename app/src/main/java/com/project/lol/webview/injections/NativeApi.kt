@@ -122,27 +122,34 @@ object NativeApi {
                 if (ctx) {
                     try {
                         var f = window.mngFetch || window.oriFetch || window.fetch;
-                        var r = await f('https://spclient.wg.spotify.com/context-resolve/v1/' + ctx, {
-                            headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken }
-                        });
-                        try{ AndBridge.dbg('i', 'queue ctx ' + ctx + ' status ' + r.status + ' sm ' + uris.length); }catch(_){}
-                        if (r.ok) {
+                        var hdr = { headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken } };
+                        var full = [];
+                        var url = 'https://spclient.wg.spotify.com/context-resolve/v1/' + ctx;
+                        var seen = {};
+                        for (var pg = 0; pg < 40 && url && !seen[url]; pg++) {
+                            seen[url] = 1;
+                            var r = await f(url, hdr);
+                            try{ AndBridge.dbg('i', 'queue page ' + pg + ' status ' + r.status + ' ' + url.slice(0, 120)); }catch(_){}
+                            if (!r.ok) break;
                             var cj = await r.json();
-                            var full = [];
-                            (function pick(o, d){
+                            var nx = null;
+                            (function walk(o, d){
                                 if (!o || d > 8) return;
-                                if (Array.isArray(o)) { o.forEach(function(x){ pick(x, d + 1); }); return; }
+                                if (Array.isArray(o)) { o.forEach(function(x){ walk(x, d + 1); }); return; }
                                 if (typeof o === 'object') {
-                                    if (typeof o.uri === 'string' && o.uri.indexOf('spotify:track:') === 0) { full.push(o.uri); return; }
-                                    for (var k in o) pick(o[k], d + 1);
+                                    if (typeof o.uri === 'string' && o.uri.indexOf('spotify:track:') === 0) { if (full.indexOf(o.uri) === -1) full.push(o.uri); return; }
+                                    if (typeof o.next_page_url === 'string' && o.next_page_url) nx = o.next_page_url;
+                                    for (var k in o) walk(o[k], d + 1);
                                 }
                             })(cj.pages || cj, 0);
-                            try{ AndBridge.dbg('i', 'queue ctx tracks ' + full.length); }catch(_){}
-                            if (full.length > uris.length) uris = full;
+                            if (pg === 0) { try{ AndBridge.dbg('i', 'queue first page keys ' + Object.keys(cj).join(',') + ' next=' + nx); }catch(_){} }
+                            url = nx ? (nx.indexOf('hm://') === 0 ? 'https://spclient.wg.spotify.com/' + nx.slice(5) : nx) : null;
                         }
-                    } catch(e){}
+                        try{ AndBridge.dbg('i', 'queue ctx tracks ' + full.length); }catch(_){}
+                        if (full.length > uris.length) uris = full;
+                    } catch(e){ try{ AndBridge.dbg('e', 'queue ctx failed ' + (e && e.message || e)); }catch(_){} }
                 }
-                if (uris.length < 4) {
+                if (uris.length < 60) {
                     var rows = [];
                     document.querySelectorAll('div[data-testid="tracklist-row"] a[href*="/track/"]').forEach(function(a){
                         var m = (a.getAttribute('href') || '').match(/\/track\/([A-Za-z0-9]{22})/);
