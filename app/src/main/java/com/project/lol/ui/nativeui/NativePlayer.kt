@@ -11,6 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.clickable
@@ -192,16 +193,23 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
                 )
         ) {
             if (hasCanvas) {
-                CanvasVideo(canvasUrl, Modifier.fillMaxSize())
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(Color.Black.copy(alpha = 0.45f), Color.Transparent, Color.Black.copy(alpha = 0.75f))
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(36.dp))
+                ) {
+                    CanvasVideo(canvasUrl, Modifier.fillMaxSize())
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(Color.Black.copy(alpha = 0.45f), Color.Transparent, Color.Black.copy(alpha = 0.75f))
+                                )
                             )
-                        )
-                )
+                    )
+                }
             }
             AnimatedVisibility(
                 visible = !hasCanvas || controlsVisible,
