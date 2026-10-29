@@ -1,5 +1,5 @@
-# SpotiFree v0.9.43
+# SpotiFree v0.9.44
 
-- Native player: the queue now lists the whole album or playlist
-- Download button turns into a stop button while downloading
-- Cleaner icon-only player buttons and rounded Canvas video
+- Settings is now a full-screen panel, with update checks under Automatic update checks
+- Native player: rounded Canvas video and a better full-album queue
+- Download button doubles as a stop button
