@@ -413,23 +413,6 @@ private fun PlayerBody(
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Icon(QueueIcon, contentDescription = "Queue", modifier = Modifier.size(22.dp))
-            }
-            val downloading by produceState(false) {
-                while (true) {
-                    value = DownloadManager.isDownloading()
-                    delay(500)
-                }
-            }
-            FilledTonalButton(
-                onClick = { if (downloading) DownloadManager.cancelAll() else NativeUi.runJs("splDoDownload()") },
-                modifier = Modifier.weight(1f).height(52.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
-            ) {
-                if (downloading) Icon(TablerIcons.X, contentDescription = "Cancel download", modifier = Modifier.size(22.dp))
-                else Icon(DownloadIcon, contentDescription = "Download", modifier = Modifier.size(22.dp))
-            }
             val timerLabel = when {
                 !timer.active -> ""
                 timer.mode == SleepTimerMode.COUNTDOWN -> formatTime(timer.remainingMs)
@@ -446,6 +429,23 @@ private fun PlayerBody(
                 Button(onClick = onSleepTimer, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) { timerContent() }
             } else {
                 FilledTonalButton(onClick = onSleepTimer, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) { timerContent() }
+            }
+            val downloading by produceState(false) {
+                while (true) {
+                    value = DownloadManager.isDownloading()
+                    delay(500)
+                }
+            }
+            FilledTonalButton(
+                onClick = { if (downloading) DownloadManager.cancelAll() else NativeUi.runJs("splDoDownload()") },
+                modifier = Modifier.weight(1f).height(52.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp)
+            ) {
+                if (downloading) Icon(TablerIcons.X, contentDescription = "Cancel download", modifier = Modifier.size(22.dp))
+                else Icon(DownloadIcon, contentDescription = "Download", modifier = Modifier.size(22.dp))
+            }
+            FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
+                Icon(QueueIcon, contentDescription = "Queue", modifier = Modifier.size(22.dp))
             }
         }
     }
