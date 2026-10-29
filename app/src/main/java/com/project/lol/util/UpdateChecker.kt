@@ -16,7 +16,7 @@ sealed interface UpdateEvent {
     val version: String? get() = null
 
     data class Available(override val version: String, val notes: String) : UpdateEvent
-    data class Downloading(override val version: String, val percent: Int) : UpdateEvent
+    data class Downloading(override val version: String, val percent: Int, val done: Long = 0L, val total: Long = 0L) : UpdateEvent
     data class Ready(override val version: String, val apk: File, val notes: String) : UpdateEvent
     data object UpToDate : UpdateEvent
     data class Failed(val message: String) : UpdateEvent
@@ -147,7 +147,8 @@ class UpdateChecker(private val context: Context) {
                                 val percent = if (total > 0) (done * 100 / total).toInt() else 0
                                 if (percent != lastPercent) {
                                     lastPercent = percent
-                                    main.post { show(UpdateEvent.Downloading(version, percent)) }
+                                    val doneNow = done
+                                    main.post { show(UpdateEvent.Downloading(version, percent, doneNow, total)) }
                                 }
                             }
                         }

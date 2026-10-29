@@ -190,6 +190,9 @@
     <string name="update_confirm_title">Confirm SpotiFree %1$s</string>
     <string name="update_confirm_text">Android\'s installer is open. Tap Install there to finish.</string>
     <string name="update_close">Close</string>
+    <string name="update_downloading_title">Downloading update…</string>
+    <string name="update_subtitle">SpotiFree · v%1$s</string>
+    <string name="update_size_progress">%1$s / %2$s MB</string>
     <string name="update_copying_text">Copying the update… %1$d%%</string>
     <string name="update_finishing_text">Finishing the install…</string>
     <string name="update_open_installer">Open installer</string>

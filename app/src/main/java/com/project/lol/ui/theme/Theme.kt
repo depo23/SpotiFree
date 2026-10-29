@@ -4,15 +4,21 @@ import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 private const val THEME_ANIMATION_DURATION = 450
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SpotifyTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
@@ -23,9 +29,17 @@ fun SpotifyTheme(content: @Composable () -> Unit) {
     }
     val colorScheme = if (ThemeController.amoled) target.amoledScheme() else target
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme.animated(),
         typography = RalewayTypography,
+        shapes = Shapes(
+            extraSmall = RoundedCornerShape(8.dp),
+            small = RoundedCornerShape(14.dp),
+            medium = RoundedCornerShape(20.dp),
+            large = RoundedCornerShape(28.dp),
+            extraLarge = RoundedCornerShape(36.dp)
+        ),
+        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }
