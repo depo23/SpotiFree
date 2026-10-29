@@ -32,7 +32,7 @@ private sealed interface NativeScreen {
 
 /** Native player, search and artist page drawn over the web page (beta). */
 @Composable
-fun NativeShell() {
+fun NativeShell(onSleepTimer: () -> Unit) {
     val state by NativeUi.player.collectAsState()
     var screen by remember { mutableStateOf<NativeScreen>(NativeScreen.None) }
     var previous by remember { mutableStateOf<NativeScreen>(NativeScreen.None) }
@@ -85,7 +85,8 @@ fun NativeShell() {
             NativeFullPlayer(
                 state = state,
                 onClose = { back() },
-                onArtist = { open(NativeScreen.Search(state.artist)) }
+                onArtist = { open(NativeScreen.Search(state.artist)) },
+                onSleepTimer = onSleepTimer
             )
         }
 

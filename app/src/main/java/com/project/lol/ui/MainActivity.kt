@@ -540,7 +540,10 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                             }
 
                             if (nativeUi) {
-                                NativeShell()
+                                NativeShell(onSleepTimer = {
+                                    if (!SleepTimerManager.isActive) sleepTimerInputText.value = ""
+                                    showSleepTimerDialog.value = true
+                                })
                             }
 
                             LaunchedEffect(webView) {

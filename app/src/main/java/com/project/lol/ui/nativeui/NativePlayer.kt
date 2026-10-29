@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -28,11 +29,16 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.produceState
+import com.project.lol.timer.SleepTimerManager
+import com.project.lol.timer.SleepTimerMode
+import compose.icons.tablericons.Clock
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import org.json.JSONArray
@@ -154,7 +160,7 @@ private fun ToggleIcon(icon: ImageVector, active: Boolean, label: String, onClic
 }
 
 @Composable
-fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: () -> Unit) {
+fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: () -> Unit, onSleepTimer: () -> Unit) {
     var showQueue by remember { mutableStateOf(false) }
     var canvasUrl by remember { mutableStateOf("") }
     var controlsVisible by remember { mutableStateOf(true) }
@@ -202,7 +208,7 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                PlayerBody(state, showCover = !hasCanvas, onClose = onClose, onArtist = onArtist, onQueue = { showQueue = true })
+                PlayerBody(state, showCover = !hasCanvas, onClose = onClose, onArtist = onArtist, onQueue = { showQueue = true }, onSleepTimer = onSleepTimer)
             }
         }
     }
@@ -240,8 +246,15 @@ private fun PlayerBody(
     showCover: Boolean,
     onClose: () -> Unit,
     onArtist: () -> Unit,
-    onQueue: () -> Unit
+    onQueue: () -> Unit,
+    onSleepTimer: () -> Unit
 ) {
+    val timer by produceState(SleepTimerManager.state()) {
+        while (true) {
+            value = SleepTimerManager.state()
+            delay(1000)
+        }
+    }
     var dragging by remember { mutableStateOf(false) }
     var dragValue by remember { mutableStateOf(0f) }
     val duration = state.duration.coerceAtLeast(1L)
@@ -342,15 +355,30 @@ private fun PlayerBody(
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp)) {
+            FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
                 Icon(QueueIcon, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text("Queue")
             }
-            FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp)) {
+            FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
                 Icon(DownloadIcon, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text("Download")
+            }
+            val timerLabel = when {
+                !timer.active -> "Sleep"
+                timer.mode == SleepTimerMode.COUNTDOWN -> formatTime(timer.remainingMs)
+                else -> "End of song"
+            }
+            val timerContent: @Composable () -> Unit = {
+                Icon(TablerIcons.Clock, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(timerLabel, maxLines = 1)
+            }
+            if (timer.active) {
+                Button(onClick = onSleepTimer, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) { timerContent() }
+            } else {
+                FilledTonalButton(onClick = onSleepTimer, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) { timerContent() }
             }
         }
     }
