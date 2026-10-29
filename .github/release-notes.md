@@ -1,5 +1,5 @@
-# SpotiFree v0.9.44
+# SpotiFree v0.9.45
 
-- Settings is now a full-screen panel, with update checks under Automatic update checks
-- Native player: rounded Canvas video and a better full-album queue
-- Download button doubles as a stop button
+- Native player: the queue now follows the full playlist, not just the first few songs
+- Native UI hides Spotify's own search icon, since search has its own button
+- Settings is a full-screen panel with a cleaner header
