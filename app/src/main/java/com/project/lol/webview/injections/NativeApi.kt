@@ -18,39 +18,94 @@ object NativeApi {
                 } catch(e){ location.href = path; }
             };
 
-            async function apiGet(url){
-                await window.ensureAuthToken();
-                var f = window.mngFetch || window.oriFetch || window.fetch;
-                var r = await f(url, { headers: { 'Authorization': window.spotAuthToken } });
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
+            function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+            function src(o){
+                var a = o && o.sources;
+                return (a && a.length) ? (a[Math.min(1, a.length - 1)].url || a[0].url || '') : '';
             }
 
-            function img(o, i){
-                var a = o && o.images;
-                return (a && (a[i] || a[0])) ? (a[i] || a[0]).url : '';
+            function mapRelease(r){
+                if (!r) return null;
+                var id = r.id || String(r.uri || '').split(':').pop();
+                if (!id) return null;
+                return {
+                    id: id, uri: r.uri || ('spotify:album:' + id), name: r.name || '',
+                    image: src(r.coverArt), year: String((r.date && r.date.year) || ''),
+                    type: String(r.type || 'ALBUM').toLowerCase()
+                };
             }
 
             window.splNativeArtist = async function(uri){
                 var id = String(uri).split(':').pop();
-                var market = ((navigator.language || 'en-US').split('-')[1] || 'US').toUpperCase();
+                window.__splArtistOv = window.__splArtistOv || {};
+                var u = window.__splArtistOv[id];
+                if (!u) {
+                    window.splNativeNav('/artist/' + id);
+                    for (var n = 0; n < 50 && !window.__splArtistOv[id]; n++) await sleep(300);
+                    u = window.__splArtistOv[id];
+                }
+                if (!u) throw new Error('the web page did not load the artist');
+                var d = u.discography || {};
+                var top = ((d.topTracks && d.topTracks.items) || []).map(function(x){
+                    var t = x.track || x;
+                    var al = t.albumOfTrack || {};
+                    return {
+                        uri: t.uri, name: t.name, album: al.name || '', image: src(al.coverArt),
+                        duration: (t.duration && t.duration.totalMilliseconds) || 0,
+                        plays: String(t.playcount || '')
+                    };
+                }).filter(function(t){ return t.uri; });
+                var rel = [];
+                var add = function(r){ var m = mapRelease(r); if (m && !rel.some(function(q){ return q.id === m.id; })) rel.push(m); };
+                ((d.popularReleasesAlbums && d.popularReleasesAlbums.items) || []).forEach(add);
+                ['albums', 'singles', 'compilations'].forEach(function(k){
+                    ((d[k] && d[k].items) || []).forEach(function(g){
+                        ((g.releases && g.releases.items) || [g]).forEach(add);
+                    });
+                });
+                var vis = u.visuals || {};
+                var hdr = (vis.headerImage && vis.headerImage.data) || vis.headerImage || null;
                 var errs = [];
-                var a = await apiGet('https://api.spotify.com/v1/artists/' + id);
-                var t = { tracks: [] }, al = { items: [] };
-                try { t = await apiGet('https://api.spotify.com/v1/artists/' + id + '/top-tracks?market=' + market); } catch(e){ errs.push('top tracks ' + e.message); }
-                try { al = await apiGet('https://api.spotify.com/v1/artists/' + id + '/albums?include_groups=album,single&limit=30&market=' + market); } catch(e){ errs.push('albums ' + e.message); }
+                if (!top.length) errs.push('no top tracks (keys: ' + Object.keys(d).join(',') + ')');
                 return {
-                    name: a.name,
-                    image: img(a, 0),
-                    followers: (a.followers && a.followers.total) || 0,
-                    tracks: (t.tracks || []).map(function(x){
-                        return { uri: x.uri, name: x.name, album: x.album && x.album.name, image: img(x.album, 1), duration: x.duration_ms };
-                    }),
-                    albums: (al.items || []).map(function(x){
-                        return { id: x.id, uri: x.uri, name: x.name, image: img(x, 1), year: (x.release_date || '').slice(0, 4), type: x.album_type };
-                    }),
-                    errors: errs
+                    name: (u.profile && u.profile.name) || '',
+                    image: src(hdr) || src(vis.avatarImage),
+                    followers: (u.stats && u.stats.followers) || 0,
+                    monthly: (u.stats && u.stats.monthlyListeners) || 0,
+                    tracks: top, albums: rel, errors: errs
                 };
+            };
+
+            window.splNativeQueue = async function(){
+                var qb = document.querySelector('button[data-testid="control-button-queue"]');
+                if (!qb) throw new Error('queue button not found');
+                var rows = function(){
+                    return Array.prototype.filter.call(document.querySelectorAll('[data-testid="tracklist-row"]'), function(r){
+                        return !r.closest('main') && !r.closest('#Desktop_LeftSidebar_Id');
+                    });
+                };
+                var wasOpen = rows().length > 0;
+                if (!wasOpen) qb.click();
+                var list = [];
+                for (var n = 0; n < 20; n++) {
+                    await sleep(250);
+                    list = rows();
+                    if (list.length) { await sleep(300); list = rows(); break; }
+                }
+                var out = list.map(function(r){
+                    var a = r.querySelector('a[data-testid="internal-track-link"]') || r.querySelector('a[href*="/track/"]');
+                    var m = a ? /\/track\/([A-Za-z0-9]{22})/.exec(a.getAttribute('href') || '') : null;
+                    var arts = Array.prototype.map.call(r.querySelectorAll('a[href*="/artist/"]'), function(x){ return (x.textContent || '').trim(); }).filter(Boolean);
+                    var im = r.querySelector('img');
+                    return {
+                        uri: m ? 'spotify:track:' + m[1] : '', name: a ? (a.textContent || '').trim() : '',
+                        artist: arts.filter(function(v, i){ return arts.indexOf(v) === i; }).join(', '),
+                        image: im ? im.src : ''
+                    };
+                }).filter(function(t){ return t.uri; });
+                if (!wasOpen && rows().length) qb.click();
+                return { items: out };
             };
 
             window.splNative = function(reqId, op, argStr){
@@ -63,6 +118,8 @@ object NativeApi {
                         window.ensureAuthToken().then(function(){ return window.searchMediaItems(arg); }).then(done, fail);
                     } else if (op === 'artist') {
                         window.splNativeArtist(arg).then(done, fail);
+                    } else if (op === 'queue') {
+                        window.splNativeQueue().then(done, fail);
                     } else {
                         fail('unknown op');
                     }

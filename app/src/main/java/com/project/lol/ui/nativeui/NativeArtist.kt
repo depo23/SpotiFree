@@ -44,12 +44,13 @@ import compose.icons.tablericons.PlayerPlay
 import org.json.JSONObject
 import java.util.Locale
 
-private data class ArtistTrack(val uri: String, val name: String, val album: String, val image: String, val durationMs: Long)
+private data class ArtistTrack(val uri: String, val name: String, val album: String, val image: String, val durationMs: Long, val plays: String)
 private data class ArtistAlbum(val id: String, val name: String, val image: String, val year: String, val type: String)
 private data class ArtistData(
     val name: String,
     val image: String,
     val followers: Long,
+    val monthly: Long,
     val tracks: List<ArtistTrack>,
     val albums: List<ArtistAlbum>,
     val errors: List<String>
@@ -61,7 +62,7 @@ private fun parseArtist(json: String): Pair<ArtistData?, String?> {
     val tracks = ArrayList<ArtistTrack>()
     o.optJSONArray("tracks")?.let { a ->
         for (i in 0 until a.length()) a.optJSONObject(i)?.let {
-            tracks.add(ArtistTrack(it.optString("uri"), it.optString("name"), it.optString("album"), it.optString("image"), it.optLong("duration")))
+            tracks.add(ArtistTrack(it.optString("uri"), it.optString("name"), it.optString("album"), it.optString("image"), it.optLong("duration"), it.optString("plays")))
         }
     }
     val albums = ArrayList<ArtistAlbum>()
@@ -72,7 +73,7 @@ private fun parseArtist(json: String): Pair<ArtistData?, String?> {
     }
     val errors = ArrayList<String>()
     o.optJSONArray("errors")?.let { a -> for (i in 0 until a.length()) errors.add(a.optString(i)) }
-    return ArtistData(o.optString("name"), o.optString("image"), o.optLong("followers"), tracks, albums, errors) to null
+    return ArtistData(o.optString("name"), o.optString("image"), o.optLong("followers"), o.optLong("monthly"), tracks, albums, errors) to null
 }
 
 private fun fmtDuration(ms: Long): String {
@@ -112,9 +113,10 @@ fun NativeArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> U
                             )
                             Column(modifier = Modifier.align(Alignment.BottomStart).padding(20.dp)) {
                                 Text(d.name, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
-                                if (d.followers > 0) {
+                                if (d.monthly > 0 || d.followers > 0) {
                                     Text(
-                                        String.format(Locale.getDefault(), "%,d followers", d.followers),
+                                        if (d.monthly > 0) String.format(Locale.getDefault(), "%,d monthly listeners", d.monthly)
+                                        else String.format(Locale.getDefault(), "%,d followers", d.followers),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -135,21 +137,40 @@ fun NativeArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> U
                     if (d.tracks.isNotEmpty()) {
                         item { SectionTitle("Popular") }
                         itemsIndexed(d.tracks) { index, t ->
-                            Row(
+                            val big = 24.dp
+                            val small = 6.dp
+                            Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { NativeUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") }
-                                    .padding(horizontal = 20.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(horizontal = 16.dp, vertical = 1.dp)
+                                    .clickable { NativeUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") },
+                                shape = RoundedCornerShape(
+                                    topStart = if (index == 0) big else small,
+                                    topEnd = if (index == 0) big else small,
+                                    bottomStart = if (index == d.tracks.lastIndex) big else small,
+                                    bottomEnd = if (index == d.tracks.lastIndex) big else small
+                                ),
+                                color = MaterialTheme.colorScheme.surfaceContainer
                             ) {
-                                Text("${index + 1}", modifier = Modifier.width(26.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                RemoteImage(t.image, Modifier.size(48.dp), RoundedCornerShape(10.dp))
-                                Spacer(Modifier.width(14.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(t.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    Text(t.album, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("${index + 1}", modifier = Modifier.width(22.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    RemoteImage(t.image, Modifier.size(48.dp), RoundedCornerShape(10.dp))
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(t.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        Text(t.album, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        if (t.plays.isNotEmpty()) {
+                                            Text(compactCount(t.plays), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                                        }
+                                        Text(fmtDuration(t.durationMs), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
                                 }
-                                Text(fmtDuration(t.durationMs), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

@@ -15,7 +15,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import org.json.JSONArray
+import org.json.JSONObject
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -30,10 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -46,21 +52,6 @@ import compose.icons.tablericons.PlayerSkipBack
 import compose.icons.tablericons.PlayerSkipForward
 import compose.icons.tablericons.Repeat
 import compose.icons.tablericons.RepeatOnce
-
-private val ShuffleIcon: ImageVector by lazy {
-    ImageVector.Builder(
-        name = "Shuffle",
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f
-    ).addPath(
-        pathData = PathParser().parsePathString(
-            "M10.59,9.17L5.41,4 4,5.41l5.17,5.17 1.42,-1.41zM14.5,4l2.04,2.04L4,18.59 5.41,20 17.96,7.46 20,9.5L20,4h-5.5zM14.83,13.41l-1.41,1.41 3.13,3.13L14.5,20L20,20v-5.5l-2.04,2.04 -3.13,-3.13z"
-        ).toNodes(),
-        fill = SolidColor(Color.Black)
-    ).build()
-}
 
 private fun formatTime(ms: Long): String {
     val total = (ms / 1000).coerceAtLeast(0)
@@ -153,6 +144,7 @@ private fun ToggleIcon(icon: ImageVector, active: Boolean, label: String, onClic
 
 @Composable
 fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: () -> Unit) {
+    var showQueue by remember { mutableStateOf(false) }
     var dragging by remember { mutableStateOf(false) }
     var dragValue by remember { mutableStateOf(0f) }
     val duration = state.duration.coerceAtLeast(1L)
@@ -243,6 +235,96 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
                     state.repeat != "false",
                     "Repeat"
                 ) { NativeUi.repeat() }
+            }
+
+            Spacer(Modifier.height(20.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                FilledTonalButton(onClick = { showQueue = true }, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Icon(QueueIcon, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Queue")
+                }
+                FilledTonalButton(onClick = { NativeUi.runJs("splDoDownload()") }, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Icon(DownloadIcon, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Download")
+                }
+            }
+        }
+    }
+
+    if (showQueue) QueueSheet(onDismiss = { showQueue = false })
+}
+
+private data class QueueItem(val uri: String, val name: String, val artist: String, val image: String)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun QueueSheet(onDismiss: () -> Unit) {
+    var items by remember { mutableStateOf<List<QueueItem>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        val answer = NativeCalls.call("queue", JSONObject.quote(""))
+        try {
+            val o = JSONObject(answer)
+            if (o.has("error")) {
+                error = o.optString("error")
+            } else {
+                val arr: JSONArray = o.optJSONArray("items") ?: JSONArray()
+                items = (0 until arr.length()).mapNotNull { i ->
+                    arr.optJSONObject(i)?.let { QueueItem(it.optString("uri"), it.optString("name"), it.optString("artist"), it.optString("image")) }
+                }
+            }
+        } catch (e: Exception) {
+            error = e.message ?: "Parse error"
+        }
+        loading = false
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Text(
+            "Queue",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+        )
+        when {
+            loading -> Text("Loading…", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            error != null -> Text("Could not read the queue: $error", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
+            items.isEmpty() -> Text("The queue is empty", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            else -> LazyColumn(modifier = Modifier.fillMaxWidth().height(480.dp)) {
+                items(items.size) { idx ->
+                    val q = items[idx]
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                NativeUi.runJs("playFromUri(${JSONObject.quote(q.uri)}, null)")
+                                onDismiss()
+                            }
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RemoteImage(q.image, Modifier.size(48.dp), RoundedCornerShape(10.dp))
+                        Spacer(Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                q.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (idx == 0) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (idx == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(q.artist, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                }
             }
         }
     }

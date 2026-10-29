@@ -91,6 +91,21 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
+                    if(gqlOp === 'queryArtistOverview') {
+                        p.then(function(resp){
+                            try {
+                                resp.clone().json().then(function(j){
+                                    try {
+                                        var u = j && j.data && j.data.artistUnion;
+                                        if(u && u.id) {
+                                            window.__splArtistOv = window.__splArtistOv || {};
+                                            window.__splArtistOv[u.id] = u;
+                                        }
+                                    } catch(e){}
+                                });
+                            } catch(e){}
+                        });
+                    }
                     if(gqlOp && /album|tracks/i.test(gqlOp)) {
                         p.then(function(resp){
                             try {
