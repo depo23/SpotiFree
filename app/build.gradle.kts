@@ -22,8 +22,8 @@ android {
         applicationId = "com.spotifree.app"
         minSdk = 28
         targetSdk = 36
-        versionCode = 88
-        versionName = "0.9.36"
+        versionCode = 89
+        versionName = "0.9.37"
         // Where automatic and manual update checks look. Each build must update from the
         // releases signed with its own key.
         buildConfigField("String", "UPDATE_REPO", "\"${project.findProperty("updateRepo") ?: "depo23/SpotiFree"}\"")
