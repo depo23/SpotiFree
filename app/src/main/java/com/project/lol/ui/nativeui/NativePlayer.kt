@@ -207,7 +207,7 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
         }
     }
 
-    if (showQueue) QueueSheet(onDismiss = { showQueue = false })
+    if (showQueue) QueueSheet(state, onDismiss = { showQueue = false })
 }
 
 @Composable
@@ -360,7 +360,7 @@ private data class QueueItem(val uri: String, val name: String, val artist: Stri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun QueueSheet(onDismiss: () -> Unit) {
+private fun QueueSheet(state: NativePlayerState, onDismiss: () -> Unit) {
     var items by remember { mutableStateOf<List<QueueItem>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -373,9 +373,10 @@ private fun QueueSheet(onDismiss: () -> Unit) {
                 error = o.optString("error")
             } else {
                 val arr: JSONArray = o.optJSONArray("items") ?: JSONArray()
-                items = (0 until arr.length()).mapNotNull { i ->
+                val upcoming = (0 until arr.length()).mapNotNull { i ->
                     arr.optJSONObject(i)?.let { QueueItem(it.optString("uri"), it.optString("name"), it.optString("artist"), it.optString("image")) }
                 }
+                items = listOf(QueueItem("", state.title, state.artist, state.cover)) + upcoming
             }
         } catch (e: Exception) {
             error = e.message ?: "Parse error"
@@ -393,14 +394,14 @@ private fun QueueSheet(onDismiss: () -> Unit) {
         when {
             loading -> Text("Loading…", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             error != null -> Text("Could not read the queue: $error", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-            items.isEmpty() -> Text("The queue is empty", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            items.size <= 1 -> Text("Nothing is queued after this track", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             else -> LazyColumn(modifier = Modifier.fillMaxWidth().height(480.dp)) {
                 items(items.size) { idx ->
                     val q = items[idx]
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
+                            .clickable(enabled = q.uri.isNotEmpty()) {
                                 NativeUi.runJs("playFromUri(${JSONObject.quote(q.uri)}, null)")
                                 onDismiss()
                             }

@@ -129,6 +129,12 @@ object TrackObserver {
 
             window.splFromState = function(body){
                 body = body || '';
+                if (body.indexOf('"state_machine"') !== -1) {
+                    try {
+                        const sm = JSON.parse(body).state_machine;
+                        if (sm && sm.tracks && sm.tracks.length) window.__splSM = sm;
+                    } catch(e){}
+                }
                 const m = /"track"\s*:\s*\{\s*"uri"\s*:\s*"(spotify:track:[A-Za-z0-9]{22})"/.exec(body);
                 if (m) window.splSetTrackUri(m[1]);
             };

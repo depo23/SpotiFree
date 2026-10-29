@@ -77,35 +77,55 @@ object NativeApi {
                 };
             };
 
-            window.splNativeQueue = async function(){
-                var qb = document.querySelector('button[data-testid="control-button-queue"]');
-                if (!qb) throw new Error('queue button not found');
-                var rows = function(){
-                    return Array.prototype.filter.call(document.querySelectorAll('[data-testid="tracklist-row"]'), function(r){
-                        return !r.closest('main') && !r.closest('#Desktop_LeftSidebar_Id');
+            var B62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            function gidOf(id){
+                var n = 0n;
+                for (var k = 0; k < id.length; k++) n = n * 62n + BigInt(B62.indexOf(id[k]));
+                return n.toString(16).padStart(32, '0');
+            }
+
+            async function trackInfo(id){
+                var m = window.__splTrackMeta && window.__splTrackMeta[id];
+                if (m && m.name) return { name: m.name, artist: m.artist || '', image: m.cover || '' };
+                try {
+                    var f = window.mngFetch || window.oriFetch || window.fetch;
+                    var r = await f('https://spclient.wg.spotify.com/metadata/4/track/' + gidOf(id) + '?market=from_token', {
+                        headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken }
                     });
-                };
-                var wasOpen = rows().length > 0;
-                if (!wasOpen) qb.click();
-                var list = [];
-                for (var n = 0; n < 20; n++) {
-                    await sleep(250);
-                    list = rows();
-                    if (list.length) { await sleep(300); list = rows(); break; }
-                }
-                var out = list.map(function(r){
-                    var a = r.querySelector('a[data-testid="internal-track-link"]') || r.querySelector('a[href*="/track/"]');
-                    var m = a ? /\/track\/([A-Za-z0-9]{22})/.exec(a.getAttribute('href') || '') : null;
-                    var arts = Array.prototype.map.call(r.querySelectorAll('a[href*="/artist/"]'), function(x){ return (x.textContent || '').trim(); }).filter(Boolean);
-                    var im = r.querySelector('img');
+                    if (!r.ok) return { name: '', artist: '', image: '' };
+                    var j = await r.json();
+                    var cg = j.album && j.album.cover_group && j.album.cover_group.image;
                     return {
-                        uri: m ? 'spotify:track:' + m[1] : '', name: a ? (a.textContent || '').trim() : '',
-                        artist: arts.filter(function(v, i){ return arts.indexOf(v) === i; }).join(', '),
-                        image: im ? im.src : ''
+                        name: j.name || '',
+                        artist: (j.artist || []).map(function(a){ return a.name; }).join(', '),
+                        image: (cg && cg.length) ? 'https://i.scdn.co/image/' + cg[0].file_id : ''
                     };
-                }).filter(function(t){ return t.uri; });
-                if (!wasOpen && rows().length) qb.click();
-                return { items: out };
+                } catch(e){ return { name: '', artist: '', image: '' }; }
+            }
+
+            window.splNativeQueue = async function(){
+                await window.ensureAuthToken();
+                var sm = window.__splSM;
+                if (!sm || !sm.tracks) throw new Error('no queue data yet, play or skip a track first');
+                var cur = 'spotify:track:' + (window.splTrackId || '');
+                var uris = [];
+                sm.tracks.forEach(function(t){
+                    var u = t && t.metadata && t.metadata.uri;
+                    if (u && u.indexOf('spotify:track:') === 0) uris.push(u);
+                });
+                var ci = uris.indexOf(cur);
+                var next = (ci >= 0 ? uris.slice(ci + 1) : uris).filter(function(u){ return u !== cur; }).slice(0, 30);
+                var out = new Array(next.length);
+                var idx = 0;
+                async function worker(){
+                    while (idx < next.length) {
+                        var k = idx++;
+                        var info = await trackInfo(next[k].split(':').pop());
+                        out[k] = { uri: next[k], name: info.name, artist: info.artist, image: info.image };
+                    }
+                }
+                await Promise.all([worker(), worker(), worker(), worker(), worker()]);
+                return { items: out.filter(function(t){ return t && t.name; }) };
             };
 
             window.splNative = function(reqId, op, argStr){
