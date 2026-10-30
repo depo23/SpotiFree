@@ -213,7 +213,16 @@ object NativeApi {
                     if (m && rows.indexOf('spotify:track:' + m[1]) === -1) rows.push('spotify:track:' + m[1]);
                 });
                 var nx = window.__splNext;
-                var nxl = (nx && nx.uris && (!ctx || !nx.ctx || nx.ctx === ctx)) ? nx.uris.filter(function(u){ return u !== cur; }) : [];
+                var nxl = [];
+                if (nx && nx.uris && (!ctx || !nx.ctx || nx.ctx === ctx)) {
+                    var seenN = {};
+                    for (var ni = 0; ni < nx.uris.length; ni++) {
+                        var nu = nx.uris[ni];
+                        if (nu === cur || seenN[nu]) break;
+                        seenN[nu] = 1;
+                        nxl.push(nu);
+                    }
+                }
                 var cands = [after(uris), rows.indexOf(cur) !== -1 ? after(rows) : [], nxl];
                 try{ AndBridge.dbg('i', 'queue sources ctx/sm ' + cands[0].length + ' dom ' + cands[1].length + ' state ' + cands[2].length); }catch(_){}
                 var next = cands.reduce(function(a, b){ return b.length > a.length ? b : a; }, []).slice(0, 30);
