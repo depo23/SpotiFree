@@ -12,10 +12,13 @@ object AndroidTracker {
                     var spM = (window.splTrackId && window.__splTrackMeta && window.__splTrackMeta[window.splTrackId]) || null;
                     var spMS = (typeof window.splMS === 'function') ? window.splMS() : null;
                     var spWT = (typeof window.splWidgetText === 'function') ? window.splWidgetText() : null;
-                    if(ta) track=ta.text; else track=(spM && spM.name) || (spMS && spMS.name) || (spWT && spWT.name) || null;
+                    var vElm = document.querySelector('.VideoPlayer__container video');
+                    var isVid = !!(vElm && !vElm.ended && !vElm.muted && !vElm.loop);
+                    if(isVid && spMS) { track=spMS.name; artist=spMS.artist; }
+                    else if(ta) track=ta.text; else track=(spM && spM.name) || (spMS && spMS.name) || (spWT && spWT.name) || null;
                     var aa = document.querySelector('a[data-testid=context-item-info-artist]');
                     if(!aa) aa = document.querySelector('a[data-testid=context-item-info-show]');
-                    if(aa) artist=aa.text; else artist=(spM && spM.artist) || (spMS && spMS.artist) || (spWT && spWT.artist) || '';
+                    if(isVid && spMS) {} else if(aa) artist=aa.text; else artist=(spM && spM.artist) || (spMS && spMS.artist) || (spWT && spWT.artist) || '';
                     var rr = document.querySelector('button[data-testid=control-button-repeat]');
                     if(rr) repmode=rr.getAttribute('aria-checked'); else repmode='false';
                     shuffle = (typeof window.splShuffleState === 'function') ? window.splShuffleState() : 'off';

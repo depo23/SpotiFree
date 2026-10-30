@@ -57,6 +57,23 @@ fun NativeShell(onSleepTimer: () -> Unit) {
 
     BackHandler(enabled = screen != NativeScreen.None) { back() }
 
+    var videoDismissed by remember { mutableStateOf(false) }
+    val showVideo = state.video && !videoDismissed && (screen == NativeScreen.None || screen == NativeScreen.Player)
+
+    fun enterVideo() {
+        videoDismissed = false
+        NativeUi.runJs("window.__splVfsEnter&&window.__splVfsEnter()")
+    }
+
+    LaunchedEffect(state.video) {
+        if (!state.video) {
+            videoDismissed = false
+        } else if (!videoDismissed) {
+            delay(800)
+            enterVideo()
+        }
+    }
+
     LaunchedEffect(state.title, state.artist) {
         if (state.hasTrack) {
             delay(2500)
@@ -65,11 +82,13 @@ fun NativeShell(onSleepTimer: () -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (screen == NativeScreen.None) {
+        if (showVideo) {
+            NativeVideoPlayer(state = state, onDismiss = { videoDismissed = true })
+        } else if (screen == NativeScreen.None) {
             if (state.hasTrack) {
                 NativeMiniPlayer(
                     state = state,
-                    onOpen = { open(NativeScreen.Player) },
+                    onOpen = { if (state.video) enterVideo() else open(NativeScreen.Player) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .navigationBarsPadding()
@@ -87,7 +106,7 @@ fun NativeShell(onSleepTimer: () -> Unit) {
         }
 
         AnimatedVisibility(
-            visible = screen == NativeScreen.Player,
+            visible = screen == NativeScreen.Player && !showVideo,
             enter = slideInVertically { it },
             exit = slideOutVertically { it }
         ) {

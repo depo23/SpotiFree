@@ -221,6 +221,18 @@ object VideoFullscreen {
             window.__splVfsEnter=enterFs;
             window.__splVfsExit=exitFs;
             window.__splVfsActive=function(){ return ACTIVE; };
+            window.__splVfsToggle=togglePlay;
+            window.__splVfsBy=seekBy;
+            window.__splVfsSeek=function(ms){
+                var v=vid();
+                if(!v) return;
+                try{ v.currentTime=ms/1000; }catch(e){}
+            };
+            window.__splVfsInfo=function(){
+                var v=vid();
+                if(!v) return null;
+                return { cur: Math.round((v.currentTime||0)*1000), dur: isFinite(v.duration)?Math.round(v.duration*1000):0, paused: !!v.paused, fs: ACTIVE };
+            };
             document.addEventListener('click',function(e){
                 var el=e.target&&e.target.closest?e.target.closest('button,[role="button"]'):null;
                 if(!el||!isTrigger(el)) return;

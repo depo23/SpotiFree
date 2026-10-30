@@ -265,6 +265,9 @@ object NativeApi {
                     } else if (op === 'canvas') {
                         var same = window.__splCanvasFor && window.__splCanvasFor === window.splTrackId;
                         done({ url: same ? (window.__splCanvasUrl || '') : '' });
+                    } else if (op === 'video') {
+                        var vi = window.__splVfsInfo ? window.__splVfsInfo() : null;
+                        done(vi ? { ok: true, cur: vi.cur, dur: vi.dur, paused: vi.paused, fs: vi.fs } : { ok: false });
                     } else if (op === 'queue') {
                         window.splNativeQueue().then(done, fail);
                     } else {

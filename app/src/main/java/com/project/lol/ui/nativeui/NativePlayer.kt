@@ -77,7 +77,7 @@ import compose.icons.tablericons.Repeat
 import compose.icons.tablericons.RepeatOnce
 import com.project.lol.util.Logger
 
-private fun formatTime(ms: Long): String {
+internal fun formatTime(ms: Long): String {
     val total = (ms / 1000).coerceAtLeast(0)
     return "%d:%02d".format(total / 60, total % 60)
 }

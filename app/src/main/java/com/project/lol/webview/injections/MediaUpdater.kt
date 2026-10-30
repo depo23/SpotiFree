@@ -206,10 +206,15 @@ object MediaUpdater {
                 lastPos = position;
                 if(restart) lastState = null;
 
-                var currState=track+'|'+artist+'|'+playing+'|'+repmode+'|'+isfav+'|'+shuffle+'|'+album+'|'+duration+'|'+cover;
+                var hasVideo = false;
+                try{
+                    var vv = document.querySelector('.VideoPlayer__container video');
+                    hasVideo = !!(vv && !vv.ended && !vv.muted && !vv.loop);
+                }catch(e){}
+                var currState=track+'|'+artist+'|'+playing+'|'+repmode+'|'+isfav+'|'+shuffle+'|'+album+'|'+duration+'|'+cover+'|'+hasVideo;
                 if(currState!==lastState) {
                     lastState=currState;
-                    var values={artist:artist,track:track,album:album,playing:playing,repeat:repmode,fav:isfav,shuffle:shuffle,duration:duration,position:position,cover:cover};
+                    var values={artist:artist,track:track,album:album,playing:playing,repeat:repmode,fav:isfav,shuffle:shuffle,duration:duration,position:position,cover:cover,video:hasVideo};
                     AndBridge.recMediaStatus(JSON.stringify(values));
                 } else {
                     AndBridge.recMediaPosition(position);

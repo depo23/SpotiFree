@@ -21,7 +21,8 @@ data class NativePlayerState(
     val shuffle: Boolean = false,
     val repeat: String = "false",
     val duration: Long = 0L,
-    val position: Long = 0L
+    val position: Long = 0L,
+    val video: Boolean = false
 ) {
     val hasTrack: Boolean get() = title.isNotEmpty()
 }
@@ -45,6 +46,7 @@ object NativeUi {
                     fav = o.optBoolean("fav", false),
                     shuffle = o.optString("shuffle", "off").let { s -> s == "shuffle" || s == "smart" },
                     repeat = o.optString("repeat", "false"),
+                    video = o.optBoolean("video", false),
                     duration = o.optLong("duration", 0L),
                     position = if (o.has("position")) o.optLong("position", 0L) else it.position
                 )
