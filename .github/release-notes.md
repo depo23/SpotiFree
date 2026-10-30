@@ -1,5 +1,5 @@
-# SpotiFree v0.9.49
+# SpotiFree v0.9.50
 
-- Native player: fixed the queue showing a stale or incomplete list for albums
-- Queue panel always refreshes when opened, still showing the cached list instantly
-- Track list cache now ignores partial results
+- Queue panel now logs how many tracks it receives, to track down the short-queue bug
+- Queue refreshes on open and ignores stale or partial cached lists
+- No other visible changes
