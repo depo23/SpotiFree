@@ -149,6 +149,40 @@ object NativeApi {
                         if (full.length > uris.length) uris = full;
                     } catch(e){ try{ AndBridge.dbg('e', 'queue ctx failed ' + (e && e.message || e)); }catch(_){} }
                 }
+                if (ctx && ctx.indexOf('spotify:playlist:') === 0) {
+                    try {
+                        var pl = [];
+                        for (var off = 0; off < 600; off += 100) {
+                            var pr = await (window.mngFetch || window.oriFetch || window.fetch)('https://api-partner.spotify.com/pathfinder/v2/query', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': window.spotAuthToken,
+                                    'Client-Token': window.spotCliToken,
+                                    'Content-Type': 'application/json;charset=UTF-8',
+                                    'app-platform': 'WebPlayer',
+                                    'spotify-app-version': '1.2.40.0'
+                                },
+                                body: JSON.stringify({
+                                    variables: { uri: ctx, offset: off, limit: 100, enableWatchFeedEntrypoint: false },
+                                    operationName: 'fetchPlaylist',
+                                    extensions: { persistedQuery: { version: 1, sha256Hash: window.getGqlHash('fetchPlaylist', '346811f856fb0b7e4f6c59f8ebea78dd081c6e2fb01b77c954b26259d5fc6763') } }
+                                })
+                            });
+                            if (!pr.ok) { try{ AndBridge.dbg('i', 'queue gql playlist status ' + pr.status); }catch(_){} break; }
+                            var pj = await pr.json();
+                            var po = pj.data && (pj.data.playlistV2 || pj.data.playlist);
+                            var its = (po && po.content && po.content.items) || [];
+                            its.forEach(function(el){
+                                var d = (el.itemV2 && el.itemV2.data) || {};
+                                var u = d.uri || '';
+                                if (u.indexOf('spotify:track:') === 0 && pl.indexOf(u) === -1) pl.push(u);
+                            });
+                            if (its.length < 100) break;
+                        }
+                        try{ AndBridge.dbg('i', 'queue gql playlist tracks ' + pl.length); }catch(_){}
+                        if (pl.indexOf(cur) !== -1 && pl.length > uris.length) uris = pl;
+                    } catch(e){ try{ AndBridge.dbg('e', 'queue gql playlist failed ' + (e && e.message || e)); }catch(_){} }
+                }
                 function after(list){
                     var k = list.indexOf(cur);
                     return (k >= 0 ? list.slice(k + 1) : list).filter(function(u){ return u !== cur; });
