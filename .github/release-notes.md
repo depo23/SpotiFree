@@ -1,5 +1,5 @@
-# SpotiFree v0.9.52
+# SpotiFree v0.9.53
 
-- Native player: queue shows the list exactly, including songs that appear more than once
-- Short playlists no longer loop in the queue; it ends after one pass through the list
-- Queue can now list up to 100 upcoming songs
+- Native player: videos now play fullscreen with native controls (play/pause, ±10s, seek, close)
+- Tap the video to hide or show the controls
+- Video title and artist in the mini bar now match the playing video
