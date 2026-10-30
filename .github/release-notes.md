@@ -1,5 +1,5 @@
-# SpotiFree v0.9.46
+# SpotiFree v0.9.47
 
-- Native player: the queue finds the full playlist or album, and queue and sleep timer swap places
-- Native UI hides Spotify's own search icon in the top bar
+- Native player: the queue now lists the whole playlist, not just two songs
+- Queue and sleep timer buttons swapped, and the top-bar search icon is hidden in Native UI
 - Settings is a full-screen panel with update checks under Automatic update checks
