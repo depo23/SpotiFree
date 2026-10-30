@@ -146,7 +146,7 @@ object NativeApi {
                                 if (Array.isArray(o)) { o.forEach(function(x){ walk(x, d + 1); }); return; }
                                 if (typeof o === 'object') {
                                     if (typeof o.uri === 'string' && o.uri.indexOf('spotify:track:') === 0) {
-                                        if (full.indexOf(o.uri) === -1) full.push(o.uri);
+                                        full.push(o.uri);
                                         var md = o.metadata;
                                         if (md && md.title) {
                                             var im = md.image_url || md.image_large_url || '';
@@ -194,7 +194,7 @@ object NativeApi {
                             its.forEach(function(el){
                                 var d = (el.itemV2 && el.itemV2.data) || {};
                                 var u = d.uri || '';
-                                if (u.indexOf('spotify:track:') === 0 && pl.indexOf(u) === -1) pl.push(u);
+                                if (u.indexOf('spotify:track:') === 0) pl.push(u);
                             });
                             if (its.length < 100) break;
                         }
@@ -204,28 +204,39 @@ object NativeApi {
                 }
                 if (ctx && !qcHit && uris.indexOf(cur) !== -1 && uris.length > 8) window.__splQCtx = { ctx: ctx, uris: uris, at: Date.now() };
                 function after(list){
-                    var k = list.indexOf(cur);
-                    return (k >= 0 ? list.slice(k + 1) : list).filter(function(u){ return u !== cur; });
+                    var at = [];
+                    list.forEach(function(u, i){ if (u === cur) at.push(i); });
+                    if (!at.length) return list.slice();
+                    var k = at[0];
+                    if (at.length > 1) {
+                        var nxs = (window.__splNext && window.__splNext.uris) || [];
+                        var best = -1;
+                        at.forEach(function(i){
+                            var m = 0;
+                            while (m < 3 && m < nxs.length && list[i + 1 + m] === nxs[m]) m++;
+                            if (m > best) { best = m; k = i; }
+                        });
+                    }
+                    return list.slice(k + 1);
                 }
                 var rows = [];
                 document.querySelectorAll('div[data-testid="tracklist-row"] a[href*="/track/"]').forEach(function(a){
                     var m = (a.getAttribute('href') || '').match(/\/track\/([A-Za-z0-9]{22})/);
-                    if (m && rows.indexOf('spotify:track:' + m[1]) === -1) rows.push('spotify:track:' + m[1]);
+                    if (m) rows.push('spotify:track:' + m[1]);
                 });
                 var nx = window.__splNext;
                 var nxl = [];
                 if (nx && nx.uris && (!ctx || !nx.ctx || nx.ctx === ctx)) {
-                    var seenN = {};
                     for (var ni = 0; ni < nx.uris.length; ni++) {
-                        var nu = nx.uris[ni];
-                        if (nu === cur || seenN[nu]) break;
-                        seenN[nu] = 1;
-                        nxl.push(nu);
+                        if (nx.uris[ni] === cur) break;
+                        nxl.push(nx.uris[ni]);
                     }
                 }
                 var cands = [after(uris), rows.indexOf(cur) !== -1 ? after(rows) : [], nxl];
                 try{ AndBridge.dbg('i', 'queue sources ctx/sm ' + cands[0].length + ' dom ' + cands[1].length + ' state ' + cands[2].length); }catch(_){}
-                var next = cands.reduce(function(a, b){ return b.length > a.length ? b : a; }, []).slice(0, 30);
+                var next = (cands[1].length > cands[0].length ? cands[1] : cands[0]);
+                if (!next.length) next = cands[2];
+                next = next.slice(0, 100);
                 var out = new Array(next.length);
                 var idx = 0;
                 async function worker(){
