@@ -1,5 +1,5 @@
-# SpotiFree v0.9.50
+# SpotiFree v0.9.51
 
-- Queue panel now logs how many tracks it receives, to track down the short-queue bug
-- Queue refreshes on open and ignores stale or partial cached lists
-- No other visible changes
+- Native player: queue now reads track names from the album or playlist data, so it should list the full queue
+- Track name lookups ask for JSON and log failures, to pinpoint any remaining short queue
+- Queue loads with 5 parallel requests again, as in 0.9.46
