@@ -1,5 +1,5 @@
-# SpotiFree v0.9.51
+# SpotiFree v0.9.52
 
-- Native player: queue now reads track names from the album or playlist data, so it should list the full queue
-- Track name lookups ask for JSON and log failures, to pinpoint any remaining short queue
-- Queue loads with 5 parallel requests again, as in 0.9.46
+- Native player: queue shows the list exactly, including songs that appear more than once
+- Short playlists no longer loop in the queue; it ends after one pass through the list
+- Queue can now list up to 100 upcoming songs
