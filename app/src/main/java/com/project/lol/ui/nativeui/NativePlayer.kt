@@ -468,7 +468,7 @@ internal object QueueCache {
                 items = (0 until arr.length()).mapNotNull { i ->
                     arr.optJSONObject(i)?.let { QueueItem(it.optString("uri"), it.optString("name"), it.optString("artist"), it.optString("image")) }
                 }
-                key = trackKey
+                key = if (items.isEmpty()) "" else trackKey
                 null
             }
         } catch (e: Exception) {
@@ -481,16 +481,15 @@ internal object QueueCache {
 @Composable
 private fun QueueSheet(state: NativePlayerState, onDismiss: () -> Unit) {
     val trackKey = "${state.title}|${state.artist}"
-    var upcoming by remember { mutableStateOf(QueueCache.items) }
-    var loading by remember { mutableStateOf(QueueCache.items.isEmpty()) }
+    val fresh = QueueCache.key == trackKey
+    var upcoming by remember { mutableStateOf(if (fresh) QueueCache.items else emptyList()) }
+    var loading by remember { mutableStateOf(!fresh || QueueCache.items.isEmpty()) }
     var error by remember { mutableStateOf<String?>(null) }
     val items = listOf(QueueItem("", state.title, state.artist, state.cover)) + upcoming
 
     LaunchedEffect(trackKey) {
-        if (QueueCache.key != trackKey) {
-            error = QueueCache.refresh(trackKey)
-            upcoming = QueueCache.items
-        }
+        error = QueueCache.refresh(trackKey)
+        upcoming = QueueCache.items
         loading = false
     }
 

@@ -190,7 +190,7 @@ object NativeApi {
                         if (pl.indexOf(cur) !== -1 && pl.length > uris.length) uris = pl;
                     } catch(e){ try{ AndBridge.dbg('e', 'queue gql playlist failed ' + (e && e.message || e)); }catch(_){} }
                 }
-                if (ctx && !qcHit && uris.length) window.__splQCtx = { ctx: ctx, uris: uris, at: Date.now() };
+                if (ctx && !qcHit && uris.indexOf(cur) !== -1 && uris.length > 8) window.__splQCtx = { ctx: ctx, uris: uris, at: Date.now() };
                 function after(list){
                     var k = list.indexOf(cur);
                     return (k >= 0 ? list.slice(k + 1) : list).filter(function(u){ return u !== cur; });
