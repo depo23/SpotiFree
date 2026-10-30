@@ -75,6 +75,7 @@ import compose.icons.tablericons.PlayerSkipBack
 import compose.icons.tablericons.PlayerSkipForward
 import compose.icons.tablericons.Repeat
 import compose.icons.tablericons.RepeatOnce
+import com.project.lol.util.Logger
 
 private fun formatTime(ms: Long): String {
     val total = (ms / 1000).coerceAtLeast(0)
@@ -462,6 +463,7 @@ internal object QueueCache {
         return try {
             val o = JSONObject(answer)
             if (o.has("error")) {
+                Logger.w("queue", "refresh error: ${o.optString("error")}")
                 o.optString("error")
             } else {
                 val arr: JSONArray = o.optJSONArray("items") ?: JSONArray()
@@ -469,6 +471,7 @@ internal object QueueCache {
                     arr.optJSONObject(i)?.let { QueueItem(it.optString("uri"), it.optString("name"), it.optString("artist"), it.optString("image")) }
                 }
                 key = if (items.isEmpty()) "" else trackKey
+                Logger.i("queue", "refresh '$trackKey': ${arr.length()} json items -> ${items.size} parsed, answer ${answer.length} chars")
                 null
             }
         } catch (e: Exception) {
