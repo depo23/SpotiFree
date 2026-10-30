@@ -36,5 +36,6 @@ jobs:
         run: |
           TARGET=()
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then TARGET=(--target "$GITHUB_SHA"); fi
-          gh release create "$TAG" "app/build/outputs/apk/release/app-release.apk#spotifree.apk" "${TARGET[@]}" \
+          cp app/build/outputs/apk/release/app-release.apk spotifree.apk
+          gh release create "$TAG" spotifree.apk "${TARGET[@]}" \
             --title "SpotiFree v$TAG" --notes-file .github/release-notes.md
