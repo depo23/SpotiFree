@@ -87,6 +87,8 @@ object NativeApi {
             async function trackInfo(id){
                 var m = window.__splTrackMeta && window.__splTrackMeta[id];
                 if (m && m.name) return { name: m.name, artist: m.artist || '', image: m.cover || '' };
+                window.__splInfo = window.__splInfo || {};
+                if (window.__splInfo[id]) return window.__splInfo[id];
                 try {
                     var f = window.mngFetch || window.oriFetch || window.fetch;
                     var r = await f('https://spclient.wg.spotify.com/metadata/4/track/' + gidOf(id) + '?market=from_token', {
@@ -95,11 +97,13 @@ object NativeApi {
                     if (!r.ok) return { name: '', artist: '', image: '' };
                     var j = await r.json();
                     var cg = j.album && j.album.cover_group && j.album.cover_group.image;
-                    return {
+                    var res = {
                         name: j.name || '',
                         artist: (j.artist || []).map(function(a){ return a.name; }).join(', '),
                         image: (cg && cg.length) ? 'https://i.scdn.co/image/' + cg[0].file_id : ''
                     };
+                    if (res.name) window.__splInfo[id] = res;
+                    return res;
                 } catch(e){ return { name: '', artist: '', image: '' }; }
             }
 
@@ -119,7 +123,10 @@ object NativeApi {
                     if (typeof o === 'string') { if (/^spotify:(playlist|album):[A-Za-z0-9]{22}$/.test(o)) ctx = o; return; }
                     if (typeof o === 'object') for (var k in o) scan(o[k], d + 1);
                 })(sm, 0);
-                if (ctx) {
+                var qc = window.__splQCtx;
+                var qcHit = false;
+                if (ctx && qc && qc.ctx === ctx && Date.now() - qc.at < 600000 && qc.uris.indexOf(cur) !== -1) { uris = qc.uris; qcHit = true; }
+                if (ctx && !qcHit) {
                     try {
                         var f = window.mngFetch || window.oriFetch || window.fetch;
                         var hdr = { headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken } };
@@ -149,7 +156,7 @@ object NativeApi {
                         if (full.length > uris.length) uris = full;
                     } catch(e){ try{ AndBridge.dbg('e', 'queue ctx failed ' + (e && e.message || e)); }catch(_){} }
                 }
-                if (ctx && ctx.indexOf('spotify:playlist:') === 0) {
+                if (ctx && !qcHit && ctx.indexOf('spotify:playlist:') === 0) {
                     try {
                         var pl = [];
                         for (var off = 0; off < 600; off += 100) {
@@ -183,6 +190,7 @@ object NativeApi {
                         if (pl.indexOf(cur) !== -1 && pl.length > uris.length) uris = pl;
                     } catch(e){ try{ AndBridge.dbg('e', 'queue gql playlist failed ' + (e && e.message || e)); }catch(_){} }
                 }
+                if (ctx && !qcHit && uris.length) window.__splQCtx = { ctx: ctx, uris: uris, at: Date.now() };
                 function after(list){
                     var k = list.indexOf(cur);
                     return (k >= 0 ? list.slice(k + 1) : list).filter(function(u){ return u !== cur; });
@@ -196,7 +204,7 @@ object NativeApi {
                 var nxl = (nx && nx.uris && (!ctx || !nx.ctx || nx.ctx === ctx)) ? nx.uris.filter(function(u){ return u !== cur; }) : [];
                 var cands = [after(uris), rows.indexOf(cur) !== -1 ? after(rows) : [], nxl];
                 try{ AndBridge.dbg('i', 'queue sources ctx/sm ' + cands[0].length + ' dom ' + cands[1].length + ' state ' + cands[2].length); }catch(_){}
-                var next = cands.reduce(function(a, b){ return b.length > a.length ? b : a; }, []).slice(0, 50);
+                var next = cands.reduce(function(a, b){ return b.length > a.length ? b : a; }, []).slice(0, 30);
                 var out = new Array(next.length);
                 var idx = 0;
                 async function worker(){
@@ -206,7 +214,7 @@ object NativeApi {
                         out[k] = { uri: next[k], name: info.name, artist: info.artist, image: info.image };
                     }
                 }
-                await Promise.all([worker(), worker(), worker(), worker(), worker()]);
+                await Promise.all([worker(), worker(), worker(), worker(), worker(), worker(), worker(), worker()]);
                 return { items: out.filter(function(t){ return t && t.name; }) };
             };
 

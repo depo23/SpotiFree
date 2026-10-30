@@ -55,6 +55,13 @@ fun NativeShell(onSleepTimer: () -> Unit) {
 
     BackHandler(enabled = screen != NativeScreen.None) { back() }
 
+    LaunchedEffect(state.title, state.artist) {
+        if (state.hasTrack) {
+            delay(2500)
+            QueueCache.refresh("${state.title}|${state.artist}")
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (screen == NativeScreen.None) {
             if (state.hasTrack) {

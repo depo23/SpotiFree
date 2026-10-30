@@ -451,30 +451,45 @@ private fun PlayerBody(
     }
 }
 
-private data class QueueItem(val uri: String, val name: String, val artist: String, val image: String)
+internal data class QueueItem(val uri: String, val name: String, val artist: String, val image: String)
+
+internal object QueueCache {
+    @Volatile var key: String = ""
+    @Volatile var items: List<QueueItem> = emptyList()
+
+    suspend fun refresh(trackKey: String): String? {
+        val answer = NativeCalls.call("queue", JSONObject.quote(""))
+        return try {
+            val o = JSONObject(answer)
+            if (o.has("error")) {
+                o.optString("error")
+            } else {
+                val arr: JSONArray = o.optJSONArray("items") ?: JSONArray()
+                items = (0 until arr.length()).mapNotNull { i ->
+                    arr.optJSONObject(i)?.let { QueueItem(it.optString("uri"), it.optString("name"), it.optString("artist"), it.optString("image")) }
+                }
+                key = trackKey
+                null
+            }
+        } catch (e: Exception) {
+            e.message ?: "Parse error"
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun QueueSheet(state: NativePlayerState, onDismiss: () -> Unit) {
-    var items by remember { mutableStateOf<List<QueueItem>>(emptyList()) }
-    var loading by remember { mutableStateOf(true) }
+    val trackKey = "${state.title}|${state.artist}"
+    var upcoming by remember { mutableStateOf(QueueCache.items) }
+    var loading by remember { mutableStateOf(QueueCache.items.isEmpty()) }
     var error by remember { mutableStateOf<String?>(null) }
+    val items = listOf(QueueItem("", state.title, state.artist, state.cover)) + upcoming
 
-    LaunchedEffect(Unit) {
-        val answer = NativeCalls.call("queue", JSONObject.quote(""))
-        try {
-            val o = JSONObject(answer)
-            if (o.has("error")) {
-                error = o.optString("error")
-            } else {
-                val arr: JSONArray = o.optJSONArray("items") ?: JSONArray()
-                val upcoming = (0 until arr.length()).mapNotNull { i ->
-                    arr.optJSONObject(i)?.let { QueueItem(it.optString("uri"), it.optString("name"), it.optString("artist"), it.optString("image")) }
-                }
-                items = listOf(QueueItem("", state.title, state.artist, state.cover)) + upcoming
-            }
-        } catch (e: Exception) {
-            error = e.message ?: "Parse error"
+    LaunchedEffect(trackKey) {
+        if (QueueCache.key != trackKey) {
+            error = QueueCache.refresh(trackKey)
+            upcoming = QueueCache.items
         }
         loading = false
     }
