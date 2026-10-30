@@ -92,9 +92,9 @@ object NativeApi {
                 try {
                     var f = window.mngFetch || window.oriFetch || window.fetch;
                     var r = await f('https://spclient.wg.spotify.com/metadata/4/track/' + gidOf(id) + '?market=from_token', {
-                        headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken }
+                        headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken, 'Accept': 'application/json' }
                     });
-                    if (!r.ok) return { name: '', artist: '', image: '' };
+                    if (!r.ok) { try{ AndBridge.dbg('w', 'queue meta http ' + r.status + ' ' + id); }catch(_){} return { name: '', artist: '', image: '' }; }
                     var j = await r.json();
                     var cg = j.album && j.album.cover_group && j.album.cover_group.image;
                     var res = {
@@ -104,7 +104,7 @@ object NativeApi {
                     };
                     if (res.name) window.__splInfo[id] = res;
                     return res;
-                } catch(e){ return { name: '', artist: '', image: '' }; }
+                } catch(e){ try{ AndBridge.dbg('w', 'queue meta failed ' + id + ' ' + (e && e.message || e)); }catch(_){} return { name: '', artist: '', image: '' }; }
             }
 
             window.splNativeQueue = async function(){
@@ -133,6 +133,7 @@ object NativeApi {
                         var full = [];
                         var url = 'https://spclient.wg.spotify.com/context-resolve/v1/' + ctx;
                         var seen = {};
+                        var ctxMeta = 0;
                         for (var pg = 0; pg < 40 && url && !seen[url]; pg++) {
                             seen[url] = 1;
                             var r = await f(url, hdr);
@@ -144,7 +145,18 @@ object NativeApi {
                                 if (!o || d > 8) return;
                                 if (Array.isArray(o)) { o.forEach(function(x){ walk(x, d + 1); }); return; }
                                 if (typeof o === 'object') {
-                                    if (typeof o.uri === 'string' && o.uri.indexOf('spotify:track:') === 0) { if (full.indexOf(o.uri) === -1) full.push(o.uri); return; }
+                                    if (typeof o.uri === 'string' && o.uri.indexOf('spotify:track:') === 0) {
+                                        if (full.indexOf(o.uri) === -1) full.push(o.uri);
+                                        var md = o.metadata;
+                                        if (md && md.title) {
+                                            var im = md.image_url || md.image_large_url || '';
+                                            if (im.indexOf('spotify:image:') === 0) im = 'https://i.scdn.co/image/' + im.slice(14);
+                                            window.__splInfo = window.__splInfo || {};
+                                            window.__splInfo[o.uri.split(':').pop()] = { name: md.title, artist: md.artist_name || '', image: im };
+                                            ctxMeta++;
+                                        }
+                                        return;
+                                    }
                                     if (typeof o.next_page_url === 'string' && o.next_page_url) nx = o.next_page_url;
                                     for (var k in o) walk(o[k], d + 1);
                                 }
@@ -152,7 +164,7 @@ object NativeApi {
                             if (pg === 0) { try{ AndBridge.dbg('i', 'queue first page keys ' + Object.keys(cj).join(',') + ' next=' + nx); }catch(_){} }
                             url = nx ? (nx.indexOf('hm://') === 0 ? 'https://spclient.wg.spotify.com/' + nx.slice(5) : nx) : null;
                         }
-                        try{ AndBridge.dbg('i', 'queue ctx tracks ' + full.length); }catch(_){}
+                        try{ AndBridge.dbg('i', 'queue ctx tracks ' + full.length + ' with metadata ' + ctxMeta); }catch(_){}
                         if (full.length > uris.length) uris = full;
                     } catch(e){ try{ AndBridge.dbg('e', 'queue ctx failed ' + (e && e.message || e)); }catch(_){} }
                 }
@@ -214,8 +226,10 @@ object NativeApi {
                         out[k] = { uri: next[k], name: info.name, artist: info.artist, image: info.image };
                     }
                 }
-                await Promise.all([worker(), worker(), worker(), worker(), worker(), worker(), worker(), worker()]);
-                return { items: out.filter(function(t){ return t && t.name; }) };
+                await Promise.all([worker(), worker(), worker(), worker(), worker()]);
+                var good = out.filter(function(t){ return t && t.name; });
+                try{ AndBridge.dbg('i', 'queue resolved ' + good.length + ' of ' + next.length); }catch(_){}
+                return { items: good };
             };
 
             window.splNative = function(reqId, op, argStr){
