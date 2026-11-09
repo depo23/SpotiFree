@@ -232,6 +232,7 @@ class SpotifyWebViewClient(
             add(SettingsFix.CONTENT)
             add(VideoPark.CONTENT)
             add(NavDuck.CONTENT)
+            add(DesktopNag.CONTENT)
         }
 
         val body = parts.joinToString("\n") { "try{\n$it\n}catch(e){}" }
