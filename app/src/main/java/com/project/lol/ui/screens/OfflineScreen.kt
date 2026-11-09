@@ -763,7 +763,7 @@ fun OfflineScreen(
         onClearData = onClearData,
         onClearThirdParty = onClearThirdParty,
         onDebugToggle = {},
-        blockServiceWorker = prefs.getBoolean("BlockServiceWorker", false),
+        blockServiceWorker = prefs.getBoolean("BlockServiceWorker", true),
         onBlockServiceWorkerChange = { enabled ->
             prefs.edit().putBoolean("BlockServiceWorker", enabled).apply()
         }

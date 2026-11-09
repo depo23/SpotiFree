@@ -155,7 +155,7 @@ class SpotifyWebViewClient(
         val prefs = view?.context?.getSharedPreferences("spotifree_prefs", 0)
 
         val powerSave = prefs?.getBoolean("PowerSave", false) ?: false
-        val blockSW = prefs?.getBoolean("BlockServiceWorker", false) ?: false
+        val blockSW = prefs?.getBoolean("BlockServiceWorker", true) ?: true
         val hideEmptyPlayer = prefs?.getBoolean("HideEmptyPlayer", true) ?: true
         val playlistSort = prefs?.getBoolean("PlaylistSortEnabled", true) ?: true
         val showScrollbar = prefs?.getBoolean("ShowScrollbar", true) ?: true
@@ -201,7 +201,7 @@ class SpotifyWebViewClient(
 
     private fun buildEarlyJs(prefs: android.content.SharedPreferences, isGoogle: Boolean): String {
         val powerSave = prefs.getBoolean("PowerSave", false)
-        val blockSW = prefs.getBoolean("BlockServiceWorker", false)
+        val blockSW = prefs.getBoolean("BlockServiceWorker", true)
         val hideEmptyPlayer = prefs.getBoolean("HideEmptyPlayer", true)
         val playlistSort = prefs.getBoolean("PlaylistSortEnabled", true)
         val showScrollbar = prefs.getBoolean("ShowScrollbar", true)
@@ -567,7 +567,7 @@ class SpotifyWebViewClient(
                     wv.evaluateJavascript("window.__splTakeControl=$on;", null)
                 }
                 "BlockServiceWorker" -> {
-                    if (prefs.getBoolean("BlockServiceWorker", false)) {
+                    if (prefs.getBoolean("BlockServiceWorker", true)) {
                         wv.evaluateJavascript(WorkerNeutralize.CONTENT + ";\n" + SW_UNREGISTER_JS, null)
                     } else {
                         wv.reload()

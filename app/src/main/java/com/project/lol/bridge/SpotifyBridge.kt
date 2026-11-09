@@ -20,6 +20,9 @@ import com.project.lol.offline.DownloadManager
 import com.project.lol.spicy.SpicyLyricsClient
 import com.project.lol.util.Logger
 import com.project.lol.webview.helpers.NavToken
+import com.project.lol.webview.WebViewHost
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class SpotifyBridge(activityRef: WeakReference<Activity>) {
 
@@ -33,8 +36,24 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
             "sec-ch-ua-platform-version",
             "sec-ch-ua-arch",
             "sec-ch-ua-bitness",
-            "sec-ch-ua-model"
+            "sec-ch-ua-model",
+            "accept-encoding",
+            "content-length",
+            "transfer-encoding",
+            "connection",
+            "host"
         )
+
+        /* Playback commands keep their order on one thread; everything else runs in parallel. */
+        private val COMMAND_MARKERS = arrayOf("connect-state", "/melody/", "track-playback")
+
+        private val commandExecutor: ExecutorService =
+            Executors.newSingleThreadExecutor { r -> Thread(r, "nfetch-command").apply { isDaemon = true } }
+        private val queryExecutor: ExecutorService =
+            Executors.newFixedThreadPool(4) { r -> Thread(r, "nfetch-query").apply { isDaemon = true } }
+
+        private fun executorFor(url: String): ExecutorService =
+            if (COMMAND_MARKERS.any { url.contains(it) }) commandExecutor else queryExecutor
 
         private const val TAG = "bridge"
         private const val CALL = "bridge.call"
@@ -333,7 +352,28 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
 
     @Suppress("unused")
     @JavascriptInterface
-    fun nFetch(url: String, optsJson: String?): String {
+    fun nFetchAsync(url: String, optsJson: String?, reqId: Int) {
+        executorFor(url).execute {
+            val result = fetchEnvelope(url, optsJson)
+            mainHandler.post {
+                val view = WebViewHost.webView ?: return@post
+                try {
+                    view.evaluateJavascript(
+                        "window.__splNfSettle&&window.__splNfSettle($reqId,${JSONObject.quote(result)})",
+                        null
+                    )
+                } catch (e: Exception) {
+                    Logger.w(TAG, "nFetchAsync callback failed id=$reqId", e)
+                }
+            }
+        }
+    }
+
+    @Suppress("unused")
+    @JavascriptInterface
+    fun nFetch(url: String, optsJson: String?): String = fetchEnvelope(url, optsJson)
+
+    private fun fetchEnvelope(url: String, optsJson: String?): String {
         val errorResult = { e: Exception ->
             try {
                 JSONObject().apply {

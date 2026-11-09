@@ -184,7 +184,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
     }
 
     private val loadingProgress = mutableIntStateOf(100)
-    private val blockServiceWorkerState = mutableStateOf(false)
+    private val blockServiceWorkerState = mutableStateOf(true)
     private val webViewError = mutableStateOf<Pair<Int, String>?>(null)
     private var pendingLink: String? = null
     private var pendingMediaSearch: String? = null
@@ -236,7 +236,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
         themeSecondaryState.value = ThemeHarmony.parseHex(prefs.getString("ThemeSecondary", null))
-        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", false)
+        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", true)
         applyOrientation()
         applyKeepScreenOn()
 
@@ -1273,7 +1273,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         keepScreenOnState.value = prefs.getBoolean("KeepScreenOn", false)
         themePresetState.value = prefs.getString("ThemePreset", ThemePresets.DEFAULT_ID) ?: ThemePresets.DEFAULT_ID
         themeSecondaryState.value = ThemeHarmony.parseHex(prefs.getString("ThemeSecondary", null))
-        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", false)
+        blockServiceWorkerState.value = prefs.getBoolean("BlockServiceWorker", true)
         applyOrientation()
         applyKeepScreenOn()
 
