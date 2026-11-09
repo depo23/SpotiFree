@@ -14,7 +14,7 @@ object DesktopNag {
 
             var CANDIDATES = '[role=dialog],[role=alertdialog],[role=alert],[role=status],[role=banner],[data-encore-id=banner],[data-encore-id=modal],[data-testid*=banner],[data-testid*=toast],[data-testid*=modal],.notistack-Snackbar';
             var NAG = /(download|get|install)[^.]{0,40}(spotify|app)[^.]{0,30}(windows|desktop)|spotify (for|on) (windows|desktop)/i;
-            var DL_LINK = 'a[href*="/download"],a[href*="spotify.com/download"],a[href*="microsoft.com"],a[href*="apps.apple.com"]';
+            var DL_LINK = 'a[href*="download.scdn.co"],a[href*="SpotifySetup"],a[href*="/download"],a[href*="spotify.com/download"],a[href*="microsoft.com"],a[href*="apps.apple.com"]';
             var seen = {};
             var timer = 0;
 
