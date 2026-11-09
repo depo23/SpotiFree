@@ -14,7 +14,18 @@ object DesktopNag {
 
             var CANDIDATES = '[role=dialog],[role=alertdialog],[role=alert],[role=status],[role=banner],[data-encore-id=banner],[data-encore-id=modal],[data-testid*=banner],[data-testid*=toast],[data-testid*=modal],.notistack-Snackbar';
             var NAG = /(download|get|install)[^.]{0,40}(spotify|app)[^.]{0,30}(windows|desktop)|spotify (for|on) (windows|desktop)/i;
+            var DL_LINK = 'a[href*="/download"],a[href*="spotify.com/download"],a[href*="microsoft.com"],a[href*="apps.apple.com"]';
+            var seen = {};
             var timer = 0;
+
+            function describe(el){
+                var a = el.querySelectorAll('a[href]'), hrefs = [];
+                for(var i=0;i<a.length&&i<3;i++) hrefs.push(a[i].getAttribute('href'));
+                return el.tagName.toLowerCase() + '#' + (el.id||'') + '.' + String(el.className||'').replace(/\s+/g,'.') +
+                    ' testid=' + (el.getAttribute('data-testid')||'') + ' encore=' + (el.getAttribute('data-encore-id')||'') +
+                    ' role=' + (el.getAttribute('role')||'') + ' hrefs=' + hrefs.join(',') +
+                    ' text=' + (el.textContent||'').trim().slice(0,80);
+            }
 
             function dismiss(el){
                 try{
@@ -41,7 +52,10 @@ object DesktopNag {
                         var el = els[i];
                         if(el.closest('[data-spl-nag]')) continue;
                         var t = el.textContent || '';
-                        if(t.length > 400 || !NAG.test(t)) continue;
+                        if(t.length > 400) continue;
+                        var d = describe(el);
+                        if(!seen[d]){ seen[d] = 1; try{ AndBridge.dbg('s','popup seen: ' + d); }catch(e){} }
+                        if(!NAG.test(t) && !el.querySelector(DL_LINK)) continue;
                         dismiss(el);
                         hide(el);
                         try{ AndBridge.dbg('s','desktop-app prompt hidden'); }catch(e){}
