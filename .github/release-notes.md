@@ -1,5 +1,5 @@
-# SpotiFree v0.9.53
+# SpotiFree v1.0
 
-- Native player: videos now play fullscreen with native controls (play/pause, ±10s, seek, close)
-- Tap the video to hide or show the controls
-- Video title and artist in the mini bar now match the playing video
+- The "Download Spotify for Windows" prompt is now hidden automatically, whatever the language
+- Better ad detection, and the track info refreshes when metadata arrives late
+- Offline player now handles headset and media buttons; releases are named spotifree.apk
