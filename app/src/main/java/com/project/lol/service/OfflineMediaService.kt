@@ -213,6 +213,10 @@ class OfflineMediaService : Service() {
 
     private fun setupMediaSession() {
         mediaSession = MediaSessionCompat(this, "SpotiFreeOfflineSession").apply {
+            setFlags(
+                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+            )
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlayFromSearch(query: String?, extras: Bundle?) {
                     OfflineMediaService.controller?.onPlayFromSearch(query)

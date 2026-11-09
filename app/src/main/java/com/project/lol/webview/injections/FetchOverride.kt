@@ -162,6 +162,7 @@ object FetchOverride {
                                                 window.__curTrackArtist = (j.artist && j.artist.length) ? j.artist[0].name : null;
                                                 window.__curTrackAlbum = (j.album) ? j.album.name : null;
                                                 if(cg && cg.length) window.__curTrackCover = 'https://i.scdn.co/image/' + cg[0].file_id;
+                                                window.lastState = null;
                                                 if(window.updMedia && typeof track !== 'undefined'){ try{ window.updMedia(); }catch(e){} }
                                             }
                                         }

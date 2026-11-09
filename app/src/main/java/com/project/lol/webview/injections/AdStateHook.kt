@@ -68,6 +68,8 @@ object AdStateHook {
             function isAdTrack(t){
                 if (!t) return false;
                 var m = t.metadata || {};
+                if (typeof t.uri === 'string' && t.uri.indexOf('spotify:ad:') === 0) return true;
+                if (t.provider === 'ad' || t.advertiser || m.is_advertisement === 'true' || m.is_advertisement === true || m.ad_id) return true;
                 var cands = [
                     t.content_type, t.contentType, t.type,
                     m.content_type, m.contentType,
