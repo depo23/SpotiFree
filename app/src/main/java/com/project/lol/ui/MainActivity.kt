@@ -753,6 +753,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
         CookieManager.getInstance().removeAllCookies(null)
         CookieManager.getInstance().flush()
         prefs.edit().putBoolean("LoggedIn", false).apply()
+        com.project.lol.service.MediaNotificationService.clearBrowseCache(this)
         Toast.makeText(this, getString(R.string.main_all_data_cleared), Toast.LENGTH_SHORT).show()
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP

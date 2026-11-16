@@ -142,6 +142,11 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <provider
+            android:name=".service.AaArtProvider"
+            android:authorities="${applicationId}.aaart"
+            android:exported="true" />
+
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">

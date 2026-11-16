@@ -134,41 +134,85 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
         @Volatile
         private var browserBound = false
 
+        private val servedFromCache = ConcurrentHashMap<String, String>()
+
+        private fun cacheFile(parentId: String): java.io.File? {
+            val dir = appContext?.filesDir ?: return null
+            val name = java.security.MessageDigest.getInstance("SHA-1").digest(parentId.toByteArray())
+                .joinToString("") { "%02x".format(it) }
+            return java.io.File(java.io.File(dir, "aa_cache").apply { mkdirs() }, "$name.json")
+        }
+
+        private fun readCache(parentId: String): String? =
+            try { cacheFile(parentId)?.takeIf { it.exists() }?.readText()?.takeIf { it.length > 2 } } catch (_: Exception) { null }
+
+        private fun writeCache(parentId: String, json: String) {
+            try {
+                val f = cacheFile(parentId) ?: return
+                f.writeText(json)
+                val files = f.parentFile?.listFiles() ?: return
+                if (files.size > 80) files.sortedBy { it.lastModified() }.take(files.size - 80).forEach { it.delete() }
+            } catch (_: Exception) {}
+        }
+
+        /** Drops the saved car browse tree, e.g. after logout or an account switch. */
+        @JvmStatic
+        fun clearBrowseCache(ctx: Context) {
+            servedFromCache.clear()
+            try { java.io.File(ctx.filesDir, "aa_cache").deleteRecursively() } catch (_: Exception) {}
+        }
+
+        private fun isUsable(json: String) = json.isNotEmpty() && json != "null" && json != "[]"
+
+        private fun parseBrowseItems(json: String): MutableList<MediaBrowserCompat.MediaItem> {
+            val items = mutableListOf<MediaBrowserCompat.MediaItem>()
+            if (!isUsable(json)) return items
+            try {
+                val jsonArray = org.json.JSONArray(json)
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val name = obj.optString("name", appContext?.getString(R.string.notif_unknown_name) ?: "")
+                    val id = obj.optString("id")
+                    if (id.isEmpty()) continue
+                    val image = obj.optString("image")
+                    val artists = obj.optJSONArray("artists")
+                    val isBrowsable = obj.optBoolean("browsable", false)
+                    var sub = ""
+                    if (artists != null && artists.length() > 0) {
+                        val artistNames = (0 until artists.length()).map { artists.getString(it) }.joinToString(", ")
+                        sub = appContext?.getString(R.string.notif_by_artist, artistNames) ?: artistNames
+                    }
+                    val desc = MediaDescriptionCompat.Builder()
+                        .setMediaId(id)
+                        .setTitle(name)
+                        .setSubtitle(sub)
+                        .setIconUri(if (image.isNotEmpty()) AaArtProvider.uriFor(appContext, image) else null)
+                        .build()
+                    val flags = if (isBrowsable) MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+                    else MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+                    items.add(MediaBrowserCompat.MediaItem(desc, flags))
+                }
+            } catch (e: Exception) {
+                Logger.e(TAG, "Error parsing media items", e)
+            }
+            return items
+        }
+
         @JvmStatic
         fun onMediaItemsLoaded(parentId: String, json: String) {
-            val result = pendingCallbacks.remove(parentId) ?: return
-            val items = mutableListOf<MediaBrowserCompat.MediaItem>()
-            if (json.isNotEmpty() && json != "null" && json != "[]") {
-                try {
-                    val jsonArray = org.json.JSONArray(json)
-                    for (i in 0 until jsonArray.length()) {
-                        val obj = jsonArray.getJSONObject(i)
-                        val name = obj.optString("name", appContext?.getString(R.string.notif_unknown_name) ?: "")
-                        val id = obj.optString("id")
-                        if (id.isEmpty()) continue
-                        val image = obj.optString("image")
-                        val artists = obj.optJSONArray("artists")
-                        val isBrowsable = obj.optBoolean("browsable", false)
-                        var sub = ""
-                        if (artists != null && artists.length() > 0) {
-                            val artistNames = (0 until artists.length()).map { artists.getString(it) }.joinToString(", ")
-                            sub = appContext?.getString(R.string.notif_by_artist, artistNames) ?: artistNames
-                        }
-                        val desc = MediaDescriptionCompat.Builder()
-                            .setMediaId(id)
-                            .setTitle(name)
-                            .setSubtitle(sub)
-                            .setIconUri(if (image.isNotEmpty()) Uri.parse(image) else null)
-                            .build()
-                        val flags = if (isBrowsable) MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
-                        else MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
-                        items.add(MediaBrowserCompat.MediaItem(desc, flags))
-                    }
-                } catch (e: Exception) {
-                    Logger.e(TAG, "Error parsing media items", e)
+            val usable = isUsable(json)
+            if (usable) writeCache(parentId, json)
+            val result = pendingCallbacks.remove(parentId)
+            if (result == null) {
+                val served = servedFromCache.remove(parentId)
+                if (usable && served != null && served != json) {
+                    Handler(Looper.getMainLooper()).post { instance?.notifyChildrenChanged(parentId) }
                 }
+                return
             }
-            val finalItems = items
+            // A failed or empty load falls back to the last good copy instead of an empty screen.
+            val effective = if (usable) json else (readCache(parentId) ?: json)
+            val finalItems = parseBrowseItems(effective)
             Handler(Looper.getMainLooper()).post { result.sendResult(finalItems) }
         }
 
@@ -201,7 +245,7 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
                             .setMediaId(id)
                             .setTitle(name)
                             .setSubtitle(sub)
-                            .setIconUri(if (image.isNotEmpty()) Uri.parse(image) else null)
+                            .setIconUri(if (image.isNotEmpty()) AaArtProvider.uriFor(appContext, image) else null)
                             .build()
                         val flags = if (isBrowsable) MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                         else MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
@@ -523,6 +567,14 @@ class MediaNotificationService : MediaBrowserServiceCompat() {
             parentId.contains("collection")
         ) {
             lastActiveContextId = parentId
+        }
+        val cached = readCache(parentId)
+        if (cached != null) {
+            // Instant answer from disk; the fresh load below updates it via notifyChildrenChanged.
+            servedFromCache[parentId] = cached
+            result.sendResult(parseBrowseItems(cached))
+            wakeAndRun("if (typeof window.fetchMediaItems === 'function') window.fetchMediaItems(${jsString(parentId)});")
+            return
         }
         result.detach()
         pendingCallbacks.remove(parentId)?.sendResult(mutableListOf())
