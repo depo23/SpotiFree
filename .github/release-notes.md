@@ -1,5 +1,5 @@
-# SpotiFree v1.0.1
+# SpotiFree v1.0.2
 
-- Network requests no longer freeze the player: native fetches run in the background, with play and queue commands kept in order
-- Service worker blocking is on by default, which saves battery and CPU
-- Fixed compressed responses from native requests that could come back unreadable
+- Search panel: tapping anywhere on a result row now opens it, not just the small title text
+- Faster, cleaner taps on result rows (no tap delay or highlight flash on touch screens)
+- The thumbnail still plays the item
