@@ -105,6 +105,8 @@ object SearchOverlay {
                         '#splSearchPanel .spl-slist{max-height:55vh;overflow-y:auto;padding:6px;overscroll-behavior:contain}',
                         '#splSearchPanel .spl-srow{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;min-height:44px;box-sizing:border-box}',
                         '#splSearchPanel .spl-srow:hover{background:rgba(255,255,255,.08)}',
+                        '#splSearchPanel .spl-srow{touch-action:manipulation;-webkit-tap-highlight-color:transparent}',
+                        '#splSearchPanel .spl-srow:active{background:rgba(255,255,255,.12)}',
                         '#splSearchPanel .spl-sicon{position:relative;width:36px;height:36px;flex-shrink:0;border-radius:6px;overflow:hidden;background:#282828;display:flex;align-items:center;justify-content:center;color:#b3b3b3}',
                         '#splSearchPanel .spl-sicon img{width:100%;height:100%;object-fit:cover}',
                         '#splSearchPanel .spl-sicon svg{width:18px;height:18px}',
@@ -429,6 +431,13 @@ object SearchOverlay {
                         el.appendChild(favBtnFor(uri));
                     }
                     el.addEventListener('mousedown', function(e){ e.preventDefault(); });
+                    /* The whole row opens the item, like its title; the thumbnail (play),
+                       save button and links keep their own handlers. */
+                    el.addEventListener('click', function(e){
+                        if(e.target.closest && e.target.closest('.spl-sicon,.spl-sfav,a')) return;
+                        var lk = el.querySelector('.spl-sname a');
+                        if(lk) lk.click();
+                    });
                     return el;
                 }
 
