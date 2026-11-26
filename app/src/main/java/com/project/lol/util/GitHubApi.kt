@@ -64,15 +64,38 @@ object GitHubApi {
                             )
                         }
                 } else {
+                    Logger.w("update", "releases api http ${conn.responseCode} (remaining=${conn.getHeaderField("X-RateLimit-Remaining")}), using releases page")
                     null
                 }
                 conn.disconnect()
 
-                Handler(Looper.getMainLooper()).post { onResult(release) }
-            } catch (_: Exception) {
-                Handler(Looper.getMainLooper()).post { onResult(null) }
+                val result = release ?: latestFromPage(owner, repo)
+                Handler(Looper.getMainLooper()).post { onResult(result) }
+            } catch (e: Exception) {
+                Logger.w("update", "releases api failed: ${e.javaClass.simpleName} ${e.message}, using releases page")
+                val result = try { latestFromPage(owner, repo) } catch (_: Exception) { null }
+                Handler(Looper.getMainLooper()).post { onResult(result) }
             }
         }
+    }
+
+    /**
+     * Fallback when the API is rate-limited (60 calls/hour per IP without a token): the
+     * public /releases/latest page redirects to the newest tag, and the APK has a fixed name.
+     */
+    private fun latestFromPage(owner: String, repo: String): GitHubRelease? {
+        val conn = URL("https://github.com/$owner/$repo/releases/latest").openConnection() as HttpURLConnection
+        conn.instanceFollowRedirects = false
+        conn.connectTimeout = 8000
+        conn.readTimeout = 8000
+        val location = conn.getHeaderField("Location")
+        conn.disconnect()
+        val tag = location?.substringAfter("/releases/tag/", "")?.takeIf { it.isNotEmpty() } ?: run {
+            Logger.w("update", "releases page gave no tag (http ${conn.responseCode})")
+            return null
+        }
+        val apk = "https://github.com/$owner/$repo/releases/download/$tag/spotifree.apk"
+        return GitHubRelease(tag, tag, "", "", location, listOf(ReleaseAsset("spotifree.apk", apk, 0L)))
     }
 
     private fun parseAssets(arr: JSONArray?): List<ReleaseAsset> {
