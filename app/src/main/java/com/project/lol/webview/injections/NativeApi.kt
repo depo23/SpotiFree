@@ -124,7 +124,10 @@ object NativeApi {
                     window.splNativeNav('/');
                     for (var n = 0; n < 50 && (window.__splHomeAt || 0) === since; n++) await sleep(300);
                 }
-                if (!window.__splHome) throw new Error('the web page did not load home');
+                if (!window.__splHome) {
+                    try { AndBridge.dbg('s', 'home not captured; gql ops known: ' + Object.keys(window.splOpHashes || {}).join(',')); } catch(e){}
+                    throw new Error('the web page did not load home');
+                }
                 return parseHome(window.__splHome);
             };
 

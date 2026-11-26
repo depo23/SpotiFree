@@ -77,6 +77,14 @@ object FetchOverride {
                             }
                         } catch(e){}
                     }
+                    /* GET form: operationName in the query string (pathfinder v1). */
+                    if(!gqlOp && !window.__splOwnCall && url && url.indexOf && url.indexOf('pathfinder') !== -1) {
+                        try { var mOp = String(url).match(/[?&]operationName=([^&]+)/); if(mOp) gqlOp = decodeURIComponent(mOp[1]); } catch(e){}
+                    }
+                    if(gqlOp && /home/i.test(gqlOp)) {
+                        window.__splGqlSeen = window.__splGqlSeen || {};
+                        if(!window.__splGqlSeen[gqlOp]) { window.__splGqlSeen[gqlOp] = 1; try { AndBridge.dbg('s', 'gql home op seen: ' + gqlOp); } catch(e){} }
+                    }
                     if(url && url.indexOf && (url.indexOf('connect-state') !== -1 || url.indexOf('melody/v1/msg') !== -1 || url.indexOf('/track-playback/') !== -1) && window.mngFetch) {
                         return window.mngFetch(input, init);
                     }
@@ -91,7 +99,7 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
-                    if(gqlOp === 'home') {
+                    if(gqlOp && /^home$|^homeFeed|^homeSection|^home[A-Z]/.test(gqlOp) && !/Section(Item|Page)s?$/.test(gqlOp)) {
                         p.then(function(resp){
                             try {
                                 resp.clone().json().then(function(j){
