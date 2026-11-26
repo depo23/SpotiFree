@@ -169,9 +169,11 @@ object NativeApi {
                         }
                         last = 'http ' + r.status + ' ' + String(r.text || '').slice(0, 300);
                         try { AndBridge.dbg('s', 'gql ' + op + ' #' + h + ' vars=' + JSON.stringify(vars) + ' -> ' + last); } catch(e){}
-                        var miss = /[Vv]ariable '?\$?([A-Za-z_]+)'?[^.]*(not provided|required|was not)/.exec(r.text || '');
-                        var extra = /[Vv]ariable '?\$?([A-Za-z_]+)'?[^.]*(not (defined|used|declared)|unknown|unexpected)/.exec(r.text || '');
-                        if (miss && !(miss[1] in vars)) { vars[miss[1]] = defaultFor(miss[1]); continue; }
+                        var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || r.text || '';
+                        var miss = /missing variable [`'"]?\$?([A-Za-z_]+)[`'"]?(?:.*?type [`'"]?([A-Za-z_]+))?/i.exec(msg) ||
+                                   /[Vv]ariable [`'"]?\$?([A-Za-z_]+)[`'"]?[^.]*(?:not provided|required|was not)/.exec(msg);
+                        var extra = /[Vv]ariable [`'"]?\$?([A-Za-z_]+)[`'"]?[^.]*(not (defined|used|declared)|unknown|unexpected)/.exec(msg);
+                        if (miss && !(miss[1] in vars)) { vars[miss[1]] = await defaultFor(miss[1], miss[2] || ''); continue; }
                         if (extra && (extra[1] in vars)) { delete vars[extra[1]]; continue; }
                         break;
                     }
@@ -180,12 +182,25 @@ object NativeApi {
                 delete window.splOpHashes[op];
                 throw new Error(op + ' failed: ' + last.slice(0, 160));
             };
-            function defaultFor(name){
+            /* A value for a variable the server says is missing. Enum-like values are read from
+               the web player's bundles, where the page passes them (e.g. name:"SOME_VALUE"). */
+            async function defaultFor(name, type){
                 if (/limit/i.test(name)) return 10;
                 if (/offset/i.test(name)) return 0;
                 if (/locale/i.test(name)) return navigator.language || 'en';
                 if (/time.?zone/i.test(name)) { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e){ return 'UTC'; } }
-                if (/^(include|is|enable)/i.test(name)) return false;
+                if (/^Boolean/.test(type) || /^(include|is|enable)/i.test(name)) return false;
+                if (/^(Int|Float)/.test(type)) return 0;
+                if (type && !/^(String|ID)/.test(type)) {
+                    var txt = await bundles();
+                    var re = new RegExp('\\b' + name + '\\s*:\\s*"([A-Z][A-Z0-9_]+)"', 'g'), m, counts = {};
+                    while ((m = re.exec(txt))) counts[m[1]] = (counts[m[1]] || 0) + 1;
+                    var vals = Object.keys(counts);
+                    var web = vals.filter(function(v){ return /WEB/.test(v); });
+                    var pick = web[0] || vals.sort(function(a, b){ return counts[b] - counts[a]; })[0];
+                    try { AndBridge.dbg('s', 'gql var ' + name + ' (' + type + ') from bundle: ' + (pick || 'none') + ' of ' + vals.join(',')); } catch(e){}
+                    if (pick) return pick;
+                }
                 return '';
             }
 
