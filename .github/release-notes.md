@@ -1,5 +1,4 @@
-## SpotiFree v1.0.5
+## SpotiFree v1.0.6
 
-- Material UI home screen: greeting, shortcuts and suggestion rows from Spotify's home feed, drawn natively. Sections follow the daily feed. Long-press a tile to download an album/playlist or open it in the web player.
-- Download button in the Material mini and full player: X cancels a running download; a downloaded track shows a check, tap it for "Remove downloaded file".
-- Extra logging when the desktop-app banner button is tapped.
+- Fixes the web player home vanishing after the desktop-app banner was hidden: a hidden box that fills with page content is shown again.
+- Material UI home: catches the home feed in more cases, so it no longer stays on "Loading…". Logs details when the feed is missing.
