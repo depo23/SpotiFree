@@ -131,35 +131,63 @@ object NativeApi {
                 try { AndBridge.dbg('s', 'gql bundles read: ' + urls.length + ' files, ' + bundleText.length + ' chars'); } catch(e){}
                 return bundleText;
             }
-            window.splGqlHash = async function(op){
-                var h = window.getGqlHash ? window.getGqlHash(op, null) : (window.splOpHashes || {})[op];
-                if (h) return h;
+            /* All query ids the bundles hold for an operation (a bundle may carry more than one version). */
+            async function hashesFor(op){
+                var out = [];
+                var known = window.getGqlHash ? window.getGqlHash(op, null) : (window.splOpHashes || {})[op];
+                if (known) out.push(known);
                 var txt = await bundles();
-                var m = txt.match(new RegExp('"' + op + '"\\s*,\\s*"query"\\s*,\\s*"([0-9a-f]{64})"'));
-                if (!m) { bundleText = null; return null; }
-                window.splOpHashes[op] = m[1];
-                try { localStorage.setItem('sp_hash_' + op, m[1]); } catch(e){}
-                return m[1];
-            };
-            /* Runs a GraphQL operation itself and publishes the answer on the bus. */
-            window.splGql = async function(op, variables){
-                var hash = await window.splGqlHash(op);
-                if (!hash) throw new Error('no query id for ' + op);
-                await window.ensureAuthToken();
-                if (!window.spotAuthToken) throw new Error('not signed in');
-                var r = await window.oriFetch('https://api-partner.spotify.com/pathfinder/v2/query', {
+                var re = new RegExp('"' + op + '"\\s*,\\s*"query"\\s*,\\s*"([0-9a-f]{64})"', 'g'), m;
+                while ((m = re.exec(txt))) if (out.indexOf(m[1]) === -1) out.push(m[1]);
+                return out;
+            }
+            function post(op, hash, variables){
+                return window.oriFetch('https://api-partner.spotify.com/pathfinder/v2/query', {
                     method: 'POST',
                     headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken || '', 'Content-Type': 'application/json;charset=UTF-8', 'App-Platform': 'WebPlayer' },
-                    body: JSON.stringify({ variables: variables || {}, operationName: op, extensions: { persistedQuery: { version: 1, sha256Hash: hash } } })
-                });
-                var j = await r.json();
-                if (!j || !j.data) {
-                    if (r.status === 400 || r.status === 404) { delete window.splOpHashes[op]; try { localStorage.removeItem('sp_hash_' + op); } catch(e){} }
-                    throw new Error(op + ' failed: http ' + r.status);
+                    body: JSON.stringify({ variables: variables, operationName: op, extensions: { persistedQuery: { version: 1, sha256Hash: hash } } })
+                }).then(function(r){ return r.text().then(function(t){ var j = null; try { j = JSON.parse(t); } catch(e){} return { status: r.status, text: t, json: j }; }); });
+            }
+            /* Runs a GraphQL operation itself and publishes the answer on the bus. Each known
+               query id is tried; when the server names a missing or unexpected variable, the
+               variables are fixed and the call is repeated. */
+            window.splGql = async function(op, variables){
+                await window.ensureAuthToken();
+                if (!window.spotAuthToken) throw new Error('not signed in');
+                var hashes = await hashesFor(op);
+                if (!hashes.length) throw new Error('no query id for ' + op);
+                var last = '';
+                for (var h = 0; h < hashes.length; h++) {
+                    var vars = Object.assign({}, variables || {});
+                    for (var attempt = 0; attempt < 4; attempt++) {
+                        var r = await post(op, hashes[h], vars);
+                        if (r.json && r.json.data) {
+                            window.splOpHashes[op] = hashes[h];
+                            try { localStorage.setItem('sp_hash_' + op, hashes[h]); } catch(e){}
+                            window.splGqlPublish(op, r.json);
+                            return r.json.data;
+                        }
+                        last = 'http ' + r.status + ' ' + String(r.text || '').slice(0, 300);
+                        try { AndBridge.dbg('s', 'gql ' + op + ' #' + h + ' vars=' + JSON.stringify(vars) + ' -> ' + last); } catch(e){}
+                        var miss = /[Vv]ariable '?\$?([A-Za-z_]+)'?[^.]*(not provided|required|was not)/.exec(r.text || '');
+                        var extra = /[Vv]ariable '?\$?([A-Za-z_]+)'?[^.]*(not (defined|used|declared)|unknown|unexpected)/.exec(r.text || '');
+                        if (miss && !(miss[1] in vars)) { vars[miss[1]] = defaultFor(miss[1]); continue; }
+                        if (extra && (extra[1] in vars)) { delete vars[extra[1]]; continue; }
+                        break;
+                    }
                 }
-                window.splGqlPublish(op, j);
-                return j.data;
+                try { localStorage.removeItem('sp_hash_' + op); } catch(e){}
+                delete window.splOpHashes[op];
+                throw new Error(op + ' failed: ' + last.slice(0, 160));
             };
+            function defaultFor(name){
+                if (/limit/i.test(name)) return 10;
+                if (/offset/i.test(name)) return 0;
+                if (/locale/i.test(name)) return navigator.language || 'en';
+                if (/time.?zone/i.test(name)) { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e){ return 'UTC'; } }
+                if (/^(include|is|enable)/i.test(name)) return false;
+                return '';
+            }
 
             window.splNativeHome = async function(refresh){
                 if (window.__splHome && !refresh) return parseHome(window.__splHome);
