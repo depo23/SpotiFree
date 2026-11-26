@@ -6,7 +6,7 @@ object PlaybackControls {
                 window.__splPauseTok = (window.__splPauseTok || 0) + 1;
                 window.__splPauseActive = null;
             };
-            window.playFromUri = function(uri, contextUri) {
+            window.playFromUri = function(uri, contextUri, trackUris) {
                 try { window.splAbortPause(); } catch(e) {}
                 var playContext = contextUri || uri;
                 var isLikedSongs = (playContext === 'your_library' || playContext.indexOf('collection') !== -1 || playContext === 'playlists' || playContext === 'spotify:collection:tracks');
@@ -51,6 +51,12 @@ object PlaybackControls {
                 } else if (contextUri && contextUri !== uri) {
                     playOptions.skip_to = { track_uri: uri };
                 }
+                /* Contexts the player cannot resolve alone (an artist's top tracks) get their
+                   track list spelled out, as the web player does. */
+                if (!isLikedSongs && trackUris && trackUris.length) {
+                    commandContext.pages = [{ page_url: 'context://' + playContext, tracks: trackUris.map(function(u){ return { uri: u }; }) }];
+                    if (!playOptions.skip_to.track_uri) playOptions.skip_to = { track_uri: trackUris[0] };
+                }
 
                 var splTarget = (typeof window.__splRemoteActive === 'function' && window.__splRemoteActive() && window.__splActiveDevId) ? window.__splActiveDevId : window.spotDevId;
                 (window.mngFetch || oriFetch)('https://gew4-spclient.spotify.com/connect-state/v1/player/command/from/' + window.spotDevId + '/to/' + splTarget, {
@@ -68,7 +74,9 @@ object PlaybackControls {
                             endpoint: 'play'
                         }
                     })
-                });
+                }).then(function(r){
+                    try { AndBridge.dbg(r.ok ? 'i' : 'e', 'play ' + playContext + ' skip=' + (playOptions.skip_to.track_uri || '-') + ' -> http ' + r.status); } catch(e){}
+                }).catch(function(e){ try { AndBridge.dbg('e', 'play ' + playContext + ' failed: ' + e); } catch(_){} });
             };
             window.splLikedName = function() {
                 try {

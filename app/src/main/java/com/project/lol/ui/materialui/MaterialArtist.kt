@@ -131,7 +131,7 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
                     }
                     item {
                         Row(Modifier.padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Button(onClick = { MaterialUi.runJs("playFromUri(${JSONObject.quote(uri)}, ${JSONObject.quote(uri)})") }) {
+                            Button(onClick = { MaterialUi.runJs("playFromUri(${JSONObject.quote(uri)}, ${JSONObject.quote(uri)}, ${topUris(d)})") }) {
                                 Icon(TablerIcons.PlayerPlay, contentDescription = null, modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(8.dp))
                                 Text("Play")
@@ -149,7 +149,7 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 1.dp)
-                                    .clickable { MaterialUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") },
+                                    .clickable { MaterialUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)}, ${topUris(d)})") },
                                 shape = RoundedCornerShape(
                                     topStart = if (index == 0) big else small,
                                     topEnd = if (index == 0) big else small,
@@ -253,3 +253,5 @@ private fun FollowButton(uri: String) {
         Text(if (on) "Following" else "Follow")
     }
 }
+
+private fun topUris(d: ArtistData): String = org.json.JSONArray(d.tracks.map { it.uri }).toString()

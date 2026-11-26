@@ -18,6 +18,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,17 +44,16 @@ private sealed interface MaterialScreen {
 fun MaterialShell(onSleepTimer: () -> Unit) {
     val state by MaterialUi.player.collectAsState()
     var screen by remember { mutableStateOf<MaterialScreen>(MaterialScreen.None) }
-    var previous by remember { mutableStateOf<MaterialScreen>(MaterialScreen.None) }
+    // Back stack of opened screens (search -> artist -> album -> player ...).
+    val stack = remember { mutableStateListOf<MaterialScreen>() }
 
     fun open(next: MaterialScreen) {
-        previous = screen
+        if (screen != MaterialScreen.None) stack.add(screen)
         screen = next
     }
 
     fun back() {
-        val s = screen
-        screen = if ((s is MaterialScreen.Artist || s is MaterialScreen.Collection) && previous != s && previous != MaterialScreen.Player) previous else MaterialScreen.None
-        previous = MaterialScreen.None
+        screen = if (stack.isEmpty()) MaterialScreen.None else stack.removeAt(stack.size - 1)
     }
 
     // Home is the default screen; the web player shows only when asked for.
@@ -63,7 +63,7 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
         showHome = false
         MaterialUi.runJs("window.splNativeNav&&window.splNativeNav(${JSONObject.quote(path)})")
         screen = MaterialScreen.None
-        previous = MaterialScreen.None
+        stack.clear()
     }
 
     val pager = rememberPagerState(pageCount = { 2 })
@@ -185,6 +185,15 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
             )
             is MaterialScreen.Collection -> MaterialCollectionScreen(uri = s.uri, onBack = { back() })
             else -> {}
+        }
+        // Pages opened from home, library or search keep the mini player on top, like Spotify.
+        val page = screen
+        if (!showVideo && state.hasTrack && (page is MaterialScreen.Artist || page is MaterialScreen.Collection)) {
+            MaterialMiniPlayer(
+                state = state,
+                onOpen = { if (state.video) enterVideo() else open(MaterialScreen.Player) },
+                modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
+            )
         }
     }
 }
