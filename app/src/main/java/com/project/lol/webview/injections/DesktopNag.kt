@@ -112,6 +112,8 @@ object DesktopNag {
                 if(url && SETUP.test(String(url))){
                     try{
                         var btn = lastTarget && lastTarget.closest && lastTarget.closest('button,a,[role=button]');
+                        try{ AndBridge.dbg('s','desktop-app installer open trapped: button=' + (btn ? describe(btn) : 'none') +
+                            ' card=' + (btn ? describe(cardOf(btn)) : 'none') + ' safe=' + !!(btn && containerOf(btn))); }catch(e){}
                         if(btn && containerOf(btn)){
                             /* Class lists are shared by every button of a style, so the
                                button's own text is stored too and must match. */
