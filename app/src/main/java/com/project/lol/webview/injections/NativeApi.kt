@@ -84,6 +84,12 @@ object NativeApi {
                 var d = c.data || c;
                 var uri = (it && it.uri) || d.uri || c.uri || '';
                 var kind = String(d.__typename || c.__typename || '').replace(/ResponseWrapper$/, '');
+                var pre = d.preReleaseContent;
+                if (pre) {
+                    if (!uri) return null;
+                    var pa = ((pre.artists && pre.artists.items) || []).map(function(a){ var x = a.data || a; return x.profile && x.profile.name; }).filter(Boolean).join(', ');
+                    return { uri: uri, name: pre.name || '', image: src(pre.coverArt), subtitle: pa, kind: 'prerelease' };
+                }
                 var name = d.name || (d.profile && d.profile.name) || '';
                 if (!uri || !name) return null;
                 var image = src(d.coverArt) || src(d.images && d.images.items && d.images.items[0]) ||
@@ -137,7 +143,7 @@ object NativeApi {
                 var known = window.getGqlHash ? window.getGqlHash(op, null) : (window.splOpHashes || {})[op];
                 if (known) out.push(known);
                 var txt = await bundles();
-                var re = new RegExp('"' + op + '"\\s*,\\s*"query"\\s*,\\s*"([0-9a-f]{64})"', 'g'), m;
+                var re = new RegExp('"' + op + '"\\s*,\\s*"(?:query|mutation)"\\s*,\\s*"([0-9a-f]{64})"', 'g'), m;
                 while ((m = re.exec(txt))) if (out.indexOf(m[1]) === -1) out.push(m[1]);
                 return out;
             }
@@ -208,6 +214,74 @@ object NativeApi {
                 }
                 return '';
             }
+
+            function artistsOf(a){ return ((a && a.items) || []).map(function(x){ var y = x.data || x; return (y.profile && y.profile.name) || y.name; }).filter(Boolean).join(', '); }
+            function ms(v){ return (v && (v.totalMilliseconds || v.totalMilliSeconds)) || 0; }
+            /* Album or playlist page: header plus every track, from the same queries the web player uses. */
+            window.splNativeCollection = async function(uri){
+                var loc = navigator.language || 'en';
+                if (uri.indexOf(':album:') !== -1) {
+                    var ad = await window.splGql('getAlbum', { uri: uri, locale: loc, offset: 0, limit: 300 });
+                    var al = ad.albumUnion || {};
+                    var cover = src(al.coverArt);
+                    var tl = (al.tracksV2 && al.tracksV2.items) || (al.tracks && al.tracks.items) || [];
+                    return {
+                        uri: uri, kind: 'album', name: al.name || '', image: cover,
+                        subtitle: artistsOf(al.artists) + (al.date && al.date.isoString ? ' · ' + al.date.isoString.slice(0, 4) : ''),
+                        tracks: tl.map(function(x){ var t = x.track || x; return { uri: t.uri, name: t.name, artist: artistsOf(t.artists), image: cover, duration: ms(t.duration) }; }).filter(function(t){ return t.uri; })
+                    };
+                }
+                var out = [], meta = null;
+                for (var off = 0; off < 2000; off += 100) {
+                    var pd = await window.splGql('fetchPlaylist', { uri: uri, offset: off, limit: 100, enableWatchFeedEntrypoint: false, includeEpisodeContentRatingsV2: false });
+                    var pl = pd.playlistV2 || {};
+                    if (!meta) meta = pl;
+                    var items = (pl.content && pl.content.items) || [];
+                    items.forEach(function(it){
+                        var t = (it.itemV2 && it.itemV2.data) || {};
+                        if (!t.uri) return;
+                        out.push({ uri: t.uri, name: t.name || '', artist: artistsOf(t.artists) || (t.podcastV2 && t.podcastV2.data && t.podcastV2.data.name) || '',
+                            image: src(t.albumOfTrack && t.albumOfTrack.coverArt) || src(t.coverArt), duration: ms(t.trackDuration || t.duration) });
+                    });
+                    var total = (pl.content && pl.content.totalCount) || 0;
+                    if (items.length < 100 || out.length >= total) break;
+                }
+                meta = meta || {};
+                return {
+                    uri: uri, kind: 'playlist', name: meta.name || '', image: src(meta.images && meta.images.items && meta.images.items[0]),
+                    subtitle: textOf((meta.ownerV2 && meta.ownerV2.data && meta.ownerV2.data.name) || '') + (meta.description ? ' · ' + textOf(meta.description) : ''),
+                    tracks: out
+                };
+            };
+            /* The user's library, every kind, with pre-saves. */
+            window.splNativeLibrary = async function(){
+                await window.ensureAuthToken();
+                var raw = await window.fetchAllLibrary();
+                var out = [];
+                raw.forEach(function(e){
+                    var it = e.item || e, d = it.data || it;
+                    var tn = String(d.__typename || '');
+                    var uri = d.uri || d._uri || it._uri || '';
+                    if (!uri) return;
+                    var pre = d.preReleaseContent;
+                    var kind = pre ? 'prerelease' : /Playlist/.test(tn) || uri.indexOf(':playlist:') !== -1 || uri.indexOf(':collection') !== -1 ? 'playlist'
+                        : /Album/.test(tn) || uri.indexOf(':album:') !== -1 ? 'album'
+                        : /Artist/.test(tn) || uri.indexOf(':artist:') !== -1 ? 'artist'
+                        : /Podcast|Show/.test(tn) || uri.indexOf(':show:') !== -1 ? 'podcast' : '';
+                    if (!kind) return;
+                    var name = (pre && pre.name) || d.name || (d.profile && d.profile.name) || '';
+                    if (uri.indexOf(':collection') !== -1 && !name) name = 'Liked Songs';
+                    var image = src(pre && pre.coverArt) || src(d.images && d.images.items && d.images.items[0]) || src(d.coverArt) || src(d.visuals && d.visuals.avatarImage);
+                    if (uri.indexOf(':collection') !== -1 && !image) image = 'https://misc.scdn.co/liked-songs/liked-songs-640.png';
+                    var sub = artistsOf(pre ? pre.artists : d.artists) || (d.ownerV2 && d.ownerV2.data && d.ownerV2.data.name) || (d.publisher && d.publisher.name) || '';
+                    out.push({ uri: uri, name: name || 'Unknown', image: image, subtitle: sub, kind: kind });
+                });
+                return { items: out };
+            };
+            window.splNativePresave = async function(uri){
+                await window.splGql('addToLibrary', { libraryItemUris: [uri] });
+                return { ok: true };
+            };
 
             window.splNativeHome = async function(refresh){
                 if (window.__splHome && !refresh) return parseHome(window.__splHome);
@@ -435,6 +509,12 @@ object NativeApi {
                         done({ id: (typeof window.splPlayingTrackId === 'function' && window.splPlayingTrackId()) || window.splTrackId || window.__curTrackId || '' });
                     } else if (op === 'downloadCollection') {
                         window.splNativeDownloadCollection(arg).then(done, fail);
+                    } else if (op === 'collection') {
+                        window.splNativeCollection(arg).then(done, fail);
+                    } else if (op === 'library') {
+                        window.splNativeLibrary().then(done, fail);
+                    } else if (op === 'presave') {
+                        window.splNativePresave(arg).then(done, fail);
                     } else if (op === 'home') {
                         window.splNativeHome(!!arg).then(done, fail);
                     } else if (op === 'queue') {

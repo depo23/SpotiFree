@@ -82,7 +82,7 @@ private fun fmtDuration(ms: Long): String {
 }
 
 @Composable
-fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> Unit) {
+fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> Unit, onOpenCollection: (String) -> Unit = { onOpenWeb("/album/" + it.substringAfterLast(":")) }) {
     var data by remember { mutableStateOf<ArtistData?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -183,7 +183,7 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
                                         modifier = Modifier
                                             .width(150.dp)
                                             .padding(end = 14.dp)
-                                            .clickable { onOpenWeb("/album/" + al.id) }
+                                            .clickable { onOpenCollection("spotify:album:" + al.id) }
                                     ) {
                                         RemoteImage(al.image, Modifier.size(150.dp), MaterialTheme.shapes.large)
                                         Text(al.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.dp))

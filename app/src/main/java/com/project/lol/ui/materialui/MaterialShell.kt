@@ -13,6 +13,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +35,7 @@ private sealed interface MaterialScreen {
     data object Player : MaterialScreen
     data class Search(val query: String = "") : MaterialScreen
     data class Artist(val uri: String) : MaterialScreen
+    data class Collection(val uri: String) : MaterialScreen
 }
 
 /** Native player, search and artist page drawn over the web page (beta). */
@@ -46,7 +51,8 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
     }
 
     fun back() {
-        screen = if (screen is MaterialScreen.Artist && previous !is MaterialScreen.Artist) previous else MaterialScreen.None
+        val s = screen
+        screen = if ((s is MaterialScreen.Artist || s is MaterialScreen.Collection) && previous != s && previous != MaterialScreen.Player) previous else MaterialScreen.None
         previous = MaterialScreen.None
     }
 
@@ -60,7 +66,11 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
         previous = MaterialScreen.None
     }
 
+    val pager = rememberPagerState(pageCount = { 2 })
+    val pagerScope = rememberCoroutineScope()
+
     BackHandler(enabled = screen != MaterialScreen.None) { back() }
+    BackHandler(enabled = screen == MaterialScreen.None && showHome && pager.currentPage == 1) { pagerScope.launch { pager.animateScrollToPage(0) } }
 
     var videoDismissed by remember { mutableStateOf(false) }
     val showVideo = state.video && !videoDismissed && (screen == MaterialScreen.None || screen == MaterialScreen.Player)
@@ -88,11 +98,30 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (showHome && !showVideo && screen != MaterialScreen.Player) {
-            MaterialHomeScreen(
-                onOpenArtist = { open(MaterialScreen.Artist(it)) },
-                onOpenWeb = { openWeb(it) },
-                onShowWeb = { showHome = false }
-            )
+            // Home and Library side by side: swipe or tap Library / Home to switch.
+            HorizontalPager(state = pager, modifier = Modifier.fillMaxSize()) { page ->
+                if (page == 0) {
+                    MaterialHomeScreen(
+                        onOpenArtist = { open(MaterialScreen.Artist(it)) },
+                        onOpenCollection = { open(MaterialScreen.Collection(it)) },
+                        onOpenWeb = { openWeb(it) },
+                        onShowWeb = { showHome = false },
+                        onLibrary = { pagerScope.launch { pager.animateScrollToPage(1) } }
+                    )
+                } else {
+                    MaterialLibraryScreen(
+                        onOpen = { item ->
+                            when (item.kind) {
+                                "artist" -> open(MaterialScreen.Artist(item.uri))
+                                "album", "playlist" -> open(MaterialScreen.Collection(item.uri))
+                                "prerelease" -> {}
+                                else -> openWeb("/" + item.uri.split(":").drop(1).take(2).joinToString("/"))
+                            }
+                        },
+                        onHome = { pagerScope.launch { pager.animateScrollToPage(0) } }
+                    )
+                }
+            }
         }
         if (showVideo) {
             MaterialVideoPlayer(state = state, onDismiss = { videoDismissed = true })
@@ -151,8 +180,10 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
             is MaterialScreen.Artist -> MaterialArtistScreen(
                 uri = s.uri,
                 onBack = { back() },
-                onOpenWeb = { openWeb(it) }
+                onOpenWeb = { openWeb(it) },
+                onOpenCollection = { open(MaterialScreen.Collection(it)) }
             )
+            is MaterialScreen.Collection -> MaterialCollectionScreen(uri = s.uri, onBack = { back() })
             else -> {}
         }
     }

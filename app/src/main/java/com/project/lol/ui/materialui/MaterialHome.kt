@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,7 +71,7 @@ private fun parseHome(json: String): Pair<HomeData?, String?> {
 
 /** Spotify's home feed (greeting, shortcuts, suggestion rows) drawn natively. */
 @Composable
-fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Unit, onShowWeb: () -> Unit) {
+fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenCollection: (String) -> Unit, onOpenWeb: (String) -> Unit, onShowWeb: () -> Unit, onLibrary: () -> Unit) {
     var data by remember { mutableStateOf(cachedHome) }
     var error by remember { mutableStateOf<String?>(null) }
     var reload by remember { mutableIntStateOf(0) }
@@ -84,9 +85,17 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Un
         error = parsed.second
     }
 
+    var note by remember { mutableStateOf<String?>(null) }
+    val presaveScope = rememberCoroutineScope()
     fun open(item: HomeItem) {
         when {
             item.uri.startsWith("spotify:artist:") -> onOpenArtist(item.uri)
+            item.uri.startsWith("spotify:album:") || item.uri.startsWith("spotify:playlist:") || item.uri.startsWith("spotify:collection") -> onOpenCollection(item.uri)
+            item.kind == "prerelease" -> presaveScope.launch {
+                note = "Pre-saving ${item.name}…"
+                val err = try { JSONObject(MaterialCalls.call("presave", JSONObject.quote(item.uri))).optString("error", "") } catch (_: Exception) { "" }
+                note = if (err.isEmpty()) "Pre-saved ${item.name}. It will be in your library on release day." else "Pre-save failed: $err"
+            }
             else -> MaterialUi.runJs("playFromUri(${JSONObject.quote(item.uri)}, ${JSONObject.quote(item.uri)})")
         }
     }
@@ -121,10 +130,10 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Un
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.weight(1f)
                             )
-                            IconButton(onClick = { reload++ }) { Icon(TablerIcons.Refresh, contentDescription = "Refresh") }
-                            IconButton(onClick = onShowWeb) { Icon(TablerIcons.World, contentDescription = "Web player") }
+                            TextButton(onClick = onLibrary) { Text("Library") }
                         }
                     }
+                    note?.let { n -> item { Text(n, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) } }
                     d.sections.forEach { sec ->
                         if (sec.title.isNotEmpty()) item { HomeTitle(sec.title) }
                         if (sec.grid) {
@@ -152,12 +161,10 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Un
                     }
                 }
             } else {
-                Column(modifier = Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        error?.let { "Could not load home: $it" } ?: "Loading…",
-                        color = if (error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    if (error != null) {
+                if (error == null) HomeSkeleton()
+                else Column(modifier = Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Could not load home: $error", color = MaterialTheme.colorScheme.error)
+                    run {
                         Row {
                             IconButton(onClick = { reload++ }) { Icon(TablerIcons.Refresh, contentDescription = "Retry") }
                             IconButton(onClick = onShowWeb) { Icon(TablerIcons.World, contentDescription = "Web player") }
