@@ -1,4 +1,3 @@
-## SpotiFree v1.0.6
+## SpotiFree v1.0.7
 
-- Fixes the web player home vanishing after the desktop-app banner was hidden: a hidden box that fills with page content is shown again.
-- Material UI home: catches the home feed in more cases, so it no longer stays on "Loading…". Logs details when the feed is missing.
+- Material UI: home, search and artist pages no longer get stuck loading right after the app starts. Requests now wait until the web page is ready.
