@@ -1,3 +1,3 @@
-## SpotiFree v1.0.10
+## SpotiFree v1.0.11
 
-- Material UI home: tries every request id found in the web player, repairs the request when Spotify names a wrong setting, and logs Spotify's error when it still fails.
+- Fixes "Update failed" when checking for updates: when GitHub's API refuses (it allows 60 checks an hour per network), the app reads the public releases page instead. Failures are now logged.
