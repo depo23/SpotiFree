@@ -40,7 +40,7 @@ import compose.icons.tablericons.Home
 import compose.icons.tablericons.Search
 import org.json.JSONObject
 
-internal data class LibraryItem(val uri: String, val name: String, val image: String, val subtitle: String, val kind: String)
+data class LibraryItem(val uri: String, val name: String, val image: String, val subtitle: String, val kind: String)
 
 // Survives leaving the tab; refreshed each time the tab opens.
 private var cachedLibrary: List<LibraryItem>? = null
