@@ -175,7 +175,8 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
                 initialQuery = s.query,
                 onClose = { back() },
                 onOpenArtist = { open(MaterialScreen.Artist(it)) },
-                onOpenWeb = { openWeb(it) }
+                onOpenWeb = { openWeb(it) },
+                onOpenCollection = { open(MaterialScreen.Collection(it)) }
             )
             is MaterialScreen.Artist -> MaterialArtistScreen(
                 uri = s.uri,

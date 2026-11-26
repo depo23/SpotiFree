@@ -50,6 +50,13 @@ import compose.icons.tablericons.Search
 import compose.icons.tablericons.X
 import kotlinx.coroutines.delay
 import org.json.JSONArray
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.material3.TextButton
+import compose.icons.tablericons.Clock
 import org.json.JSONObject
 
 data class SearchHit(
@@ -102,9 +109,13 @@ fun MaterialSearchScreen(
     initialQuery: String,
     onClose: () -> Unit,
     onOpenArtist: (String) -> Unit,
-    onOpenWeb: (String) -> Unit
+    onOpenWeb: (String) -> Unit,
+    onOpenCollection: (String) -> Unit = { onOpenWeb("/" + it.split(":").drop(1).take(2).joinToString("/")) }
 ) {
+    val ctx = LocalContext.current
     var query by remember { mutableStateOf(initialQuery) }
+    var history by remember { mutableStateOf(SearchHistory.load(ctx)) }
+    fun saveQuery(q: String) { history = SearchHistory.add(ctx, q) }
     var hits by remember { mutableStateOf<List<SearchHit>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -125,11 +136,11 @@ fun MaterialSearchScreen(
     }
 
     fun open(hit: SearchHit) {
+        saveQuery(query)
         when (hit.type) {
             "artist" -> onOpenArtist(hit.uri)
             "track" -> MaterialUi.runJs("playFromUri(${JSONObject.quote(hit.uri)}, null)")
-            "album" -> onOpenWeb("/album/" + hit.uri.substringAfterLast(":"))
-            "playlist" -> onOpenWeb("/playlist/" + hit.uri.substringAfterLast(":"))
+            "album", "playlist" -> onOpenCollection(hit.uri)
             "show" -> onOpenWeb("/show/" + hit.uri.substringAfterLast(":"))
             else -> {}
         }
@@ -151,6 +162,8 @@ fun MaterialSearchScreen(
                     onValueChange = { query = it },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { saveQuery(query) }),
                     placeholder = { Text("Search Spotify") },
                     leadingIcon = { Icon(TablerIcons.Search, contentDescription = null) },
                     trailingIcon = {
@@ -188,6 +201,24 @@ fun MaterialSearchScreen(
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                         color = MaterialTheme.colorScheme.error
                     )
+                    query.trim().length < 2 && history.isNotEmpty() -> LazyColumn(contentPadding = PaddingValues(bottom = 32.dp)) {
+                        item {
+                            Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("Recent searches", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                                TextButton(onClick = { history = SearchHistory.clear(ctx) }) { Text("Clear all") }
+                            }
+                        }
+                        items(history, key = { it }) { h ->
+                            Row(
+                                Modifier.fillMaxWidth().clickable { query = h }.padding(start = 20.dp, end = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(TablerIcons.Clock, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                                Text(h, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(horizontal = 16.dp))
+                                IconButton(onClick = { history = SearchHistory.remove(ctx, h) }) { Icon(TablerIcons.X, contentDescription = "Remove $h", modifier = Modifier.size(18.dp)) }
+                            }
+                        }
+                    }
                     query.trim().length < 2 -> Column(
                         modifier = Modifier.align(Alignment.Center).padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -298,4 +329,30 @@ private fun HitRow(hit: SearchHit, shape: Shape, onClick: () -> Unit) {
             }
         }
     }
+}
+
+/** Recent search terms, newest first, kept on the device. */
+private object SearchHistory {
+    private const val PREFS = "material_search"
+    private const val KEY = "history"
+    private const val MAX = 20
+
+    fun load(ctx: Context): List<String> = try {
+        val arr = JSONArray(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, "[]"))
+        (0 until arr.length()).map { arr.getString(it) }
+    } catch (_: Exception) { emptyList() }
+
+    private fun save(ctx: Context, list: List<String>): List<String> {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, JSONArray(list).toString()).apply()
+        return list
+    }
+
+    fun add(ctx: Context, q: String): List<String> {
+        val t = q.trim()
+        if (t.length < 2) return load(ctx)
+        return save(ctx, (listOf(t) + load(ctx).filter { !it.equals(t, ignoreCase = true) }).take(MAX))
+    }
+
+    fun remove(ctx: Context, q: String) = save(ctx, load(ctx).filter { it != q })
+    fun clear(ctx: Context) = save(ctx, emptyList())
 }
