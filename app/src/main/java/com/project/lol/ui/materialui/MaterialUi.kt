@@ -5,7 +5,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
@@ -83,22 +83,19 @@ object MaterialCalls {
         pending.remove(id)?.complete(json)
     }
 
+    /** True once the page's bridge is injected; reset when the page reloads or the webview goes away. */
+    val ready = MutableStateFlow(false)
+
     suspend fun call(op: String, arg: String): String {
         val id = counter.incrementAndGet()
         val deferred = CompletableDeferred<String>()
         pending[id] = deferred
-        val script = "(typeof window.splNative==='function')&&(window.splNative($id,${JSONObject.quote(op)},${JSONObject.quote(arg)}),true)"
+        val script = "window.splNative($id,${JSONObject.quote(op)},${JSONObject.quote(arg)})"
         val result = withTimeoutOrNull(25_000L) {
-            // Right after launch the page is still loading and the bridge isn't injected
-            // yet, so the call is retried until the page answers that it took it.
-            while (true) {
-                val sent = CompletableDeferred<Boolean>()
-                withContext(Dispatchers.Main) {
-                    val wv = WebViewHost.webView
-                    if (wv == null) sent.complete(false) else wv.evaluateJavascript(script) { sent.complete(it == "true") }
-                }
-                if (sent.await()) break
-                delay(500)
+            ready.first { it }
+            withContext(Dispatchers.Main) {
+                val wv = WebViewHost.webView
+                if (wv == null) deferred.complete("{\"error\":\"no webview\"}") else wv.evaluateJavascript(script, null)
             }
             deferred.await()
         }

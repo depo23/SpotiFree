@@ -14,6 +14,48 @@ object FetchOverride {
                 };
                 var orig = window.fetch.bind(window);
                 window.oriFetch = orig;
+                /* Every GraphQL answer the page receives, by fetch or XHR, lands here.
+                   Data is recognised by its shape, not by operation name, so renamed or
+                   new operations keep working. Consumers wait with splGqlWait. */
+                window.__splGql = window.__splGql || {};
+                window.__splGqlWaiters = window.__splGqlWaiters || [];
+                window.splGqlPublish = function(op, j){
+                    try {
+                        var d = j && j.data;
+                        if(!d || typeof d !== 'object') return;
+                        var keys = Object.keys(d);
+                        var key = op || ('?' + keys.join('+'));
+                        if(!window.__splGql[key]) { try { AndBridge.dbg('v', 'gql seen: ' + key + ' -> ' + keys.join(',')); } catch(e){} }
+                        window.__splGql[key] = { at: Date.now(), data: d };
+                        if(d.home && (d.home.sectionContainer || d.home.greeting)) { window.__splHome = d.home; window.__splHomeAt = Date.now(); }
+                        var ws = window.__splGqlWaiters;
+                        for(var i = ws.length - 1; i >= 0; i--) { try { if(ws[i].test(d)) { ws[i].done(d); ws.splice(i, 1); } } catch(e){} }
+                    } catch(e){}
+                };
+                /* Resolves with the first GraphQL data (already seen after `since`, or arriving later) that `test` accepts. */
+                window.splGqlWait = function(test, since, ms){
+                    return new Promise(function(resolve, reject){
+                        var g = window.__splGql;
+                        for(var k in g) { try { if(g[k].at > (since || 0) && test(g[k].data)) return resolve(g[k].data); } catch(e){} }
+                        var w = { test: test, done: function(d){ clearTimeout(t); resolve(d); } };
+                        var t = setTimeout(function(){ var i = window.__splGqlWaiters.indexOf(w); if(i >= 0) window.__splGqlWaiters.splice(i, 1); reject(new Error('no data from the page')); }, ms || 20000);
+                        window.__splGqlWaiters.push(w);
+                    });
+                };
+                (function(){
+                    var X = window.XMLHttpRequest; if(!X || X.prototype.__splHooked) return;
+                    X.prototype.__splHooked = true;
+                    var oOpen = X.prototype.open, oSend = X.prototype.send;
+                    X.prototype.open = function(m, u){ this.__splUrl = String(u || ''); return oOpen.apply(this, arguments); };
+                    X.prototype.send = function(body){
+                        var x = this;
+                        if(x.__splUrl.indexOf('pathfinder') !== -1) {
+                            var op = null; try { op = JSON.parse(body).operationName; } catch(e){}
+                            x.addEventListener('load', function(){ try { window.splGqlPublish(op, typeof x.response === 'object' && x.response ? x.response : JSON.parse(x.responseText)); } catch(e){} });
+                        }
+                        return oSend.apply(this, arguments);
+                    };
+                })();
                 window.fetch = function(input, init) {
                     if(init && init.headers) {
                         var h = init.headers;
@@ -81,10 +123,6 @@ object FetchOverride {
                     if(!gqlOp && !window.__splOwnCall && url && url.indexOf && url.indexOf('pathfinder') !== -1) {
                         try { var mOp = String(url).match(/[?&]operationName=([^&]+)/); if(mOp) gqlOp = decodeURIComponent(mOp[1]); } catch(e){}
                     }
-                    if(gqlOp && /home/i.test(gqlOp)) {
-                        window.__splGqlSeen = window.__splGqlSeen || {};
-                        if(!window.__splGqlSeen[gqlOp]) { window.__splGqlSeen[gqlOp] = 1; try { AndBridge.dbg('s', 'gql home op seen: ' + gqlOp); } catch(e){} }
-                    }
                     if(url && url.indexOf && (url.indexOf('connect-state') !== -1 || url.indexOf('melody/v1/msg') !== -1 || url.indexOf('/track-playback/') !== -1) && window.mngFetch) {
                         return window.mngFetch(input, init);
                     }
@@ -99,14 +137,11 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
-                    if(gqlOp && /^home$|^homeFeed|^homeSection|^home[A-Z]/.test(gqlOp) && !/Section(Item|Page)s?$/.test(gqlOp)) {
+                    if(!window.__splOwnCall && url && url.indexOf && url.indexOf('pathfinder') !== -1) {
+                        var opName = gqlOp;
                         p.then(function(resp){
-                            try {
-                                resp.clone().json().then(function(j){
-                                    try { if(j && j.data && j.data.home) { window.__splHome = j.data.home; window.__splHomeAt = Date.now(); } } catch(e){}
-                                });
-                            } catch(e){}
-                        });
+                            try { resp.clone().json().then(function(j){ window.splGqlPublish(opName, j); }).catch(function(){}); } catch(e){}
+                        }).catch(function(){});
                     }
                     if(gqlOp === 'queryArtistOverview') {
                         p.then(function(resp){

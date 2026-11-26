@@ -184,6 +184,11 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
     }
 
     @JavascriptInterface
+    fun nativeReady() {
+        com.project.lol.ui.materialui.MaterialCalls.ready.value = true
+    }
+
+    @JavascriptInterface
     fun nativeResult(id: Int, json: String?) {
         com.project.lol.ui.materialui.MaterialCalls.deliver(id, json ?: "{}")
     }

@@ -151,6 +151,7 @@ class SpotifyWebViewClient(
         super.onPageStarted(view, url, favicon)
         cancelPendingPlayerInjection()
         NavToken.bump()
+        com.project.lol.ui.materialui.MaterialCalls.ready.value = false
         pageStartedAt = System.currentTimeMillis()
         val prefs = view?.context?.getSharedPreferences("spotifree_prefs", 0)
 

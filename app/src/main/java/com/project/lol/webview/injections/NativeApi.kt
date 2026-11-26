@@ -116,16 +116,17 @@ object NativeApi {
 
             /* Home comes from the web player's own home query, captured in FetchOverride.
                If none was captured yet (or a refresh is asked), the page is sent home so it fetches one. */
+            /* Home comes from the GraphQL bus (any answer shaped like home). The page is
+               sent to home only when no home answer has been seen, or on refresh. */
             window.splNativeHome = async function(refresh){
-                var since = window.__splHomeAt || 0;
-                if (!window.__splHome || refresh) {
-                    if (location.pathname === '/') window.splNativeNav('/search');
-                    await sleep(refresh ? 300 : 0);
-                    window.splNativeNav('/');
-                    for (var n = 0; n < 50 && (window.__splHomeAt || 0) === since; n++) await sleep(300);
-                }
-                if (!window.__splHome) {
-                    try { AndBridge.dbg('s', 'home not captured; gql ops known: ' + Object.keys(window.splOpHashes || {}).join(',')); } catch(e){}
+                var isHome = function(d){ return d && d.home && (d.home.sectionContainer || d.home.greeting); };
+                if (window.__splHome && !refresh) return parseHome(window.__splHome);
+                var since = refresh ? Date.now() : 0;
+                var wait = window.splGqlWait(isHome, since, 20000);
+                if (location.pathname === '/') window.splNativeNav('/search');
+                setTimeout(function(){ window.splNativeNav('/'); }, 300);
+                try { await wait; } catch(e) {
+                    try { AndBridge.dbg('s', 'home not received; gql seen: ' + Object.keys(window.__splGql || {}).join(',')); } catch(_){}
                     throw new Error('the web page did not load home');
                 }
                 return parseHome(window.__splHome);
@@ -352,6 +353,7 @@ object NativeApi {
                     }
                 } catch(e){ fail(e); }
             };
+            try { AndBridge.nativeReady(); } catch(e){}
         })();
     """
 }

@@ -126,6 +126,7 @@ object WebViewHost {
     fun release() {
         val view = webView ?: return
         webView = null
+        com.project.lol.ui.materialui.MaterialCalls.ready.value = false
         bridge = null
         try {
             (view.webViewClient as? SpotifyWebViewClient)?.dispose()
