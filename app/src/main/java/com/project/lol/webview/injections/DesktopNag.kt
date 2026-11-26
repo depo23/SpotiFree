@@ -101,7 +101,7 @@ object DesktopNag {
             function hideFromButton(btn, why){
                 var box = containerOf(btn);
                 if(!box){ try{ AndBridge.dbg('s','desktop-app ' + why + ' skipped, container unsafe: ' + describe(cardOf(btn))); }catch(e){} return; }
-                if(box.closest('[data-spl-nag]')) return;
+                if(box.closest('[data-spl-nag]') || box.hasAttribute('data-spl-nag-ok')) return;
                 try{ AndBridge.dbg('s','desktop-app ' + why + ': ' + describe(box)); }catch(e){}
                 dismiss(box);
                 hide(box);
@@ -128,9 +128,26 @@ object DesktopNag {
                 return origOpen.apply(window, arguments);
             };
 
+            /* A hidden box that later fills with page content (the web player renders
+               home inside the same wrapper after the banner) is shown again. Height is
+               not checked: a hidden box has none. */
+            function recheckHidden(){
+                var hidden = document.querySelectorAll('[data-spl-nag]');
+                for(var i=0;i<hidden.length;i++){
+                    var el = hidden[i];
+                    if((el.textContent||'').length > 600 || el.querySelector('img[src*="scdn.co/image"],[data-testid=tracklist-row],[data-testid=card-click-handler],[data-testid=home-page],main,section,[role=grid],[role=list]')){
+                        el.removeAttribute('data-spl-nag');
+                        el.style.removeProperty('display');
+                        el.setAttribute('data-spl-nag-ok','1');
+                        try{ AndBridge.dbg('s','desktop-app hidden box holds page content, shown again: ' + describe(el)); }catch(e){}
+                    }
+                }
+            }
+
             function sweep(){
                 timer = 0;
                 try{
+                    recheckHidden();
                     var sels = learned();
                     for(var k=0;k<sels.length;k++){
                         var hits = [];
@@ -143,6 +160,7 @@ object DesktopNag {
                     for(var i=0;i<links.length;i++){
                         if(links[i].closest('[data-spl-nag]')) continue;
                         var card = cardOf(links[i]);
+                        if(card.hasAttribute('data-spl-nag-ok')) continue;
                         try{ AndBridge.dbg('s','desktop-app card hidden: ' + describe(card)); }catch(e){}
                         dismiss(card);
                         hide(card);
@@ -150,7 +168,7 @@ object DesktopNag {
                     var els = document.querySelectorAll(CANDIDATES);
                     for(var j=0;j<els.length;j++){
                         var el = els[j];
-                        if(el.closest('[data-spl-nag]')) continue;
+                        if(el.closest('[data-spl-nag]') || el.hasAttribute('data-spl-nag-ok')) continue;
                         var t = el.textContent || '';
                         if(t.length > 400) continue;
                         var d = describe(el);
