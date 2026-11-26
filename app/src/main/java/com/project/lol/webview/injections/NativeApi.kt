@@ -116,19 +116,62 @@ object NativeApi {
 
             /* Home comes from the web player's own home query, captured in FetchOverride.
                If none was captured yet (or a refresh is asked), the page is sent home so it fetches one. */
-            /* Home comes from the GraphQL bus (any answer shaped like home). The page is
-               sent to home only when no home answer has been seen, or on refresh. */
-            window.splNativeHome = async function(refresh){
-                var isHome = function(d){ return d && d.home && (d.home.sectionContainer || d.home.greeting); };
-                if (window.__splHome && !refresh) return parseHome(window.__splHome);
-                var since = refresh ? Date.now() : 0;
-                var wait = window.splGqlWait(isHome, since, 20000);
-                if (location.pathname === '/') window.splNativeNav('/search');
-                setTimeout(function(){ window.splNativeNav('/'); }, 300);
-                try { await wait; } catch(e) {
-                    try { AndBridge.dbg('s', 'home not received; gql seen: ' + Object.keys(window.__splGql || {}).join(',')); } catch(_){}
-                    throw new Error('the web page did not load home');
+            /* Query ids for any GraphQL operation, read from the web player's own JS bundles
+               (they carry entries like "home","query","<sha256>"). Learned once per id,
+               remembered in localStorage, so any screen can ask for its data directly. */
+            var bundleText = null;
+            async function bundles(){
+                if (bundleText) return bundleText;
+                var urls = performance.getEntriesByType('resource').map(function(e){ return e.name; })
+                    .concat(Array.prototype.map.call(document.scripts, function(s){ return s.src; }))
+                    .filter(function(u){ return u && /spotifycdn\.com\/cdn\/build\/web-player\/.*\.js(\?|$)/.test(u); });
+                urls = urls.filter(function(u, i){ return urls.indexOf(u) === i; });
+                var texts = await Promise.all(urls.map(function(u){ return window.oriFetch(u).then(function(r){ return r.text(); }).catch(function(){ return ''; }); }));
+                bundleText = texts.join('\n');
+                try { AndBridge.dbg('s', 'gql bundles read: ' + urls.length + ' files, ' + bundleText.length + ' chars'); } catch(e){}
+                return bundleText;
+            }
+            window.splGqlHash = async function(op){
+                var h = window.getGqlHash ? window.getGqlHash(op, null) : (window.splOpHashes || {})[op];
+                if (h) return h;
+                var txt = await bundles();
+                var m = txt.match(new RegExp('"' + op + '"\\s*,\\s*"query"\\s*,\\s*"([0-9a-f]{64})"'));
+                if (!m) { bundleText = null; return null; }
+                window.splOpHashes[op] = m[1];
+                try { localStorage.setItem('sp_hash_' + op, m[1]); } catch(e){}
+                return m[1];
+            };
+            /* Runs a GraphQL operation itself and publishes the answer on the bus. */
+            window.splGql = async function(op, variables){
+                var hash = await window.splGqlHash(op);
+                if (!hash) throw new Error('no query id for ' + op);
+                await window.ensureAuthToken();
+                if (!window.spotAuthToken) throw new Error('not signed in');
+                var r = await window.oriFetch('https://api-partner.spotify.com/pathfinder/v2/query', {
+                    method: 'POST',
+                    headers: { 'Authorization': window.spotAuthToken, 'Client-Token': window.spotCliToken || '', 'Content-Type': 'application/json;charset=UTF-8', 'App-Platform': 'WebPlayer' },
+                    body: JSON.stringify({ variables: variables || {}, operationName: op, extensions: { persistedQuery: { version: 1, sha256Hash: hash } } })
+                });
+                var j = await r.json();
+                if (!j || !j.data) {
+                    if (r.status === 400 || r.status === 404) { delete window.splOpHashes[op]; try { localStorage.removeItem('sp_hash_' + op); } catch(e){} }
+                    throw new Error(op + ' failed: http ' + r.status);
                 }
+                window.splGqlPublish(op, j);
+                return j.data;
+            };
+
+            window.splNativeHome = async function(refresh){
+                if (window.__splHome && !refresh) return parseHome(window.__splHome);
+                var tz = 'UTC'; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch(e){}
+                var spt = ''; try { spt = (document.cookie.match(/(?:^|; )sp_t=([^;]+)/) || [])[1] || ''; } catch(e){}
+                try {
+                    await window.splGql('home', { timeZone: tz, sp_t: spt, facet: '', sectionItemsLimit: 10 });
+                } catch(e) {
+                    try { AndBridge.dbg('s', 'home request failed: ' + e.message); } catch(_){}
+                    if (!window.__splHome) throw e;
+                }
+                if (!window.__splHome) throw new Error('home answer had no sections');
                 return parseHome(window.__splHome);
             };
 
