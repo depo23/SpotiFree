@@ -1,6 +1,4 @@
-## SpotiFree v1.0.3
+## SpotiFree v1.0.4
 
-- Android Auto: library lists open instantly from a saved copy and refresh in the background; a failed load shows the last good list instead of an empty screen.
-- Android Auto: album and playlist artwork now shows in the car.
-- The "Download Spotify for Windows" banner is hidden even when its button has no link; after one tap it is hidden on sight.
-- Native UI is now called Material UI. Your setting is kept.
+- Fixes the home page disappearing after tapping the "Download Spotify for Windows" banner button in 1.0.3. Updating brings home back without clearing data.
+- The banner hider now only hides small, self-contained banners and never page content.
