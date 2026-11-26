@@ -2,7 +2,7 @@ package com.project.lol.webview.injections
 
 /*
  * Hides Spotify's "Download Spotify for Windows" prompt (banner, toast or dialog).
- * Matched by text because the markup changes between web player releases. Elements
+ * Matched by installer link, by buttons seen opening the installer, or by text. Elements
  * are hidden, not removed, so React's tree stays intact; a dismiss button is
  * clicked first so any scroll lock the dialog set is released.
  */
@@ -24,16 +24,6 @@ object DesktopNag {
                     ' testid=' + (el.getAttribute('data-testid')||'') + ' encore=' + (el.getAttribute('data-encore-id')||'') +
                     ' role=' + (el.getAttribute('role')||'') + ' hrefs=' + hrefs.join(',') +
                     ' text=' + (el.textContent||'').trim().slice(0,80);
-            }
-
-            function dismiss(el){
-                try{
-                    var bs = el.querySelectorAll('button');
-                    for(var i=0;i<bs.length;i++){
-                        var l = (bs[i].getAttribute('aria-label')||'') + ' ' + (bs[i].textContent||'');
-                        if(/close|dismiss|not now|no thanks|cancel/i.test(l)){ bs[i].click(); break; }
-                    }
-                }catch(e){}
             }
 
             var STOP = 'body,html,main,aside,nav,header,footer,#main,#main-view,#root,[data-testid=root],[data-testid=main],section,[role=main],[role=navigation],[role=menu],ul,ol';
@@ -72,9 +62,68 @@ object DesktopNag {
                 el.style.setProperty('display','none','important');
             }
 
+            /* Buttons that open the installer via window.open have no href to match.
+               The click that triggers it is caught, its card hidden, and a selector for
+               the button remembered so the same banner is hidden on sight next time. */
+            var SETUP = /download\.scdn\.co|SpotifySetup|spotify\.com\/(\w+\/)?download/i;
+            var lastTarget = null;
+            document.addEventListener('pointerdown', function(e){ lastTarget = e.target; }, true);
+            document.addEventListener('click', function(e){ lastTarget = e.target; }, true);
+
+            function learned(){ try{ return JSON.parse(localStorage.getItem('spl_nag_sel')||'[]').filter(function(x){ return x && x.s; }); }catch(e){ return []; } }
+            function selectorFor(btn){
+                var tid = btn.getAttribute('data-testid');
+                if(tid) return btn.tagName.toLowerCase() + '[data-testid="' + tid + '"]';
+                var cls = String(btn.className||'').trim().split(/\s+/).filter(Boolean);
+                return cls.length ? btn.tagName.toLowerCase() + '.' + cls.join('.') : null;
+            }
+            /* The card, or the fixed/sticky overlay that holds it when the banner blocks the page. */
+            function containerOf(btn){
+                var card = cardOf(btn);
+                for(var p = card; p && !p.matches(STOP); p = p.parentElement){
+                    var pos = getComputedStyle(p).position;
+                    if((pos === 'fixed' || pos === 'sticky') && (p.textContent||'').length < 600) return p;
+                }
+                return card;
+            }
+            function hideFromButton(btn, why){
+                var box = containerOf(btn);
+                if(box.closest('[data-spl-nag]')) return;
+                try{ AndBridge.dbg('s','desktop-app ' + why + ': ' + describe(box)); }catch(e){}
+                dismiss(box);
+                hide(box);
+            }
+
+            var origOpen = window.open;
+            window.open = function(url){
+                if(url && SETUP.test(String(url))){
+                    try{
+                        var btn = lastTarget && lastTarget.closest && lastTarget.closest('button,a,[role=button]');
+                        if(btn){
+                            /* Class lists are shared by every button of a style, so the
+                               button's own text is stored too and must match. */
+                            var sel = selectorFor(btn), txt = (btn.textContent||'').trim(), list = learned();
+                            var known = list.some(function(x){ return x.s === sel && x.t === txt; });
+                            if(sel && !known){ list.push({s: sel, t: txt}); localStorage.setItem('spl_nag_sel', JSON.stringify(list.slice(-10))); }
+                            hideFromButton(btn, 'button hidden on click');
+                        }
+                    }catch(e){}
+                    return null;
+                }
+                return origOpen.apply(window, arguments);
+            };
+
             function sweep(){
                 timer = 0;
                 try{
+                    var sels = learned();
+                    for(var k=0;k<sels.length;k++){
+                        var hits = [];
+                        try{ hits = document.querySelectorAll(sels[k].s); }catch(e){}
+                        for(var h=0;h<hits.length;h++){
+                            if((hits[h].textContent||'').trim() === sels[k].t) hideFromButton(hits[h], 'learned button hidden');
+                        }
+                    }
                     var links = document.querySelectorAll(KEEP);
                     for(var i=0;i<links.length;i++){
                         if(links[i].closest('[data-spl-nag]')) continue;
