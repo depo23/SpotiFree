@@ -6,7 +6,6 @@ import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.view.Surface
 import android.view.TextureView
-import com.project.lol.offline.DownloadManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,7 +43,6 @@ import androidx.compose.runtime.produceState
 import com.project.lol.timer.SleepTimerManager
 import com.project.lol.timer.SleepTimerMode
 import compose.icons.tablericons.Clock
-import compose.icons.tablericons.X
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import org.json.JSONArray
@@ -116,6 +114,9 @@ fun MaterialMiniPlayer(state: MaterialPlayerState, onOpen: () -> Unit, modifier:
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                }
+                DownloadControl(state.title) { dl, onClick ->
+                    IconButton(onClick = onClick) { DownloadIconFor(dl, 20) }
                 }
                 IconButton(onClick = { MaterialUi.like() }) {
                     Icon(
@@ -431,19 +432,12 @@ private fun PlayerBody(
             } else {
                 FilledTonalButton(onClick = onSleepTimer, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) { timerContent() }
             }
-            val downloading by produceState(false) {
-                while (true) {
-                    value = DownloadManager.isDownloading()
-                    delay(500)
-                }
-            }
-            FilledTonalButton(
-                onClick = { if (downloading) DownloadManager.cancelAll() else MaterialUi.runJs("splDoDownload()") },
-                modifier = Modifier.weight(1f).height(52.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
-            ) {
-                if (downloading) Icon(TablerIcons.X, contentDescription = "Cancel download", modifier = Modifier.size(22.dp))
-                else Icon(DownloadIcon, contentDescription = "Download", modifier = Modifier.size(22.dp))
+            DownloadControl(state.title) { dl, onClick ->
+                FilledTonalButton(
+                    onClick = onClick,
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp)
+                ) { DownloadIconFor(dl) }
             }
             FilledTonalButton(onClick = onQueue, modifier = Modifier.weight(1f).height(52.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
                 Icon(QueueIcon, contentDescription = "Queue", modifier = Modifier.size(22.dp))

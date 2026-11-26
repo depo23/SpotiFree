@@ -322,6 +322,10 @@ object CollectionDownload {
                 });
             }
         
+            window.splColDownloadNow = function(){
+                onNativeDownload({ preventDefault: function(){}, stopPropagation: function(){}, currentTarget: null });
+            };
+
             function isDownloadButton(b){
                 if (b.hasAttribute('aria-haspopup')) return false;
                 var al = (b.getAttribute('aria-label') || '').trim().toLowerCase();

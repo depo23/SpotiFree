@@ -128,6 +128,23 @@ object NativeApi {
                 return parseHome(window.__splHome);
             };
 
+            /* Opens the album/playlist in the (hidden) web page and runs the same collection
+               download the page's own download button runs, once the tracklist is on screen. */
+            window.splNativeDownloadCollection = async function(path){
+                window.splNativeNav(path);
+                for (var n = 0; n < 50; n++) {
+                    await sleep(300);
+                    if (location.pathname.indexOf(path) !== -1 && typeof window.splColDownloadNow === 'function' &&
+                        document.querySelector('[data-testid="track-list"],[role=grid]') &&
+                        document.querySelector('a[data-testid="internal-track-link"]')) {
+                        await sleep(600);
+                        window.splColDownloadNow();
+                        return { ok: true };
+                    }
+                }
+                throw new Error('the tracklist did not load');
+            };
+
             var B62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             function gidOf(id){
                 var n = 0n;
@@ -319,6 +336,10 @@ object NativeApi {
                     } else if (op === 'video') {
                         var vi = window.__splVfsInfo ? window.__splVfsInfo() : null;
                         done(vi ? { ok: true, cur: vi.cur, dur: vi.dur, paused: vi.paused, fs: vi.fs } : { ok: false });
+                    } else if (op === 'track') {
+                        done({ id: (typeof window.splPlayingTrackId === 'function' && window.splPlayingTrackId()) || window.splTrackId || window.__curTrackId || '' });
+                    } else if (op === 'downloadCollection') {
+                        window.splNativeDownloadCollection(arg).then(done, fail);
                     } else if (op === 'home') {
                         window.splNativeHome(!!arg).then(done, fail);
                     } else if (op === 'queue') {

@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Refresh
 import compose.icons.tablericons.World
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 private data class HomeItem(val uri: String, val name: String, val image: String, val subtitle: String, val kind: String)
@@ -92,6 +96,15 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Un
         return if (parts.size >= 3) "/${parts[1]}/${parts[2]}" else "/"
     }
 
+    val scope = rememberCoroutineScope()
+    fun download(item: HomeItem) {
+        scope.launch {
+            val answer = MaterialCalls.call("downloadCollection", JSONObject.quote(webPath(item)))
+            val err = try { JSONObject(answer).optString("error", "") } catch (_: Exception) { "" }
+            if (err.isNotEmpty()) error = "download: $err"
+        }
+    }
+
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         Box(modifier = Modifier.fillMaxSize()) {
             val d = data
@@ -121,7 +134,7 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Un
                                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        pair.forEach { ShortcutTile(it, Modifier.weight(1f), { open(it) }, { onOpenWeb(webPath(it)) }) }
+                                        pair.forEach { ShortcutTile(it, Modifier.weight(1f), { open(it) }, { onOpenWeb(webPath(it)) }, { download(it) }) }
                                         if (pair.size == 1) Box(Modifier.weight(1f))
                                     }
                                 }
@@ -129,7 +142,7 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenWeb: (String) -> Un
                         } else {
                             item {
                                 LazyRow(contentPadding = PaddingValues(horizontal = 20.dp)) {
-                                    items(sec.items) { CardTile(it, { open(it) }, { onOpenWeb(webPath(it)) }) }
+                                    items(sec.items) { CardTile(it, { open(it) }, { onOpenWeb(webPath(it)) }, { download(it) }) }
                                 }
                             }
                         }
@@ -168,56 +181,75 @@ private fun HomeTitle(text: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ShortcutTile(item: HomeItem, modifier: Modifier, onClick: () -> Unit, onLongClick: () -> Unit) {
-    Surface(
-        modifier = modifier.height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
-    ) {
-        Row(
-            modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
-            verticalAlignment = Alignment.CenterVertically
+private fun ShortcutTile(item: HomeItem, modifier: Modifier, onClick: () -> Unit, onOpenWeb: () -> Unit, onDownload: () -> Unit) {
+    var menu by remember { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        Surface(
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {
-            RemoteImage(item.image, Modifier.size(56.dp), RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+            Row(
+                modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = { menu = true }),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RemoteImage(item.image, Modifier.size(56.dp), RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                Text(
+                    item.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+            }
+        }
+        TileMenu(item, menu, { menu = false }, onOpenWeb, onDownload)
+    }
+}
+
+/** Long-press commands: download (albums and playlists) and open in the web player. */
+@Composable
+private fun TileMenu(item: HomeItem, expanded: Boolean, onDismiss: () -> Unit, onOpenWeb: () -> Unit, onDownload: () -> Unit) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+        if (item.uri.startsWith("spotify:album:") || item.uri.startsWith("spotify:playlist:")) {
+            DropdownMenuItem(text = { Text("Download") }, onClick = { onDismiss(); onDownload() })
+        }
+        DropdownMenuItem(text = { Text("Open in web player") }, onClick = { onDismiss(); onOpenWeb() })
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun CardTile(item: HomeItem, onClick: () -> Unit, onOpenWeb: () -> Unit, onDownload: () -> Unit) {
+    val round = item.uri.startsWith("spotify:artist:")
+    var menu by remember { mutableStateOf(false) }
+    Box {
+        Column(
+            modifier = Modifier
+                .width(150.dp)
+                .padding(end = 14.dp)
+                .combinedClickable(onClick = onClick, onLongClick = { menu = true })
+        ) {
+            RemoteImage(item.image, Modifier.size(150.dp), if (round) CircleShape else MaterialTheme.shapes.large)
             Text(
                 item.name,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
+            if (item.subtitle.isNotEmpty()) {
+                Text(
+                    item.subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun CardTile(item: HomeItem, onClick: () -> Unit, onLongClick: () -> Unit) {
-    val round = item.uri.startsWith("spotify:artist:")
-    Column(
-        modifier = Modifier
-            .width(150.dp)
-            .padding(end = 14.dp)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-    ) {
-        RemoteImage(item.image, Modifier.size(150.dp), if (round) CircleShape else MaterialTheme.shapes.large)
-        Text(
-            item.name,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-        if (item.subtitle.isNotEmpty()) {
-            Text(
-                item.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        TileMenu(item, menu, { menu = false }, onOpenWeb, onDownload)
     }
 }
