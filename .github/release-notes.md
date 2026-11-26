@@ -1,4 +1,9 @@
-## SpotiFree v1.0.13
+## SpotiFree v1.5.0
 
-- Material UI home: sends the home request with the same settings the web player uses, so Spotify accepts it.
-- New settings Spotify adds to its requests are looked up in the web player's own code.
+Material UI grows into a full app:
+
+- **Album and playlist pages.** Tapping an album, playlist, mix or "Made for" list on home opens its page with every track, plus Play and Download.
+- **Library.** Swipe left from home, or tap Library, to see all your playlists, artists, albums, podcasts and pre-saves, with a search field and type filters.
+- **Pre-saves.** Upcoming releases now show on home; tap one to pre-save it.
+- **Loading skeleton.** Home, Library and pages show an animated placeholder while loading.
+- Artist pages open albums natively too.
