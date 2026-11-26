@@ -66,28 +66,41 @@ object DesktopNag {
                The click that triggers it is caught, its card hidden, and a selector for
                the button remembered so the same banner is hidden on sight next time. */
             var SETUP = /download\.scdn\.co|SpotifySetup|spotify\.com\/(\w+\/)?download/i;
+            try{ localStorage.removeItem('spl_nag_sel'); }catch(e){}
             var lastTarget = null;
             document.addEventListener('pointerdown', function(e){ lastTarget = e.target; }, true);
             document.addEventListener('click', function(e){ lastTarget = e.target; }, true);
 
-            function learned(){ try{ return JSON.parse(localStorage.getItem('spl_nag_sel')||'[]').filter(function(x){ return x && x.s; }); }catch(e){ return []; } }
+            function learned(){ try{ return JSON.parse(localStorage.getItem('spl_nag_sel2')||'[]').filter(function(x){ return x && x.s; }); }catch(e){ return []; } }
             function selectorFor(btn){
                 var tid = btn.getAttribute('data-testid');
                 if(tid) return btn.tagName.toLowerCase() + '[data-testid="' + tid + '"]';
                 var cls = String(btn.className||'').trim().split(/\s+/).filter(Boolean);
                 return cls.length ? btn.tagName.toLowerCase() + '.' + cls.join('.') : null;
             }
-            /* The card, or the fixed/sticky overlay that holds it when the banner blocks the page. */
+            /* Never hide page content: anything holding artwork, track rows, cards or a
+               page section, anything with lots of text, or anything taller than 60% of the
+               screen unless it is a dialog. */
+            function safe(el){
+                if(!el || el.matches(STOP)) return false;
+                if((el.textContent||'').length > 600) return false;
+                if(el.querySelector('img[src*="scdn.co/image"],[data-testid=tracklist-row],[data-testid=card-click-handler],[data-testid=home-page],main,section,[role=grid],[role=list]')) return false;
+                var role = el.getAttribute('role') || '';
+                if(/dialog/.test(role)) return true;
+                return el.getBoundingClientRect().height < window.innerHeight * 0.6;
+            }
+            /* The card, or the fixed/sticky overlay that holds it; null when neither is safe to hide. */
             function containerOf(btn){
                 var card = cardOf(btn);
                 for(var p = card; p && !p.matches(STOP); p = p.parentElement){
                     var pos = getComputedStyle(p).position;
-                    if((pos === 'fixed' || pos === 'sticky') && (p.textContent||'').length < 600) return p;
+                    if((pos === 'fixed' || pos === 'sticky') && safe(p)) return p;
                 }
-                return card;
+                return safe(card) ? card : null;
             }
             function hideFromButton(btn, why){
                 var box = containerOf(btn);
+                if(!box){ try{ AndBridge.dbg('s','desktop-app ' + why + ' skipped, container unsafe: ' + describe(cardOf(btn))); }catch(e){} return; }
                 if(box.closest('[data-spl-nag]')) return;
                 try{ AndBridge.dbg('s','desktop-app ' + why + ': ' + describe(box)); }catch(e){}
                 dismiss(box);
@@ -99,12 +112,12 @@ object DesktopNag {
                 if(url && SETUP.test(String(url))){
                     try{
                         var btn = lastTarget && lastTarget.closest && lastTarget.closest('button,a,[role=button]');
-                        if(btn){
+                        if(btn && containerOf(btn)){
                             /* Class lists are shared by every button of a style, so the
                                button's own text is stored too and must match. */
                             var sel = selectorFor(btn), txt = (btn.textContent||'').trim(), list = learned();
                             var known = list.some(function(x){ return x.s === sel && x.t === txt; });
-                            if(sel && !known){ list.push({s: sel, t: txt}); localStorage.setItem('spl_nag_sel', JSON.stringify(list.slice(-10))); }
+                            if(sel && !known){ list.push({s: sel, t: txt}); localStorage.setItem('spl_nag_sel2', JSON.stringify(list.slice(-10))); }
                             hideFromButton(btn, 'button hidden on click');
                         }
                     }catch(e){}
