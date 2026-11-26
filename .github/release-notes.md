@@ -1,3 +1,4 @@
-## SpotiFree v1.0.11
+## SpotiFree v1.0.12
 
-- Fixes "Update failed" when checking for updates: when GitHub's API refuses (it allows 60 checks an hour per network), the app reads the public releases page instead. Failures are now logged.
+- Material UI home: fills in the settings Spotify requires for the home request (read from Spotify's error and from the web player's own code).
+- Update check falls back to the public releases page when GitHub's API refuses.
