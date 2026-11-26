@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
+import compose.icons.tablericons.Home
 import compose.icons.tablericons.Search
 import kotlinx.coroutines.delay
 import org.json.JSONObject
@@ -49,7 +50,11 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
         previous = MaterialScreen.None
     }
 
+    // Home is the default screen; the web player shows only when asked for.
+    var showHome by remember { mutableStateOf(true) }
+
     fun openWeb(path: String) {
+        showHome = false
         MaterialUi.runJs("window.splNativeNav&&window.splNativeNav(${JSONObject.quote(path)})")
         screen = MaterialScreen.None
         previous = MaterialScreen.None
@@ -82,6 +87,13 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        if (showHome && !showVideo && screen != MaterialScreen.Player) {
+            MaterialHomeScreen(
+                onOpenArtist = { open(MaterialScreen.Artist(it)) },
+                onOpenWeb = { openWeb(it) },
+                onShowWeb = { showHome = false }
+            )
+        }
         if (showVideo) {
             MaterialVideoPlayer(state = state, onDismiss = { videoDismissed = true })
         } else if (screen == MaterialScreen.None) {
@@ -102,6 +114,17 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
                     .padding(end = 20.dp, bottom = if (state.hasTrack) 100.dp else 24.dp)
             ) {
                 Icon(TablerIcons.Search, contentDescription = "Search")
+            }
+            if (!showHome) {
+                FloatingActionButton(
+                    onClick = { showHome = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .navigationBarsPadding()
+                        .padding(end = 20.dp, bottom = if (state.hasTrack) 172.dp else 96.dp)
+                ) {
+                    Icon(TablerIcons.Home, contentDescription = "Home")
+                }
             }
         }
 

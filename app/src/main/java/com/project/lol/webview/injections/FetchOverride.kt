@@ -91,6 +91,15 @@ object FetchOverride {
                         } catch(e){}
                     }
                     var p = orig.call(window, input, init);
+                    if(gqlOp === 'home') {
+                        p.then(function(resp){
+                            try {
+                                resp.clone().json().then(function(j){
+                                    try { if(j && j.data && j.data.home) { window.__splHome = j.data.home; window.__splHomeAt = Date.now(); } } catch(e){}
+                                });
+                            } catch(e){}
+                        });
+                    }
                     if(gqlOp === 'queryArtistOverview') {
                         p.then(function(resp){
                             try {

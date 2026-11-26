@@ -77,6 +77,57 @@ object NativeApi {
                 };
             };
 
+            function textOf(v){ return String(v || '').replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').trim(); }
+
+            function homeItem(it){
+                var c = (it && it.content) || it || {};
+                var d = c.data || c;
+                var uri = (it && it.uri) || d.uri || c.uri || '';
+                var kind = String(d.__typename || c.__typename || '').replace(/ResponseWrapper$/, '');
+                var name = d.name || (d.profile && d.profile.name) || '';
+                if (!uri || !name) return null;
+                var image = src(d.coverArt) || src(d.images && d.images.items && d.images.items[0]) ||
+                    src(d.visuals && d.visuals.avatarImage) || src(d.podcastV2 && d.podcastV2.data && d.podcastV2.data.coverArt);
+                var sub = '';
+                if (d.artists && d.artists.items) sub = d.artists.items.map(function(a){ return a.profile && a.profile.name; }).filter(Boolean).join(', ');
+                else if (d.ownerV2 && d.ownerV2.data) sub = d.ownerV2.data.name || '';
+                else if (d.publisher) sub = d.publisher.name || '';
+                if (!sub && d.description) sub = textOf(d.description);
+                return { uri: uri, name: name, image: image, subtitle: sub, kind: kind.toLowerCase() };
+            }
+
+            function parseHome(h){
+                var sections = (h && h.sectionContainer && h.sectionContainer.sections && h.sectionContainer.sections.items) || [];
+                var out = [];
+                sections.forEach(function(sec){
+                    var sd = sec.data || {};
+                    var items = ((sec.sectionItems && sec.sectionItems.items) || []).map(homeItem).filter(Boolean);
+                    if (!items.length) return;
+                    var t = sd.title || {};
+                    out.push({
+                        title: textOf(t.transformedLabel || t.text || ''),
+                        style: /short/i.test(sd.__typename || '') ? 'grid' : 'row',
+                        items: items
+                    });
+                });
+                try{ AndBridge.dbg('i', 'home sections: ' + sections.map(function(sec){ return ((sec.data && sec.data.__typename) || '?') + ':' + (((sec.sectionItems && sec.sectionItems.items) || []).length); }).join(', ')); }catch(_){}
+                return { greeting: textOf(h && h.greeting && (h.greeting.transformedLabel || h.greeting.text)), sections: out };
+            }
+
+            /* Home comes from the web player's own home query, captured in FetchOverride.
+               If none was captured yet (or a refresh is asked), the page is sent home so it fetches one. */
+            window.splNativeHome = async function(refresh){
+                var since = window.__splHomeAt || 0;
+                if (!window.__splHome || refresh) {
+                    if (location.pathname === '/') window.splNativeNav('/search');
+                    await sleep(refresh ? 300 : 0);
+                    window.splNativeNav('/');
+                    for (var n = 0; n < 50 && (window.__splHomeAt || 0) === since; n++) await sleep(300);
+                }
+                if (!window.__splHome) throw new Error('the web page did not load home');
+                return parseHome(window.__splHome);
+            };
+
             var B62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             function gidOf(id){
                 var n = 0n;
@@ -268,6 +319,8 @@ object NativeApi {
                     } else if (op === 'video') {
                         var vi = window.__splVfsInfo ? window.__splVfsInfo() : null;
                         done(vi ? { ok: true, cur: vi.cur, dur: vi.dur, paused: vi.paused, fs: vi.fs } : { ok: false });
+                    } else if (op === 'home') {
+                        window.splNativeHome(!!arg).then(done, fail);
                     } else if (op === 'queue') {
                         window.splNativeQueue().then(done, fail);
                     } else {
