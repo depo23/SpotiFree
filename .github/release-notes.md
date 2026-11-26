@@ -1,7 +1,10 @@
-## SpotiFree v2.0.0
+## SpotiFree v2.1.0
 
-Material UI is now a full native app on top of the web player.
+Faster Material UI:
 
-- **Recent searches.** The search screen lists your recent searches. Tap one to search again, X to remove it, or Clear all.
-- Search results for albums and playlists open their native page.
-- Includes everything from 1.5.x: native home, album and playlist pages, Library with search and filters, pre-saves, loading skeletons, artist Follow, and the mini player on every page.
+- Home, Library, artist, album and playlist pages open instantly from a saved copy, then refresh in the background.
+- Artwork is kept on the phone and loaded at a smaller size.
+- Artists on home and at the top of search results are loaded before you tap them.
+- Long playlists load as you scroll instead of all at once.
+- Artist pages load directly, without driving the hidden web page.
+- Less background work: download buttons no longer poll, startup skips scanning Spotify's code when it isn't needed, and the web search overlay isn't loaded while Material UI is on.
