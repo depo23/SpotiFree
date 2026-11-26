@@ -22,7 +22,10 @@ object NativeApi {
 
             function src(o){
                 var a = o && o.sources;
-                return (a && a.length) ? (a[Math.min(1, a.length - 1)].url || a[0].url || '') : '';
+                if (!a || !a.length) return '';
+                // Largest cover; the app scales it down when it decodes.
+                var best = a.slice().sort(function(x, y){ return (y.width || 0) - (x.width || 0); })[0];
+                return best.url || a[0].url || '';
             }
 
             function mapRelease(r){

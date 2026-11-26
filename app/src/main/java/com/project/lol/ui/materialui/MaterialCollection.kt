@@ -70,7 +70,7 @@ fun MaterialCollectionScreen(uri: String, onBack: () -> Unit) {
 
     LaunchedEffect(uri) {
         // Albums never change, so a kept copy is used as is; playlists are refreshed after a few minutes.
-        val key = "collection:$uri"
+        val key = "collection2:$uri" // v2: full-size covers
         val cached = MaterialStore.get(ctx, key)
         cached?.let { e -> data = try { parseCollection(e.json).first } catch (_: Exception) { null } }
         val fresh = cached != null && data != null && (data!!.album || cached.ageMs() < MaterialStore.PLAYLIST_TTL)
@@ -124,6 +124,7 @@ fun MaterialCollectionScreen(uri: String, onBack: () -> Unit) {
                                     Icon(DownloadIcon, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Text("Download", modifier = Modifier.padding(start = 6.dp))
                                 }
+                                SaveButton(uri)
                             }
                             note?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         }
@@ -144,5 +145,31 @@ fun MaterialCollectionScreen(uri: String, onBack: () -> Unit) {
             }
             IconButton(onClick = onBack, modifier = Modifier.statusBarsPadding()) { Icon(TablerIcons.ArrowLeft, contentDescription = "Back") }
         }
+    }
+}
+
+/** Heart toggle that adds the album or playlist to the library, like liking a track. */
+@Composable
+private fun SaveButton(uri: String) {
+    var saved by remember(uri) { mutableStateOf<Boolean?>(null) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(uri) {
+        saved = try { JSONObject(MaterialCalls.call("saved", JSONObject.quote(uri))).optBoolean("saved") } catch (_: Exception) { false }
+    }
+    val on = saved == true
+    IconButton(enabled = saved != null, onClick = {
+        val next = !on
+        saved = next
+        scope.launch {
+            val arg = JSONObject().put("uri", uri).put("on", next).toString()
+            val ok = try { !JSONObject(MaterialCalls.call("setSaved", arg)).has("error") } catch (_: Exception) { false }
+            if (!ok) saved = !next
+        }
+    }) {
+        Icon(
+            if (on) HeartFilledIcon else HeartOutlineIcon,
+            contentDescription = if (on) "Remove from library" else "Save to library",
+            tint = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
