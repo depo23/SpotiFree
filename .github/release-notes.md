@@ -1,3 +1,3 @@
-## SpotiFree v1.0.9
+## SpotiFree v1.0.10
 
-- Material UI home now requests its data directly instead of waiting for the web page to load it. The request ids are read from the web player's own code and remembered, and re-learned when Spotify updates.
+- Material UI home: tries every request id found in the web player, repairs the request when Spotify names a wrong setting, and logs Spotify's error when it still fails.
