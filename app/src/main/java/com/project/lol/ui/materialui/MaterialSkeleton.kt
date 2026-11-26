@@ -112,7 +112,8 @@ fun MediaRow(
     onClick: () -> Unit,
     trailing: String? = null,
     round: Boolean = false,
-    size: Int = 48
+    size: Int = 48,
+    onSubtitleClick: (() -> Unit)? = null
 ) {
     Row(
         androidx.compose.ui.Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 8.dp),
@@ -121,7 +122,8 @@ fun MediaRow(
         if (image != null) RemoteImage(image, Modifier.size(size.dp), if (round) CircleShape else RoundedCornerShape(6.dp))
         Column(Modifier.weight(1f).padding(start = if (image != null) 12.dp else 0.dp)) {
             Text(title, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (subtitle.isNotEmpty()) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (subtitle.isNotEmpty()) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = if (onSubtitleClick != null) Modifier.clickable(onClick = onSubtitleClick) else Modifier)
         }
         if (trailing != null) Text(trailing, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
     }

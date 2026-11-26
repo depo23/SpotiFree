@@ -184,7 +184,7 @@ fun MaterialShell(onSleepTimer: () -> Unit) {
                 onOpenWeb = { openWeb(it) },
                 onOpenCollection = { open(MaterialScreen.Collection(it)) }
             )
-            is MaterialScreen.Collection -> MaterialCollectionScreen(uri = s.uri, onBack = { back() })
+            is MaterialScreen.Collection -> MaterialCollectionScreen(uri = s.uri, onBack = { back() }, onOpenArtist = { open(MaterialScreen.Artist(it)) })
             else -> {}
         }
         // Pages opened from home, library or search keep the mini player on top, like Spotify.

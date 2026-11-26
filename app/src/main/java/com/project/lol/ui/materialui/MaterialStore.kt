@@ -61,7 +61,7 @@ object MaterialStore {
     /** Loads an artist page ahead of a tap; skipped when a fresh copy is already kept. */
     private val prefetching = HashSet<String>()
     fun prefetchArtist(ctx: Context, uri: String) {
-        val key = "artist:$uri"
+        val key = "artist2:$uri"
         synchronized(prefetching) { if (!prefetching.add(uri)) return }
         scope.launch {
             val cached = get(ctx, key)

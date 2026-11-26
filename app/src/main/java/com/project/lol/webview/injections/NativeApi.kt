@@ -25,7 +25,9 @@ object NativeApi {
                 if (!a || !a.length) return '';
                 // Largest cover; the app scales it down when it decodes.
                 var best = a.slice().sort(function(x, y){ return (y.width || 0) - (x.width || 0); })[0];
-                return best.url || a[0].url || '';
+                var url = best.url || a[0].url || '';
+                // Album covers: 00004851 = 64 px, 00001e02 = 300 px, 0000b273 = 640 px.
+                return url.replace(/ab67616d(00004851|00001e02)/, 'ab67616d0000b273');
             }
 
             function mapRelease(r){
@@ -82,9 +84,26 @@ object NativeApi {
                     image: src(hdr) || src(vis.avatarImage),
                     followers: (u.stats && u.stats.followers) || 0,
                     monthly: (u.stats && u.stats.monthlyListeners) || 0,
-                    tracks: top, albums: rel, errors: errs
+                    tracks: top, albums: rel, errors: errs,
+                    bio: textOf(u.profile && u.profile.biography && u.profile.biography.text),
+                    playlists: artistPlaylists(u)
                 };
             };
+
+            /* Playlists shown on an artist page: by the artist, featuring them, and where fans found them. */
+            function artistPlaylists(u){
+                var rc = u.relatedContent || {}, p = u.profile || {}, out = [], seen = {};
+                [p.playlistsV2, rc.featuringV2, rc.discoveredOnV2].forEach(function(g){
+                    ((g && g.items) || []).forEach(function(x){
+                        var d = x.data || x;
+                        if (!d || !d.uri || seen[d.uri] || d.uri.indexOf(':playlist:') === -1) return;
+                        seen[d.uri] = 1;
+                        out.push({ uri: d.uri, name: d.name || '', image: src(d.images && d.images.items && d.images.items[0]) });
+                    });
+                });
+                if (!out.length) try { AndBridge.dbg('s', 'artist playlists none; related keys: ' + Object.keys(rc).join(',')); } catch(_){}
+                return out;
+            }
 
             function textOf(v){ return String(v || '').replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').trim(); }
 
@@ -228,6 +247,7 @@ object NativeApi {
                 return '';
             }
 
+            function firstArtist(a){ var x = a && a.items && a.items[0]; x = x && (x.data || x); return (x && x.uri) || ''; }
             function artistsOf(a){ return ((a && a.items) || []).map(function(x){ var y = x.data || x; return (y.profile && y.profile.name) || y.name; }).filter(Boolean).join(', '); }
             function ms(v){ return (v && (v.totalMilliseconds || v.totalMilliSeconds)) || 0; }
             /* Album or playlist page: header plus every track, from the same queries the web player uses. */
@@ -241,9 +261,9 @@ object NativeApi {
                     var cover = src(al.coverArt);
                     var tl = (al.tracksV2 && al.tracksV2.items) || (al.tracks && al.tracks.items) || [];
                     return {
-                        uri: uri, kind: 'album', name: al.name || '', image: cover,
+                        uri: uri, kind: 'album', name: al.name || '', image: cover, artistUri: firstArtist(al.artists),
                         subtitle: artistsOf(al.artists) + (al.date && al.date.isoString ? ' · ' + al.date.isoString.slice(0, 4) : ''),
-                        tracks: tl.map(function(x){ var t = x.track || x; return { uri: t.uri, name: t.name, artist: artistsOf(t.artists), image: cover, duration: ms(t.duration) }; }).filter(function(t){ return t.uri; })
+                        tracks: tl.map(function(x){ var t = x.track || x; return { uri: t.uri, name: t.name, artist: artistsOf(t.artists), artistUri: firstArtist(t.artists), image: cover, duration: ms(t.duration) }; }).filter(function(t){ return t.uri; })
                     };
                 }
                 // One page of 100 per call; the screen asks for the next page while scrolling.
@@ -256,7 +276,7 @@ object NativeApi {
                     items.forEach(function(it){
                         var t = (it.itemV2 && it.itemV2.data) || {};
                         if (!t.uri) return;
-                        out.push({ uri: t.uri, name: t.name || '', artist: artistsOf(t.artists) || (t.podcastV2 && t.podcastV2.data && t.podcastV2.data.name) || '',
+                        out.push({ uri: t.uri, name: t.name || '', artistUri: firstArtist(t.artists), artist: artistsOf(t.artists) || (t.podcastV2 && t.podcastV2.data && t.podcastV2.data.name) || '',
                             image: src(t.albumOfTrack && t.albumOfTrack.coverArt) || src(t.coverArt), duration: ms(t.trackDuration || t.duration) });
                     });
                     total = (pl.content && pl.content.totalCount) || 0;

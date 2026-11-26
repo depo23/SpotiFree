@@ -59,8 +59,11 @@ private data class ArtistData(
     val monthly: Long,
     val tracks: List<ArtistTrack>,
     val albums: List<ArtistAlbum>,
-    val errors: List<String>
+    val errors: List<String>,
+    val bio: String,
+    val playlists: List<ArtistPlaylist>
 )
+private data class ArtistPlaylist(val uri: String, val name: String, val image: String)
 
 private fun parseArtist(json: String): Pair<ArtistData?, String?> {
     val o = JSONObject(json)
@@ -79,7 +82,11 @@ private fun parseArtist(json: String): Pair<ArtistData?, String?> {
     }
     val errors = ArrayList<String>()
     o.optJSONArray("errors")?.let { a -> for (i in 0 until a.length()) errors.add(a.optString(i)) }
-    return ArtistData(o.optString("name"), o.optString("image"), o.optLong("followers"), o.optLong("monthly"), tracks, albums, errors) to null
+    val playlists = ArrayList<ArtistPlaylist>()
+    o.optJSONArray("playlists")?.let { a ->
+        for (i in 0 until a.length()) a.optJSONObject(i)?.let { playlists.add(ArtistPlaylist(it.optString("uri"), it.optString("name"), it.optString("image"))) }
+    }
+    return ArtistData(o.optString("name"), o.optString("image"), o.optLong("followers"), o.optLong("monthly"), tracks, albums, errors, o.optString("bio"), playlists) to null
 }
 
 private fun fmtDuration(ms: Long): String {
@@ -96,12 +103,12 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
     LaunchedEffect(uri) {
         data = null; error = null
         // A kept copy (prefetched or seen before) draws at once; stale ones are refreshed.
-        val cached = MaterialStore.get(ctx, "artist:$uri")
+        val cached = MaterialStore.get(ctx, "artist2:$uri")
         cached?.let { e -> data = try { parseArtist(e.json).first } catch (_: Exception) { null } }
         if (data != null && cached!!.ageMs() < MaterialStore.ARTIST_TTL) return@LaunchedEffect
         val answer = MaterialCalls.call("artist", JSONObject.quote(uri))
         val parsed = try { parseArtist(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
-        parsed.first?.let { data = it; MaterialStore.put(ctx, "artist:$uri", answer) }
+        parsed.first?.let { data = it; MaterialStore.put(ctx, "artist2:$uri", answer) }
         if (data == null) error = parsed.second
     }
 
@@ -203,6 +210,33 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
                                     }
                                 }
                             }
+                        }
+                    }
+                    if (d.playlists.isNotEmpty()) {
+                        item { SectionTitle("Playlists") }
+                        item {
+                            LazyRow(contentPadding = PaddingValues(horizontal = 20.dp)) {
+                                items(d.playlists) { pl ->
+                                    Column(Modifier.width(150.dp).padding(end = 14.dp).clickable { onOpenCollection(pl.uri) }) {
+                                        RemoteImage(pl.image, Modifier.size(150.dp), MaterialTheme.shapes.large)
+                                        Text(pl.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (d.bio.isNotEmpty()) {
+                        item { SectionTitle("About") }
+                        item {
+                            var expanded by remember(uri) { mutableStateOf(false) }
+                            Text(
+                                d.bio,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = if (expanded) Int.MAX_VALUE else 5,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = 20.dp).clickable { expanded = !expanded }
+                            )
                         }
                     }
                     if (d.errors.isNotEmpty()) {
