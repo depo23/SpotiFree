@@ -44,6 +44,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.Refresh
 import compose.icons.tablericons.World
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 import org.json.JSONObject
 
 private data class HomeItem(val uri: String, val name: String, val image: String, val subtitle: String, val kind: String)
@@ -76,13 +77,20 @@ fun MaterialHomeScreen(onOpenArtist: (String) -> Unit, onOpenCollection: (String
     var error by remember { mutableStateOf<String?>(null) }
     var reload by remember { mutableIntStateOf(0) }
 
+    val ctx = LocalContext.current
     LaunchedEffect(reload) {
-        if (data != null && reload == 0) return@LaunchedEffect
+        // Last saved home draws at once; a fresh one is fetched once per launch (or on retry).
+        if (data == null) MaterialStore.get(ctx, "home")?.let { e -> data = try { parseHome(e.json).first } catch (_: Exception) { null } }
+        if (cachedHome != null && reload == 0) return@LaunchedEffect
         error = null
         val answer = MaterialCalls.call("home", if (reload > 0) "true" else "false")
         val parsed = try { parseHome(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
-        parsed.first?.let { data = it; cachedHome = it }
+        parsed.first?.let { data = it; cachedHome = it; MaterialStore.put(ctx, "home", answer) }
         error = parsed.second
+    }
+    // The first few artists on home are loaded ahead, so tapping one opens at once.
+    LaunchedEffect(data) {
+        data?.sections?.flatMap { it.items }?.filter { it.uri.startsWith("spotify:artist:") }?.take(3)?.forEach { MaterialStore.prefetchArtist(ctx, it.uri) }
     }
 
     var note by remember { mutableStateOf<String?>(null) }

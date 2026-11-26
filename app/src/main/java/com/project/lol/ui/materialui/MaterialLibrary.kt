@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -25,19 +24,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Home
 import compose.icons.tablericons.Search
+import androidx.compose.ui.platform.LocalContext
 import org.json.JSONObject
 
 data class LibraryItem(val uri: String, val name: String, val image: String, val subtitle: String, val kind: String)
@@ -75,11 +72,15 @@ fun MaterialLibraryScreen(onOpen: (LibraryItem) -> Unit, onHome: () -> Unit) {
     var filter by remember { mutableStateOf<String?>(null) }
     var reload by remember { mutableIntStateOf(0) }
 
+    val ctx = LocalContext.current
     LaunchedEffect(reload) {
+        // Saved library draws at once, then is refreshed each time the tab opens.
+        if (items == null) MaterialStore.get(ctx, "library")?.let { e -> items = try { parseLibrary(e.json).first } catch (_: Exception) { null } }
         error = null
-        val parsed = try { parseLibrary(MaterialCalls.call("library", JSONObject.quote(""))) } catch (e: Exception) { null to (e.message ?: "Parse error") }
-        parsed.first?.let { items = it; cachedLibrary = it }
-        error = parsed.second
+        val answer = MaterialCalls.call("library", JSONObject.quote(""))
+        val parsed = try { parseLibrary(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
+        parsed.first?.let { items = it; cachedLibrary = it; MaterialStore.put(ctx, "library", answer) }
+        error = if (items != null && parsed.first == null) null else parsed.second
     }
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
@@ -110,17 +111,14 @@ fun MaterialLibraryScreen(onOpen: (LibraryItem) -> Unit, onHome: () -> Unit) {
                         (q.isEmpty() || it.name.lowercase().contains(q) || it.subtitle.lowercase().contains(q)) }
                     LazyColumn(contentPadding = PaddingValues(top = 8.dp, bottom = 180.dp)) {
                         items(shown, key = { it.uri }) { item ->
-                            Row(
-                                Modifier.fillMaxWidth().clickable { onOpen(item) }.padding(horizontal = 20.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RemoteImage(item.image, Modifier.size(56.dp), if (item.kind == "artist") CircleShape else RoundedCornerShape(6.dp))
-                                Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                                    Text(item.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    val sub = listOf(kindLabel(item.kind), item.subtitle).filter { it.isNotEmpty() }.joinToString(" · ")
-                                    Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                }
-                            }
+                            MediaRow(
+                                image = item.image,
+                                title = item.name,
+                                subtitle = listOf(kindLabel(item.kind), item.subtitle).filter { it.isNotEmpty() }.joinToString(" · "),
+                                round = item.kind == "artist",
+                                size = 56,
+                                onClick = { onOpen(item) }
+                            )
                         }
                         if (shown.isEmpty()) item { Text("Nothing here", modifier = Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }

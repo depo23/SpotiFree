@@ -1,6 +1,5 @@
 package com.project.lol.ui.materialui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -23,11 +21,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -38,11 +34,14 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowLeft
 import compose.icons.tablericons.PlayerPlay
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.snapshotFlow
 import org.json.JSONObject
 import java.util.Locale
 
 private data class CollectionTrack(val uri: String, val name: String, val artist: String, val image: String, val durationMs: Long)
-private data class CollectionData(val name: String, val image: String, val subtitle: String, val album: Boolean, val tracks: List<CollectionTrack>)
+private data class CollectionData(val name: String, val image: String, val subtitle: String, val album: Boolean, val tracks: List<CollectionTrack>, val total: Int)
 
 private fun parseCollection(json: String): Pair<CollectionData?, String?> {
     val o = JSONObject(json)
@@ -52,7 +51,7 @@ private fun parseCollection(json: String): Pair<CollectionData?, String?> {
         val t = arr!!.getJSONObject(i)
         CollectionTrack(t.optString("uri"), t.optString("name"), t.optString("artist"), t.optString("image"), t.optLong("duration"))
     }
-    return CollectionData(o.optString("name"), o.optString("image"), o.optString("subtitle"), o.optString("kind") == "album", tracks) to null
+    return CollectionData(o.optString("name"), o.optString("image"), o.optString("subtitle"), o.optString("kind") == "album", tracks, o.optInt("total", tracks.size).coerceAtLeast(tracks.size)) to null
 }
 
 /** Album or playlist page (playlists include mixes and "Made for" lists): header, play, download, all tracks. */
@@ -63,17 +62,42 @@ fun MaterialCollectionScreen(uri: String, onBack: () -> Unit) {
     var note by remember(uri) { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    val ctx = LocalContext.current
+    val list = rememberLazyListState()
+    var loadingMore by remember(uri) { mutableStateOf(false) }
+
     LaunchedEffect(uri) {
-        val parsed = try { parseCollection(MaterialCalls.call("collection", JSONObject.quote(uri))) } catch (e: Exception) { null to (e.message ?: "Parse error") }
-        data = parsed.first
-        error = parsed.second
+        // Albums never change, so a kept copy is used as is; playlists are refreshed after a few minutes.
+        val key = "collection:$uri"
+        val cached = MaterialStore.get(ctx, key)
+        cached?.let { e -> data = try { parseCollection(e.json).first } catch (_: Exception) { null } }
+        val fresh = cached != null && data != null && (data!!.album || cached.ageMs() < MaterialStore.PLAYLIST_TTL)
+        if (fresh) return@LaunchedEffect
+        val answer = MaterialCalls.call("collection", JSONObject.quote(uri))
+        val parsed = try { parseCollection(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
+        parsed.first?.let { data = it; MaterialStore.put(ctx, key, answer) }
+        if (data == null) error = parsed.second
+    }
+
+    // Long playlists load 100 tracks at a time as the list nears its end.
+    LaunchedEffect(list, data) {
+        snapshotFlow { list.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }.collect { last ->
+            val d = data ?: return@collect
+            if (loadingMore || d.album || d.tracks.size >= d.total || last < d.tracks.size - 15) return@collect
+            loadingMore = true
+            val arg = JSONObject().put("uri", uri).put("offset", d.tracks.size).toString()
+            val more = try { parseCollection(MaterialCalls.call("collection", arg)).first } catch (_: Exception) { null }
+            if (more != null && more.tracks.isNotEmpty()) data = d.copy(tracks = d.tracks + more.tracks)
+            else data = d.copy(total = d.tracks.size)
+            loadingMore = false
+        }
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         Box(Modifier.fillMaxSize()) {
             val d = data
             when {
-                d != null -> LazyColumn(contentPadding = PaddingValues(bottom = 180.dp), modifier = Modifier.statusBarsPadding()) {
+                d != null -> LazyColumn(state = list, contentPadding = PaddingValues(bottom = 180.dp), modifier = Modifier.statusBarsPadding()) {
                     item {
                         Column(Modifier.fillMaxWidth().padding(top = 48.dp, start = 24.dp, end = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             RemoteImage(d.image, Modifier.size(220.dp), MaterialTheme.shapes.large)
@@ -103,23 +127,15 @@ fun MaterialCollectionScreen(uri: String, onBack: () -> Unit) {
                         }
                     }
                     items(d.tracks) { t ->
-                        Row(
-                            Modifier.fillMaxWidth()
-                                .clickable { MaterialUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") }
-                                .padding(horizontal = 20.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (!d.album) RemoteImage(t.image, Modifier.size(48.dp), RoundedCornerShape(6.dp))
-                            Column(Modifier.weight(1f).padding(start = if (d.album) 0.dp else 12.dp)) {
-                                Text(t.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(t.artist, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            }
-                            if (t.durationMs > 0) {
-                                val s = t.durationMs / 1000
-                                Text(String.format(Locale.US, "%d:%02d", s / 60, s % 60), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
-                            }
-                        }
+                        MediaRow(
+                            image = if (d.album) null else t.image,
+                            title = t.name,
+                            subtitle = t.artist,
+                            trailing = if (t.durationMs > 0) (t.durationMs / 1000).let { s -> String.format(Locale.US, "%d:%02d", s / 60, s % 60) } else null,
+                            onClick = { MaterialUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") }
+                        )
                     }
+                    if (loadingMore) item { ListSkeleton(rows = 3) }
                 }
                 error != null -> Text("Could not load: $error", color = MaterialTheme.colorScheme.error, modifier = Modifier.align(Alignment.Center).padding(24.dp))
                 else -> Box(Modifier.statusBarsPadding().padding(top = 40.dp)) { ListSkeleton(rows = 8, header = 220.dp) }

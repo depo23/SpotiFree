@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +26,6 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.CircleCheck
 import compose.icons.tablericons.X
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -48,12 +48,7 @@ internal fun DownloadControl(
     var menu by remember { mutableStateOf(false) }
     var recheck by remember { mutableIntStateOf(0) }
 
-    val downloading by produceState(false) {
-        while (true) {
-            value = DownloadManager.isDownloading()
-            delay(500)
-        }
-    }
+    val downloading by DownloadManager.downloading.collectAsState()
     // Re-checked on track change and when a download finishes or a file is removed.
     LaunchedEffect(downloading) { if (!downloading) recheck++ }
 

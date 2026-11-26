@@ -126,6 +126,7 @@ object ProfileManager {
 
     fun applyProfile(context: Context, json: String): Boolean {
         com.project.lol.service.MediaNotificationService.clearBrowseCache(context)
+        com.project.lol.ui.materialui.MaterialStore.clear(context)
         val entries = try {
             val map = JSONObject(json)
             val out = mutableListOf<Pair<String, String>>()

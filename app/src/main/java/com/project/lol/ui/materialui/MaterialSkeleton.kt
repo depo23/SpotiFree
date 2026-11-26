@@ -29,6 +29,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.clickable
 
 /** A soft light band sweeping across placeholder shapes while content loads. */
 @Composable
@@ -96,5 +100,29 @@ fun ListSkeleton(rows: Int = 8, header: Dp = 0.dp) {
                 }
             }
         }
+    }
+}
+
+/** One list row: optional image, title, subtitle and a trailing note (duration). Shared by pages and Library. */
+@Composable
+fun MediaRow(
+    image: String?,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    trailing: String? = null,
+    round: Boolean = false,
+    size: Int = 48
+) {
+    Row(
+        androidx.compose.ui.Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (image != null) RemoteImage(image, Modifier.size(size.dp), if (round) CircleShape else RoundedCornerShape(6.dp))
+        Column(Modifier.weight(1f).padding(start = if (image != null) 12.dp else 0.dp)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (subtitle.isNotEmpty()) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        if (trailing != null) Text(trailing, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
     }
 }

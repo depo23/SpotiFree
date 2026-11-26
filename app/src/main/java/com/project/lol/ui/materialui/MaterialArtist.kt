@@ -46,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import compose.icons.tablericons.UserCheck
 import compose.icons.tablericons.UserPlus
+import androidx.compose.ui.platform.LocalContext
 import org.json.JSONObject
 import java.util.Locale
 
@@ -91,12 +92,17 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
     var data by remember { mutableStateOf<ArtistData?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
+    val ctx = LocalContext.current
     LaunchedEffect(uri) {
         data = null; error = null
+        // A kept copy (prefetched or seen before) draws at once; stale ones are refreshed.
+        val cached = MaterialStore.get(ctx, "artist:$uri")
+        cached?.let { e -> data = try { parseArtist(e.json).first } catch (_: Exception) { null } }
+        if (data != null && cached!!.ageMs() < MaterialStore.ARTIST_TTL) return@LaunchedEffect
         val answer = MaterialCalls.call("artist", JSONObject.quote(uri))
         val parsed = try { parseArtist(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
-        data = parsed.first
-        error = parsed.second
+        parsed.first?.let { data = it; MaterialStore.put(ctx, "artist:$uri", answer) }
+        if (data == null) error = parsed.second
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {

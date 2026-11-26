@@ -41,6 +41,12 @@ object NativeApi {
                 window.__splArtistOv = window.__splArtistOv || {};
                 var u = window.__splArtistOv[id];
                 if (!u) {
+                    try {
+                        var ad = await window.splGql('queryArtistOverview', { uri: 'spotify:artist:' + id, locale: navigator.language || 'en', preReleaseV2: false, includeMusicVideoPreviews: false });
+                        if (ad && ad.artistUnion) u = window.__splArtistOv[id] = ad.artistUnion;
+                    } catch(e) { try { AndBridge.dbg('s', 'artist direct failed, using the page: ' + e.message); } catch(_){} }
+                }
+                if (!u) {
                     window.splNativeNav('/artist/' + id);
                     for (var n = 0; n < 50 && !window.__splArtistOv[id]; n++) await sleep(300);
                     u = window.__splArtistOv[id];
@@ -160,8 +166,11 @@ object NativeApi {
             window.splGql = async function(op, variables){
                 await window.ensureAuthToken();
                 if (!window.spotAuthToken) throw new Error('not signed in');
-                var hashes = await hashesFor(op);
+                // The saved query id is tried alone first; the 7 MB bundle scan only runs when it is missing or rejected.
+                var known = window.getGqlHash ? window.getGqlHash(op, null) : (window.splOpHashes || {})[op];
+                var hashes = known ? [known] : await hashesFor(op);
                 if (!hashes.length) throw new Error('no query id for ' + op);
+                var scanned = !known;
                 var last = '';
                 for (var h = 0; h < hashes.length; h++) {
                     var vars = Object.assign({}, variables || {});
@@ -188,6 +197,7 @@ object NativeApi {
                 }
                 try { localStorage.removeItem('sp_hash_' + op); } catch(e){}
                 delete window.splOpHashes[op];
+                if (!scanned) return window.splGql(op, variables);
                 throw new Error(op + ' failed: ' + last.slice(0, 160));
             };
             /* A value for a variable the server says is missing. Enum-like values are read from
@@ -218,7 +228,9 @@ object NativeApi {
             function artistsOf(a){ return ((a && a.items) || []).map(function(x){ var y = x.data || x; return (y.profile && y.profile.name) || y.name; }).filter(Boolean).join(', '); }
             function ms(v){ return (v && (v.totalMilliseconds || v.totalMilliSeconds)) || 0; }
             /* Album or playlist page: header plus every track, from the same queries the web player uses. */
-            window.splNativeCollection = async function(uri){
+            window.splNativeCollection = async function(arg){
+                var uri = typeof arg === 'string' ? arg : arg.uri;
+                var start = (arg && arg.offset) || 0;
                 var loc = navigator.language || 'en';
                 if (uri.indexOf(':album:') !== -1) {
                     var ad = await window.splGql('getAlbum', { uri: uri, locale: loc, offset: 0, limit: 300 });
@@ -231,8 +243,9 @@ object NativeApi {
                         tracks: tl.map(function(x){ var t = x.track || x; return { uri: t.uri, name: t.name, artist: artistsOf(t.artists), image: cover, duration: ms(t.duration) }; }).filter(function(t){ return t.uri; })
                     };
                 }
-                var out = [], meta = null;
-                for (var off = 0; off < 2000; off += 100) {
+                // One page of 100 per call; the screen asks for the next page while scrolling.
+                var out = [], meta = null, total = 0;
+                for (var off = start; off < start + 100; off += 100) {
                     var pd = await window.splGql('fetchPlaylist', { uri: uri, offset: off, limit: 100, enableWatchFeedEntrypoint: false, includeEpisodeContentRatingsV2: false });
                     var pl = pd.playlistV2 || {};
                     if (!meta) meta = pl;
@@ -243,14 +256,13 @@ object NativeApi {
                         out.push({ uri: t.uri, name: t.name || '', artist: artistsOf(t.artists) || (t.podcastV2 && t.podcastV2.data && t.podcastV2.data.name) || '',
                             image: src(t.albumOfTrack && t.albumOfTrack.coverArt) || src(t.coverArt), duration: ms(t.trackDuration || t.duration) });
                     });
-                    var total = (pl.content && pl.content.totalCount) || 0;
-                    if (items.length < 100 || out.length >= total) break;
+                    total = (pl.content && pl.content.totalCount) || 0;
                 }
                 meta = meta || {};
                 return {
                     uri: uri, kind: 'playlist', name: meta.name || '', image: src(meta.images && meta.images.items && meta.images.items[0]),
                     subtitle: textOf((meta.ownerV2 && meta.ownerV2.data && meta.ownerV2.data.name) || '') + (meta.description ? ' · ' + textOf(meta.description) : ''),
-                    tracks: out
+                    tracks: out, offset: start, total: total
                 };
             };
             /* The user's library, every kind, with pre-saves. */
@@ -500,44 +512,30 @@ object NativeApi {
                 return { items: good };
             };
 
+            /* One entry per Material UI call: op -> function(arg) returning a value or a promise. */
+            var OPS = {
+                search: function(q){ return window.ensureAuthToken().then(function(){ return window.searchMediaItems(q); }); },
+                artist: function(uri){ return window.splNativeArtist(uri); },
+                canvas: function(){ var same = window.__splCanvasFor && window.__splCanvasFor === window.splTrackId; return { url: same ? (window.__splCanvasUrl || '') : '' }; },
+                video: function(){ var vi = window.__splVfsInfo ? window.__splVfsInfo() : null; return vi ? { ok: true, cur: vi.cur, dur: vi.dur, paused: vi.paused, fs: vi.fs } : { ok: false }; },
+                track: function(){ return { id: (typeof window.splPlayingTrackId === 'function' && window.splPlayingTrackId()) || window.splTrackId || window.__curTrackId || '' }; },
+                downloadCollection: function(path){ return window.splNativeDownloadCollection(path); },
+                collection: function(a){ return window.splNativeCollection(a); },
+                library: function(){ return window.splNativeLibrary(); },
+                saved: function(uri){ return window.splNativeSaved(uri); },
+                setSaved: function(a){ return window.splNativeSetSaved(a); },
+                presave: function(uri){ return window.splNativePresave(uri); },
+                home: function(refresh){ return window.splNativeHome(!!refresh); },
+                queue: function(){ return window.splNativeQueue(); }
+            };
             window.splNative = function(reqId, op, argStr){
                 var arg = null;
                 try { arg = JSON.parse(argStr); } catch(e){ arg = argStr; }
                 var done = function(v){ try { AndBridge.nativeResult(reqId, JSON.stringify(v)); } catch(e){} };
                 var fail = function(e){ done({ error: String((e && e.message) || e) }); };
-                try {
-                    if (op === 'search') {
-                        window.ensureAuthToken().then(function(){ return window.searchMediaItems(arg); }).then(done, fail);
-                    } else if (op === 'artist') {
-                        window.splNativeArtist(arg).then(done, fail);
-                    } else if (op === 'canvas') {
-                        var same = window.__splCanvasFor && window.__splCanvasFor === window.splTrackId;
-                        done({ url: same ? (window.__splCanvasUrl || '') : '' });
-                    } else if (op === 'video') {
-                        var vi = window.__splVfsInfo ? window.__splVfsInfo() : null;
-                        done(vi ? { ok: true, cur: vi.cur, dur: vi.dur, paused: vi.paused, fs: vi.fs } : { ok: false });
-                    } else if (op === 'track') {
-                        done({ id: (typeof window.splPlayingTrackId === 'function' && window.splPlayingTrackId()) || window.splTrackId || window.__curTrackId || '' });
-                    } else if (op === 'downloadCollection') {
-                        window.splNativeDownloadCollection(arg).then(done, fail);
-                    } else if (op === 'collection') {
-                        window.splNativeCollection(arg).then(done, fail);
-                    } else if (op === 'library') {
-                        window.splNativeLibrary().then(done, fail);
-                    } else if (op === 'saved') {
-                        window.splNativeSaved(arg).then(done, fail);
-                    } else if (op === 'setSaved') {
-                        window.splNativeSetSaved(arg).then(done, fail);
-                    } else if (op === 'presave') {
-                        window.splNativePresave(arg).then(done, fail);
-                    } else if (op === 'home') {
-                        window.splNativeHome(!!arg).then(done, fail);
-                    } else if (op === 'queue') {
-                        window.splNativeQueue().then(done, fail);
-                    } else {
-                        fail('unknown op');
-                    }
-                } catch(e){ fail(e); }
+                var fn = OPS[op];
+                if (!fn) return fail('unknown op ' + op);
+                try { Promise.resolve(fn(arg)).then(done, fail); } catch(e){ fail(e); }
             };
             try { AndBridge.nativeReady(); } catch(e){}
         })();

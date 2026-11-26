@@ -133,6 +133,8 @@ fun MaterialSearchScreen(
         hits = parsed.first
         error = parsed.second
         loading = false
+        // The top artist results are loaded ahead of a tap.
+        hits.filter { it.type == "artist" }.take(2).forEach { MaterialStore.prefetchArtist(ctx, it.uri) }
     }
 
     fun open(hit: SearchHit) {

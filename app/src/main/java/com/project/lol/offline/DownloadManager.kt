@@ -121,6 +121,10 @@ object DownloadManager {
 
     @Volatile
     private var activeTrackId: String? = null
+        set(value) { field = value; downloading.value = value != null }
+
+    /** True while a track downloads; observed by the Material UI download buttons instead of polling. */
+    val downloading = kotlinx.coroutines.flow.MutableStateFlow(false)
 
     @Volatile
     private var batchActive = false

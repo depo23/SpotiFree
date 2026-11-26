@@ -479,7 +479,8 @@ class SpotifyWebViewClient(
             append(MainLoop.CONTENT)
             append(AutoFeatures.CONTENT)
             append(AndroidTracker.CONTENT)
-            append(SearchOverlay.CONTENT)
+            // Material UI has its own search; the web search overlay (about 30 KB) is skipped.
+            if (!prefs.getBoolean("MaterialUi", prefs.getBoolean("NativeUi", false))) append(SearchOverlay.CONTENT)
             append(DownloadButton.CONTENT)
             append(DownloadProgress.CONTENT)
             append(CollectionDownload.CONTENT)
