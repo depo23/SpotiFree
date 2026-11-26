@@ -173,7 +173,9 @@ object NativeApi {
                         var miss = /missing variable [`'"]?\$?([A-Za-z_]+)[`'"]?(?:.*?type [`'"]?([A-Za-z_]+))?/i.exec(msg) ||
                                    /[Vv]ariable [`'"]?\$?([A-Za-z_]+)[`'"]?[^.]*(?:not provided|required|was not)/.exec(msg);
                         var extra = /[Vv]ariable [`'"]?\$?([A-Za-z_]+)[`'"]?[^.]*(not (defined|used|declared)|unknown|unexpected)/.exec(msg);
+                        var bad = /invalid variable [`'"]?\$?([A-Za-z_]+)[`'"]?.*?type [`'"]?([A-Za-z_]+)/i.exec(msg);
                         if (miss && !(miss[1] in vars)) { vars[miss[1]] = await defaultFor(miss[1], miss[2] || ''); continue; }
+                        if (bad && !vars['__tried_' + bad[1]]) { vars['__tried_' + bad[1]] = 1; vars[bad[1]] = await defaultFor(bad[1], bad[2], true); delete vars['__tried_' + bad[1]]; continue; }
                         if (extra && (extra[1] in vars)) { delete vars[extra[1]]; continue; }
                         break;
                     }
@@ -184,7 +186,7 @@ object NativeApi {
             };
             /* A value for a variable the server says is missing. Enum-like values are read from
                the web player's bundles, where the page passes them (e.g. name:"SOME_VALUE"). */
-            async function defaultFor(name, type){
+            async function defaultFor(name, type, wasInvalid){
                 if (/limit/i.test(name)) return 10;
                 if (/offset/i.test(name)) return 0;
                 if (/locale/i.test(name)) return navigator.language || 'en';
@@ -192,13 +194,16 @@ object NativeApi {
                 if (/^Boolean/.test(type) || /^(include|is|enable)/i.test(name)) return false;
                 if (/^(Int|Float)/.test(type)) return 0;
                 if (type && !/^(String|ID)/.test(type)) {
+                    /* Enum: its values are UPPER_SNAKE strings in the bundles that share a word
+                       with the type name (HomeEndUserIntegration -> INTEGRATION_*); the web
+                       player's own value is preferred. */
                     var txt = await bundles();
-                    var re = new RegExp('\\b' + name + '\\s*:\\s*"([A-Z][A-Z0-9_]+)"', 'g'), m, counts = {};
-                    while ((m = re.exec(txt))) counts[m[1]] = (counts[m[1]] || 0) + 1;
-                    var vals = Object.keys(counts);
-                    var web = vals.filter(function(v){ return /WEB/.test(v); });
-                    var pick = web[0] || vals.sort(function(a, b){ return counts[b] - counts[a]; })[0];
-                    try { AndBridge.dbg('s', 'gql var ' + name + ' (' + type + ') from bundle: ' + (pick || 'none') + ' of ' + vals.join(',')); } catch(e){}
+                    var words = type.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase().split(' ').filter(function(w){ return w.length > 3; });
+                    var re = /"([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)"/g, m, seen = {};
+                    while ((m = re.exec(txt))) { var v = m[1]; if (!seen[v] && words.some(function(w){ return v.indexOf(w + '_') === 0; })) seen[v] = 1; }
+                    var vals = Object.keys(seen);
+                    var pick = vals.filter(function(v){ return /WEB_PLAYER$/.test(v); })[0] || vals.filter(function(v){ return /WEB/.test(v); })[0] || vals[0];
+                    try { AndBridge.dbg('s', 'gql var ' + name + ' (' + type + ') -> ' + (pick || 'none') + ' of ' + vals.length + ' values'); } catch(e){}
                     if (pick) return pick;
                 }
                 return '';
@@ -209,7 +214,7 @@ object NativeApi {
                 var tz = 'UTC'; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch(e){}
                 var spt = ''; try { spt = (document.cookie.match(/(?:^|; )sp_t=([^;]+)/) || [])[1] || ''; } catch(e){}
                 try {
-                    await window.splGql('home', { timeZone: tz, sp_t: spt, facet: '', sectionItemsLimit: 10 });
+                    await window.splGql('home', { timeZone: tz, sp_t: spt, facet: '', sectionItemsLimit: 10, homeEndUserIntegration: 'INTEGRATION_WEB_PLAYER', includeHomeChapterVideoCards: false, includeEpisodeContentRatingsV2: false });
                 } catch(e) {
                     try { AndBridge.dbg('s', 'home request failed: ' + e.message); } catch(_){}
                     if (!window.__splHome) throw e;
