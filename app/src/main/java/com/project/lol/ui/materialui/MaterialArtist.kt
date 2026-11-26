@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -82,13 +82,13 @@ private fun fmtDuration(ms: Long): String {
 }
 
 @Composable
-fun NativeArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> Unit) {
+fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> Unit) {
     var data by remember { mutableStateOf<ArtistData?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(uri) {
         data = null; error = null
-        val answer = NativeCalls.call("artist", JSONObject.quote(uri))
+        val answer = MaterialCalls.call("artist", JSONObject.quote(uri))
         val parsed = try { parseArtist(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
         data = parsed.first
         error = parsed.second
@@ -126,7 +126,7 @@ fun NativeArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> U
                     }
                     item {
                         Button(
-                            onClick = { NativeUi.runJs("playFromUri(${JSONObject.quote(uri)}, ${JSONObject.quote(uri)})") },
+                            onClick = { MaterialUi.runJs("playFromUri(${JSONObject.quote(uri)}, ${JSONObject.quote(uri)})") },
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                         ) {
                             Icon(TablerIcons.PlayerPlay, contentDescription = null, modifier = Modifier.size(20.dp))
@@ -143,7 +143,7 @@ fun NativeArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) -> U
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 1.dp)
-                                    .clickable { NativeUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") },
+                                    .clickable { MaterialUi.runJs("playFromUri(${JSONObject.quote(t.uri)}, ${JSONObject.quote(uri)})") },
                                 shape = RoundedCornerShape(
                                     topStart = if (index == 0) big else small,
                                     topEnd = if (index == 0) big else small,

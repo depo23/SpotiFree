@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import androidx.compose.animation.core.animateDpAsState
 import android.graphics.Matrix
@@ -83,7 +83,7 @@ internal fun formatTime(ms: Long): String {
 }
 
 @Composable
-fun NativeMiniPlayer(state: NativePlayerState, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+fun MaterialMiniPlayer(state: MaterialPlayerState, onOpen: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -117,14 +117,14 @@ fun NativeMiniPlayer(state: NativePlayerState, onOpen: () -> Unit, modifier: Mod
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                IconButton(onClick = { NativeUi.like() }) {
+                IconButton(onClick = { MaterialUi.like() }) {
                     Icon(
                         if (state.fav) HeartFilledIcon else HeartOutlineIcon,
                         contentDescription = "Like",
                         tint = if (state.fav) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                PlayButton(state.playing, 44.dp) { NativeUi.togglePlay() }
+                PlayButton(state.playing, 44.dp) { MaterialUi.togglePlay() }
             }
             val progress = if (state.duration > 0) (state.position.toFloat() / state.duration).coerceIn(0f, 1f) else 0f
             LinearProgressIndicator(
@@ -167,7 +167,7 @@ private fun ToggleIcon(icon: ImageVector, active: Boolean, label: String, onClic
 }
 
 @Composable
-fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: () -> Unit, onSleepTimer: () -> Unit) {
+fun MaterialFullPlayer(state: MaterialPlayerState, onClose: () -> Unit, onArtist: () -> Unit, onSleepTimer: () -> Unit) {
     var showQueue by remember { mutableStateOf(false) }
     var canvasUrl by remember { mutableStateOf("") }
     var controlsVisible by remember { mutableStateOf(true) }
@@ -176,7 +176,7 @@ fun NativeFullPlayer(state: NativePlayerState, onClose: () -> Unit, onArtist: ()
         canvasUrl = ""
         controlsVisible = true
         repeat(25) {
-            val answer = NativeCalls.call("canvas", JSONObject.quote(""))
+            val answer = MaterialCalls.call("canvas", JSONObject.quote(""))
             val url = try { JSONObject(answer).optString("url", "") } catch (_: Exception) { "" }
             if (url.isNotEmpty()) {
                 canvasUrl = url
@@ -301,7 +301,7 @@ private fun CanvasVideo(url: String, modifier: Modifier) {
 
 @Composable
 private fun PlayerBody(
-    state: NativePlayerState,
+    state: MaterialPlayerState,
     showCover: Boolean,
     onClose: () -> Unit,
     onArtist: () -> Unit,
@@ -369,7 +369,7 @@ private fun PlayerBody(
                     modifier = Modifier.clickable(onClick = onArtist)
                 )
             }
-            ToggleIcon(if (state.fav) HeartFilledIcon else HeartOutlineIcon, state.fav, "Like") { NativeUi.like() }
+            ToggleIcon(if (state.fav) HeartFilledIcon else HeartOutlineIcon, state.fav, "Like") { MaterialUi.like() }
         }
 
         Spacer(Modifier.height(12.dp))
@@ -377,7 +377,7 @@ private fun PlayerBody(
             value = shown,
             onValueChange = { dragging = true; dragValue = it },
             onValueChangeFinished = {
-                NativeUi.seek(dragValue.toLong())
+                MaterialUi.seek(dragValue.toLong())
                 dragging = false
             },
             valueRange = 0f..duration.toFloat(),
@@ -394,19 +394,19 @@ private fun PlayerBody(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ToggleIcon(ShuffleIcon, state.shuffle, "Shuffle") { NativeUi.shuffle() }
-            IconButton(onClick = { NativeUi.previous() }, modifier = Modifier.size(56.dp)) {
+            ToggleIcon(ShuffleIcon, state.shuffle, "Shuffle") { MaterialUi.shuffle() }
+            IconButton(onClick = { MaterialUi.previous() }, modifier = Modifier.size(56.dp)) {
                 Icon(TablerIcons.PlayerSkipBack, contentDescription = "Previous", modifier = Modifier.size(32.dp))
             }
-            PlayButton(state.playing, 84.dp) { NativeUi.togglePlay() }
-            IconButton(onClick = { NativeUi.next() }, modifier = Modifier.size(56.dp)) {
+            PlayButton(state.playing, 84.dp) { MaterialUi.togglePlay() }
+            IconButton(onClick = { MaterialUi.next() }, modifier = Modifier.size(56.dp)) {
                 Icon(TablerIcons.PlayerSkipForward, contentDescription = "Next", modifier = Modifier.size(32.dp))
             }
             ToggleIcon(
                 if (state.repeat == "mixed") TablerIcons.RepeatOnce else TablerIcons.Repeat,
                 state.repeat != "false",
                 "Repeat"
-            ) { NativeUi.repeat() }
+            ) { MaterialUi.repeat() }
         }
 
         Spacer(Modifier.height(20.dp))
@@ -438,7 +438,7 @@ private fun PlayerBody(
                 }
             }
             FilledTonalButton(
-                onClick = { if (downloading) DownloadManager.cancelAll() else NativeUi.runJs("splDoDownload()") },
+                onClick = { if (downloading) DownloadManager.cancelAll() else MaterialUi.runJs("splDoDownload()") },
                 modifier = Modifier.weight(1f).height(52.dp),
                 contentPadding = PaddingValues(horizontal = 8.dp)
             ) {
@@ -459,7 +459,7 @@ internal object QueueCache {
     @Volatile var items: List<QueueItem> = emptyList()
 
     suspend fun refresh(trackKey: String): String? {
-        val answer = NativeCalls.call("queue", JSONObject.quote(""))
+        val answer = MaterialCalls.call("queue", JSONObject.quote(""))
         return try {
             val o = JSONObject(answer)
             if (o.has("error")) {
@@ -482,7 +482,7 @@ internal object QueueCache {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun QueueSheet(state: NativePlayerState, onDismiss: () -> Unit) {
+private fun QueueSheet(state: MaterialPlayerState, onDismiss: () -> Unit) {
     val trackKey = "${state.title}|${state.artist}"
     val fresh = QueueCache.key == trackKey
     var upcoming by remember { mutableStateOf(if (fresh) QueueCache.items else emptyList()) }
@@ -514,7 +514,7 @@ private fun QueueSheet(state: NativePlayerState, onDismiss: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable(enabled = q.uri.isNotEmpty()) {
-                                NativeUi.runJs("playFromUri(${JSONObject.quote(q.uri)}, null)")
+                                MaterialUi.runJs("playFromUri(${JSONObject.quote(q.uri)}, null)")
                                 onDismiss()
                             }
                             .padding(horizontal = 24.dp, vertical = 8.dp),

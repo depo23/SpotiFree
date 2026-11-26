@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -44,7 +44,7 @@ import org.json.JSONObject
 private data class VideoInfo(val cur: Long = 0L, val dur: Long = 0L, val paused: Boolean = false, val fullscreen: Boolean = false)
 
 private suspend fun readVideo(): VideoInfo? {
-    val answer = NativeCalls.call("video", JSONObject.quote(""))
+    val answer = MaterialCalls.call("video", JSONObject.quote(""))
     return try {
         val o = JSONObject(answer)
         if (!o.optBoolean("ok", false)) null
@@ -59,7 +59,7 @@ private suspend fun readVideo(): VideoInfo? {
  * title, close, seek and play controls, which a tap on the video hides or shows.
  */
 @Composable
-fun NativeVideoPlayer(state: NativePlayerState, onDismiss: () -> Unit) {
+fun MaterialVideoPlayer(state: MaterialPlayerState, onDismiss: () -> Unit) {
     var controls by remember { mutableStateOf(true) }
     var info by remember { mutableStateOf(VideoInfo()) }
     var dragging by remember { mutableStateOf(false) }
@@ -91,7 +91,7 @@ fun NativeVideoPlayer(state: NativePlayerState, onDismiss: () -> Unit) {
     }
 
     fun close() {
-        NativeUi.runJs("window.__splVfsExit&&window.__splVfsExit()")
+        MaterialUi.runJs("window.__splVfsExit&&window.__splVfsExit()")
         onDismiss()
     }
 
@@ -123,11 +123,11 @@ fun NativeVideoPlayer(state: NativePlayerState, onDismiss: () -> Unit) {
                     modifier = Modifier.fillMaxWidth().systemBarsPadding().padding(horizontal = 24.dp, vertical = 12.dp).align(Alignment.BottomCenter)
                 ) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        TextButtonLabel("-10") { NativeUi.runJs("window.__splVfsBy&&window.__splVfsBy(-10)") }
-                        FilledIconButton(onClick = { NativeUi.runJs("window.__splVfsToggle&&window.__splVfsToggle()") }, modifier = Modifier.padding(horizontal = 20.dp).size(64.dp)) {
+                        TextButtonLabel("-10") { MaterialUi.runJs("window.__splVfsBy&&window.__splVfsBy(-10)") }
+                        FilledIconButton(onClick = { MaterialUi.runJs("window.__splVfsToggle&&window.__splVfsToggle()") }, modifier = Modifier.padding(horizontal = 20.dp).size(64.dp)) {
                             Icon(if (info.paused) TablerIcons.PlayerPlay else TablerIcons.PlayerPause, contentDescription = "Play or pause", modifier = Modifier.size(32.dp))
                         }
-                        TextButtonLabel("+10") { NativeUi.runJs("window.__splVfsBy&&window.__splVfsBy(10)") }
+                        TextButtonLabel("+10") { MaterialUi.runJs("window.__splVfsBy&&window.__splVfsBy(10)") }
                     }
                     val dur = info.dur.coerceAtLeast(1L)
                     val shown = if (dragging) dragValue else info.cur.toFloat()
@@ -135,7 +135,7 @@ fun NativeVideoPlayer(state: NativePlayerState, onDismiss: () -> Unit) {
                         value = shown.coerceIn(0f, dur.toFloat()),
                         onValueChange = { dragging = true; dragValue = it },
                         onValueChangeFinished = {
-                            NativeUi.runJs("window.__splVfsSeek&&window.__splVfsSeek(${dragValue.toLong()})")
+                            MaterialUi.runJs("window.__splVfsSeek&&window.__splVfsSeek(${dragValue.toLong()})")
                             dragging = false
                         },
                         valueRange = 0f..dur.toFloat()

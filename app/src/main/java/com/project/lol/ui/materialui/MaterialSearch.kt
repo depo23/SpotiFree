@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -98,7 +98,7 @@ private fun groupShape(index: Int, count: Int): Shape {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun NativeSearchScreen(
+fun MaterialSearchScreen(
     initialQuery: String,
     onClose: () -> Unit,
     onOpenArtist: (String) -> Unit,
@@ -117,7 +117,7 @@ fun NativeSearchScreen(
         }
         loading = true
         delay(350)
-        val answer = NativeCalls.call("search", JSONObject.quote(query.trim()))
+        val answer = MaterialCalls.call("search", JSONObject.quote(query.trim()))
         val parsed = try { parseHits(answer) } catch (e: Exception) { emptyList<SearchHit>() to (e.message ?: "Parse error") }
         hits = parsed.first
         error = parsed.second
@@ -127,7 +127,7 @@ fun NativeSearchScreen(
     fun open(hit: SearchHit) {
         when (hit.type) {
             "artist" -> onOpenArtist(hit.uri)
-            "track" -> NativeUi.runJs("playFromUri(${JSONObject.quote(hit.uri)}, null)")
+            "track" -> MaterialUi.runJs("playFromUri(${JSONObject.quote(hit.uri)}, null)")
             "album" -> onOpenWeb("/album/" + hit.uri.substringAfterLast(":"))
             "playlist" -> onOpenWeb("/playlist/" + hit.uri.substringAfterLast(":"))
             "show" -> onOpenWeb("/show/" + hit.uri.substringAfterLast(":"))

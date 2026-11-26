@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -25,44 +25,44 @@ import compose.icons.tablericons.Search
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 
-private sealed interface NativeScreen {
-    data object None : NativeScreen
-    data object Player : NativeScreen
-    data class Search(val query: String = "") : NativeScreen
-    data class Artist(val uri: String) : NativeScreen
+private sealed interface MaterialScreen {
+    data object None : MaterialScreen
+    data object Player : MaterialScreen
+    data class Search(val query: String = "") : MaterialScreen
+    data class Artist(val uri: String) : MaterialScreen
 }
 
 /** Native player, search and artist page drawn over the web page (beta). */
 @Composable
-fun NativeShell(onSleepTimer: () -> Unit) {
-    val state by NativeUi.player.collectAsState()
-    var screen by remember { mutableStateOf<NativeScreen>(NativeScreen.None) }
-    var previous by remember { mutableStateOf<NativeScreen>(NativeScreen.None) }
+fun MaterialShell(onSleepTimer: () -> Unit) {
+    val state by MaterialUi.player.collectAsState()
+    var screen by remember { mutableStateOf<MaterialScreen>(MaterialScreen.None) }
+    var previous by remember { mutableStateOf<MaterialScreen>(MaterialScreen.None) }
 
-    fun open(next: NativeScreen) {
+    fun open(next: MaterialScreen) {
         previous = screen
         screen = next
     }
 
     fun back() {
-        screen = if (screen is NativeScreen.Artist && previous !is NativeScreen.Artist) previous else NativeScreen.None
-        previous = NativeScreen.None
+        screen = if (screen is MaterialScreen.Artist && previous !is MaterialScreen.Artist) previous else MaterialScreen.None
+        previous = MaterialScreen.None
     }
 
     fun openWeb(path: String) {
-        NativeUi.runJs("window.splNativeNav&&window.splNativeNav(${JSONObject.quote(path)})")
-        screen = NativeScreen.None
-        previous = NativeScreen.None
+        MaterialUi.runJs("window.splNativeNav&&window.splNativeNav(${JSONObject.quote(path)})")
+        screen = MaterialScreen.None
+        previous = MaterialScreen.None
     }
 
-    BackHandler(enabled = screen != NativeScreen.None) { back() }
+    BackHandler(enabled = screen != MaterialScreen.None) { back() }
 
     var videoDismissed by remember { mutableStateOf(false) }
-    val showVideo = state.video && !videoDismissed && (screen == NativeScreen.None || screen == NativeScreen.Player)
+    val showVideo = state.video && !videoDismissed && (screen == MaterialScreen.None || screen == MaterialScreen.Player)
 
     fun enterVideo() {
         videoDismissed = false
-        NativeUi.runJs("window.__splVfsEnter&&window.__splVfsEnter()")
+        MaterialUi.runJs("window.__splVfsEnter&&window.__splVfsEnter()")
     }
 
     LaunchedEffect(state.video) {
@@ -83,19 +83,19 @@ fun NativeShell(onSleepTimer: () -> Unit) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (showVideo) {
-            NativeVideoPlayer(state = state, onDismiss = { videoDismissed = true })
-        } else if (screen == NativeScreen.None) {
+            MaterialVideoPlayer(state = state, onDismiss = { videoDismissed = true })
+        } else if (screen == MaterialScreen.None) {
             if (state.hasTrack) {
-                NativeMiniPlayer(
+                MaterialMiniPlayer(
                     state = state,
-                    onOpen = { if (state.video) enterVideo() else open(NativeScreen.Player) },
+                    onOpen = { if (state.video) enterVideo() else open(MaterialScreen.Player) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .navigationBarsPadding()
                 )
             }
             FloatingActionButton(
-                onClick = { open(NativeScreen.Search()) },
+                onClick = { open(MaterialScreen.Search()) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .navigationBarsPadding()
@@ -106,26 +106,26 @@ fun NativeShell(onSleepTimer: () -> Unit) {
         }
 
         AnimatedVisibility(
-            visible = screen == NativeScreen.Player && !showVideo,
+            visible = screen == MaterialScreen.Player && !showVideo,
             enter = slideInVertically { it },
             exit = slideOutVertically { it }
         ) {
-            NativeFullPlayer(
+            MaterialFullPlayer(
                 state = state,
                 onClose = { back() },
-                onArtist = { open(NativeScreen.Search(state.artist)) },
+                onArtist = { open(MaterialScreen.Search(state.artist)) },
                 onSleepTimer = onSleepTimer
             )
         }
 
         when (val s = screen) {
-            is NativeScreen.Search -> NativeSearchScreen(
+            is MaterialScreen.Search -> MaterialSearchScreen(
                 initialQuery = s.query,
                 onClose = { back() },
-                onOpenArtist = { open(NativeScreen.Artist(it)) },
+                onOpenArtist = { open(MaterialScreen.Artist(it)) },
                 onOpenWeb = { openWeb(it) }
             )
-            is NativeScreen.Artist -> NativeArtistScreen(
+            is MaterialScreen.Artist -> MaterialArtistScreen(
                 uri = s.uri,
                 onBack = { back() },
                 onOpenWeb = { openWeb(it) }

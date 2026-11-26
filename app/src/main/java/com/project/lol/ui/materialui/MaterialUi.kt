@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import com.project.lol.webview.WebViewHost
 import kotlinx.coroutines.CompletableDeferred
@@ -11,7 +11,7 @@ import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-data class NativePlayerState(
+data class MaterialPlayerState(
     val title: String = "",
     val artist: String = "",
     val album: String = "",
@@ -28,8 +28,8 @@ data class NativePlayerState(
 }
 
 /** Player state fed by the web player, and the commands the native layer sends back. */
-object NativeUi {
-    val player = MutableStateFlow(NativePlayerState())
+object MaterialUi {
+    val player = MutableStateFlow(MaterialPlayerState())
 
     private fun clean(v: String): String = if (v == "null") "" else v
 
@@ -74,7 +74,7 @@ object NativeUi {
 }
 
 /** Calls into the page (search, artist data, play) and waits for the JSON answer. */
-object NativeCalls {
+object MaterialCalls {
     private val pending = ConcurrentHashMap<Int, CompletableDeferred<String>>()
     private val counter = AtomicInteger()
 

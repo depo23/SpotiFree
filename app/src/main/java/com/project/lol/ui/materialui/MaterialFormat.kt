@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import android.icu.text.CompactDecimalFormat
 import androidx.compose.ui.graphics.Color

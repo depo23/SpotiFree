@@ -249,7 +249,7 @@ fun SettingsContent(
     var customCss by remember { mutableStateOf(prefs.getString("CustomCss", "") ?: "") }
     var amoledTheme by remember { mutableStateOf(amoledThemeState) }
     var swipeStop by remember { mutableStateOf(prefs.getBoolean("SwipeStop", true)) }
-    var nativeUiOn by remember { mutableStateOf(prefs.getBoolean("NativeUi", false)) }
+    var materialUiOn by remember { mutableStateOf(prefs.getBoolean("MaterialUi", false)) }
     var btAutoPause by remember { mutableStateOf(prefs.getBoolean("BtAutoPause", false)) }
     var btAutoResume by remember { mutableStateOf(prefs.getBoolean("BtAutoResume", false)) }
     var hpAutoResume by remember { mutableStateOf(prefs.getBoolean("HpAutoResume", false)) }
@@ -880,13 +880,13 @@ fun SettingsContent(
                     icon = TablerIcons.Power
                 ) {
                     SettingSwitchTile(
-                        title = stringResource(R.string.settings_native_ui),
-                        subtitle = stringResource(R.string.settings_native_ui_subtitle),
+                        title = stringResource(R.string.settings_material_ui),
+                        subtitle = stringResource(R.string.settings_material_ui_subtitle),
                         icon = TablerIcons.Rocket,
-                        checked = nativeUiOn,
+                        checked = materialUiOn,
                         onCheckedChange = {
-                            nativeUiOn = it
-                            prefs.edit().putBoolean("NativeUi", it).apply()
+                            materialUiOn = it
+                            prefs.edit().putBoolean("MaterialUi", it).apply()
                         }
                     )
 

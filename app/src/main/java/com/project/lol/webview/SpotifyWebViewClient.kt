@@ -210,7 +210,7 @@ class SpotifyWebViewClient(
         // was a separate evaluateJavascript call and one failure didn't stop the rest.
         val parts = buildList {
             add("window.__splShowScrollbar=$showScrollbar;")
-            if (prefs.getBoolean("NativeUi", false)) {
+            if (prefs.getBoolean("MaterialUi", false)) {
                 add("(function(){var s=document.createElement('style');s.textContent='#spotifreePlayerControls,#spl-vfs-bar,#spl-vfs-exit{display:none!important} html #global-nav-bar form[role=search],html #global-nav-bar button[data-testid=search-icon]{display:none!important}';(document.head||document.documentElement).appendChild(s);})();")
             }
             add("(function(){var s=document.createElement('style');s.id='spl-early-hide';s.textContent='#Desktop_LeftSidebar_Id{display:none!important}';(document.head||document.documentElement).appendChild(s);window.__splEarlyHideDone=function(){var e=document.getElementById('spl-early-hide');if(e)e.remove();};setTimeout(window.__splEarlyHideDone,15000);})();")

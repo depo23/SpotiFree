@@ -177,7 +177,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
 
     @JavascriptInterface
     fun recMediaPosition(position: Long) {
-        com.project.lol.ui.nativeui.NativeUi.onPosition(position)
+        com.project.lol.ui.materialui.MaterialUi.onPosition(position)
         Logger.v(CALL, "position=$position")
         onMediaPosition?.invoke(position)
         MediaNotificationService.instance?.updatePlaybackPosition(position)
@@ -185,7 +185,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
 
     @JavascriptInterface
     fun nativeResult(id: Int, json: String?) {
-        com.project.lol.ui.nativeui.NativeCalls.deliver(id, json ?: "{}")
+        com.project.lol.ui.materialui.MaterialCalls.deliver(id, json ?: "{}")
     }
 
     @JavascriptInterface
@@ -193,7 +193,7 @@ class SpotifyBridge(activityRef: WeakReference<Activity>) {
         json?.let {
             Logger.d(CALL, "media status (${it.length} chars): ${it.take(180)}")
             onMediaStatus?.invoke(it)
-            com.project.lol.ui.nativeui.NativeUi.onStatus(it)
+            com.project.lol.ui.materialui.MaterialUi.onStatus(it)
             MediaNotificationService.instance?.updateFromMediaStatus(it)
         }
     }

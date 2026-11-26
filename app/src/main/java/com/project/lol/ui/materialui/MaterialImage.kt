@@ -1,4 +1,4 @@
-package com.project.lol.ui.nativeui
+package com.project.lol.ui.materialui
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

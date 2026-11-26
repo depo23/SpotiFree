@@ -94,7 +94,7 @@ import com.project.lol.timer.SleepTimerAction
 import com.project.lol.timer.SleepTimerManager
 import com.project.lol.ui.components.BatteryOptimizationDialog
 import com.project.lol.ui.components.SettingsDialog
-import com.project.lol.ui.nativeui.NativeShell
+import com.project.lol.ui.materialui.MaterialShell
 import com.project.lol.ui.components.SleepTimerDialog
 import com.project.lol.ui.theme.SpotifyTheme
 import com.project.lol.ui.theme.ThemeController
@@ -253,7 +253,7 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
             val materialYou = materialYouState.value
             val amoled = amoledState.value
             val hideTopBar = hideTopBarState.value
-            val nativeUi = remember { prefs.getBoolean("NativeUi", false) }
+            val materialUi = remember { prefs.getBoolean("MaterialUi", false) }
             val landscapeMode = landscapeModeState.value
             val keepScreenOn = keepScreenOnState.value
             val themePreset = themePresetState.value
@@ -539,8 +539,8 @@ class MainActivity : ComponentActivity(), WebViewHost.UiHost {
                                 )
                             }
 
-                            if (nativeUi) {
-                                NativeShell(onSleepTimer = {
+                            if (materialUi) {
+                                MaterialShell(onSleepTimer = {
                                     if (!SleepTimerManager.isActive) sleepTimerInputText.value = ""
                                     showSleepTimerDialog.value = true
                                 })
