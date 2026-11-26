@@ -41,6 +41,11 @@ import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowLeft
 import compose.icons.tablericons.PlayerPlay
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import compose.icons.tablericons.UserCheck
+import compose.icons.tablericons.UserPlus
 import org.json.JSONObject
 import java.util.Locale
 
@@ -125,13 +130,14 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
                         }
                     }
                     item {
-                        Button(
-                            onClick = { MaterialUi.runJs("playFromUri(${JSONObject.quote(uri)}, ${JSONObject.quote(uri)})") },
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
-                        ) {
-                            Icon(TablerIcons.PlayerPlay, contentDescription = null, modifier = Modifier.size(20.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text("Play")
+                        Row(Modifier.padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Button(onClick = { MaterialUi.runJs("playFromUri(${JSONObject.quote(uri)}, ${JSONObject.quote(uri)})") }) {
+                                Icon(TablerIcons.PlayerPlay, contentDescription = null, modifier = Modifier.size(20.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("Play")
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            FollowButton(uri)
                         }
                     }
                     if (d.tracks.isNotEmpty()) {
@@ -219,4 +225,31 @@ private fun SectionTitle(text: String) {
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp)
     )
+}
+
+/** Follow / Following toggle; artists are followed through the library, as in the web player. */
+@Composable
+private fun FollowButton(uri: String) {
+    var following by remember(uri) { mutableStateOf<Boolean?>(null) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(uri) {
+        following = try { JSONObject(MaterialCalls.call("saved", JSONObject.quote(uri))).optBoolean("saved") } catch (_: Exception) { false }
+    }
+    val on = following == true
+    OutlinedButton(
+        enabled = following != null,
+        onClick = {
+            val next = !on
+            following = next
+            scope.launch {
+                val arg = JSONObject().put("uri", uri).put("on", next).toString()
+                val ok = try { !JSONObject(MaterialCalls.call("setSaved", arg)).has("error") } catch (_: Exception) { false }
+                if (!ok) following = !next
+            }
+        }
+    ) {
+        Icon(if (on) TablerIcons.UserCheck else TablerIcons.UserPlus, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(6.dp))
+        Text(if (on) "Following" else "Follow")
+    }
 }

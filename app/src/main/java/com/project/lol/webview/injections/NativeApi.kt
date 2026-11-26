@@ -278,6 +278,17 @@ object NativeApi {
                 });
                 return { items: out };
             };
+            /* Saved / followed state for any entity (artists are followed through the library). */
+            window.splNativeSaved = async function(uri){
+                var d = await window.splGql('areEntitiesInLibrary', { uris: [uri] });
+                var l = d && d.lookup && d.lookup[0];
+                return { saved: !!(l && l.data && l.data.saved) };
+            };
+            window.splNativeSetSaved = async function(arg){
+                var on = arg.on, uri = arg.uri;
+                await window.splGql(on ? 'addToLibrary' : 'removeFromLibrary', { libraryItemUris: [uri] });
+                return { saved: !!on };
+            };
             window.splNativePresave = async function(uri){
                 await window.splGql('addToLibrary', { libraryItemUris: [uri] });
                 return { ok: true };
@@ -513,6 +524,10 @@ object NativeApi {
                         window.splNativeCollection(arg).then(done, fail);
                     } else if (op === 'library') {
                         window.splNativeLibrary().then(done, fail);
+                    } else if (op === 'saved') {
+                        window.splNativeSaved(arg).then(done, fail);
+                    } else if (op === 'setSaved') {
+                        window.splNativeSetSaved(arg).then(done, fail);
                     } else if (op === 'presave') {
                         window.splNativePresave(arg).then(done, fail);
                     } else if (op === 'home') {
