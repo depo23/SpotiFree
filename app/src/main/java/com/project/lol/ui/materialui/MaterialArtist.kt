@@ -61,7 +61,8 @@ private data class ArtistData(
     val albums: List<ArtistAlbum>,
     val errors: List<String>,
     val bio: String,
-    val playlists: List<ArtistPlaylist>
+    val playlists: List<ArtistPlaylist>,
+    val gallery: List<String>
 )
 private data class ArtistPlaylist(val uri: String, val name: String, val image: String)
 
@@ -86,7 +87,8 @@ private fun parseArtist(json: String): Pair<ArtistData?, String?> {
     o.optJSONArray("playlists")?.let { a ->
         for (i in 0 until a.length()) a.optJSONObject(i)?.let { playlists.add(ArtistPlaylist(it.optString("uri"), it.optString("name"), it.optString("image"))) }
     }
-    return ArtistData(o.optString("name"), o.optString("image"), o.optLong("followers"), o.optLong("monthly"), tracks, albums, errors, o.optString("bio"), playlists) to null
+    return ArtistData(o.optString("name"), o.optString("image"), o.optLong("followers"), o.optLong("monthly"), tracks, albums, errors, o.optString("bio"), playlists,
+        o.optJSONArray("gallery")?.let { a -> (0 until a.length()).map { a.optString(it) }.filter { it.isNotEmpty() } } ?: emptyList()) to null
 }
 
 private fun fmtDuration(ms: Long): String {
@@ -103,12 +105,12 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
     LaunchedEffect(uri) {
         data = null; error = null
         // A kept copy (prefetched or seen before) draws at once; stale ones are refreshed.
-        val cached = MaterialStore.get(ctx, "artist2:$uri")
+        val cached = MaterialStore.get(ctx, "artist3:$uri")
         cached?.let { e -> data = try { parseArtist(e.json).first } catch (_: Exception) { null } }
         if (data != null && cached!!.ageMs() < MaterialStore.ARTIST_TTL) return@LaunchedEffect
         val answer = MaterialCalls.call("artist", JSONObject.quote(uri))
         val parsed = try { parseArtist(answer) } catch (e: Exception) { null to (e.message ?: "Parse error") }
-        parsed.first?.let { data = it; MaterialStore.put(ctx, "artist2:$uri", answer) }
+        parsed.first?.let { data = it; MaterialStore.put(ctx, "artist3:$uri", answer) }
         if (data == null) error = parsed.second
     }
 
@@ -225,8 +227,15 @@ fun MaterialArtistScreen(uri: String, onBack: () -> Unit, onOpenWeb: (String) ->
                             }
                         }
                     }
-                    if (d.bio.isNotEmpty()) {
+                    if (d.bio.isNotEmpty() || d.gallery.isNotEmpty()) {
                         item { SectionTitle("About") }
+                        if (d.gallery.isNotEmpty()) item {
+                            LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), modifier = Modifier.padding(bottom = 12.dp)) {
+                                items(d.gallery) { img -> RemoteImage(img, Modifier.padding(end = 10.dp).size(260.dp), MaterialTheme.shapes.large) }
+                            }
+                        }
+                    }
+                    if (d.bio.isNotEmpty()) {
                         item {
                             var expanded by remember(uri) { mutableStateOf(false) }
                             Text(

@@ -86,7 +86,8 @@ object NativeApi {
                     monthly: (u.stats && u.stats.monthlyListeners) || 0,
                     tracks: top, albums: rel, errors: errs,
                     bio: textOf(u.profile && u.profile.biography && u.profile.biography.text),
-                    playlists: artistPlaylists(u)
+                    playlists: artistPlaylists(u),
+                    gallery: ((vis.gallery && vis.gallery.items) || []).map(function(g){ return src(g); }).filter(Boolean)
                 };
             };
 
